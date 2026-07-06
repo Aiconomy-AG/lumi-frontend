@@ -57,9 +57,6 @@
     margin-left: 0.25rem;
 }
 
-
-
-
 .custom-sidebar,
 [data-slot="sidebar"] {
     width: 16rem !important;
