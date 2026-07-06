@@ -1,5 +1,9 @@
 import type { User } from '../types/user'
 import { mockUsers } from './mockData'
+import type { Product } from '../types/product'
+import { mockProducts } from './mockProducts'
+import type { Person, Message } from '../types/chat'
+import { mockPeople, mockMessages } from './mockChat'
 
 // --- Configuration -----------------------------------------------------
 // Set VITE_USE_MOCK=false in .env once the Laravel API is reachable.
@@ -47,5 +51,40 @@ export async function createUser(payload: Omit<User, 'id'>): Promise<User> {
   return request<User>('/users', {
     method: 'POST',
     body: JSON.stringify(payload),
+  })
+}
+
+export async function getProducts(): Promise<Product[]> {
+  if (USE_MOCK) return delay(mockProducts)
+  return request<Product[]>('/products')
+}
+
+export async function getPeople(): Promise<Person[]> {
+  if (USE_MOCK) return delay(mockPeople)
+  return request<Person[]>('/people')
+}
+
+export async function getMessages(personId: number): Promise<Message[]> {
+  if (USE_MOCK) {
+    return delay(mockMessages.filter((m) => m.personId === personId))
+  }
+  return request<Message[]>(`/people/${personId}/messages`)
+}
+
+export async function sendMessage(personId: number, text: string): Promise<Message> {
+  const newMessage: Message = {
+    id: Date.now(),
+    personId,
+    text,
+    fromMe: true,
+    time: new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }),
+  }
+  if (USE_MOCK) {
+    mockMessages.push(newMessage)
+    return delay(newMessage)
+  }
+  return request<Message>(`/people/${personId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ text }),
   })
 }
