@@ -1,19 +1,32 @@
-import { Routes, Route } from 'react-router'
-import AppLayout from '@/components/AppLayout'
-import StockPage from '@/pages/StockPage'
-import AdminPage from '@/pages/AdminPage'
-import ChatPage from "@/pages/ChatPage";
+import { useState } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { AppSidebar } from "./components/app-sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { DashboardView } from "./components/dashboard-view"
+import { TasksView } from "./components/tasks-view"
+import { TaskDetailView } from "./components/task-detail-view"
+import { AuthView } from "./components/authentification-view"
 
 export default function App() {
-  return (
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<div className="p-6">Dashboard (în lucru)</div>} />
-          <Route path="/tasks" element={<div className="p-6">Tasks (în lucru)</div>} />
-          <Route path="/stock" element={<StockPage />} />
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-        </Route>
-      </Routes>
-  )
+    const [user, setUser] = useState<boolean>(false)
+
+    if (!user) {
+        return <AuthView onLogin={() => setUser(true)} />
+    }
+
+    return (
+        <SidebarProvider className="layout-container">
+            <AppSidebar />
+
+            <main className="main-content">
+                <Routes>
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+                    <Route path="/dashboard" element={<DashboardView />} />
+                    <Route path="/tasks" element={<TasksView />} />
+                    <Route path="/tasks/:id" element={<TaskDetailView />} />
+                </Routes>
+            </main>
+        </SidebarProvider>
+    )
 }
