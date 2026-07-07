@@ -16,7 +16,6 @@ export default function ChatPage() {
         })
     }, [])
 
-    // De fiecare dată când se schimbă persoana selectată: încarcă mesajele ei.
     useEffect(() => {
         if (selectedId === null) return
         getMessages(selectedId).then(setMessages)
