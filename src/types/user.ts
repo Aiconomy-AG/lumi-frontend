@@ -5,5 +5,7 @@ export interface User {
   id: number
   name: string
   email: string
-  role: 'admin' | 'member'
+  team: string
+  role: 'admin' | 'member' | 'viewer'
+  status: 'online' | 'offline'
 }
