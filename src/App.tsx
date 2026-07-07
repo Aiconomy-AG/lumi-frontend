@@ -2,16 +2,16 @@ import { useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppSidebar } from "./components/app-sidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
-import { DashboardView } from "./components/dashboard-view"
-import { TasksView } from "./components/tasks-view"
-import { TaskDetailView } from "./components/task-detail-view"
-import { AuthView } from "./components/authentification-view"
+import DashboardPage from "./pages/DashboardPage"
+import TasksPage from "./pages/TasksPage"
+import TaskDetailPage from "./pages/TaskDetailPage"
+import AuthPage from "./pages/AuthPage"
 
 export default function App() {
     const [user, setUser] = useState<boolean>(false)
 
     if (!user) {
-        return <AuthView onLogin={() => setUser(true)} />
+        return <AuthPage onLogin={() => setUser(true)} />
     }
 
     return (
@@ -22,9 +22,9 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-                    <Route path="/dashboard" element={<DashboardView />} />
-                    <Route path="/tasks" element={<TasksView />} />
-                    <Route path="/tasks/:id" element={<TaskDetailView />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/tasks" element={<TasksPage />} />
+                    <Route path="/tasks/:id" element={<TaskDetailPage />} />
                 </Routes>
             </main>
         </SidebarProvider>
