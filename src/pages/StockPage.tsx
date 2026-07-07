@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getProducts, createProduct, updateProductStock, deleteProduct } from '@/api/client'
-import type { Product } from '@/types/product'
+import { getProducts, createProduct, updateVariantStock, deleteProduct } from '@/api/client'
+import type { Product, ProductVariant } from '@/types/product'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Plus, Pencil, Trash2, Check, X } from 'lucide-react'
 
-const emptyProduct = { name: '', sku: '', category: '', stock: 0, price: 0 }
+const emptyProduct = { name: '', description: '', image_url: '', sku: '', categoryName: '', stock: 0, price: 0 }
 
 function renderStock(stock: number) {
   if (stock === 0) {
@@ -21,6 +21,11 @@ function renderStock(stock: number) {
     return <span className="font-medium text-yellow-500">{stock}</span>
   }
   return <span className="font-medium text-green-600">{stock}</span>
+}
+
+interface StockRow {
+  product: Product
+  variant: ProductVariant
 }
 
 export default function StockPage() {
@@ -40,29 +45,41 @@ export default function StockPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase())
+  const rows: StockRow[] = products.flatMap((product) =>
+    product.variants.map((variant) => ({ product, variant }))
   )
 
-  const lowStock = products.filter((p) => p.stock > 0 && p.stock <= 5).length
-  const outOfStock = products.filter((p) => p.stock === 0).length
+  const filtered = rows.filter((row) =>
+    row.product.name.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const lowStock = rows.filter((r) => r.variant.stock_quantity > 0 && r.variant.stock_quantity <= 5).length
+  const outOfStock = rows.filter((r) => r.variant.stock_quantity === 0).length
 
   async function handleAddProduct(e: React.FormEvent) {
     e.preventDefault()
-    const created = await createProduct(newProduct)
+    const productId = Date.now()
+    const created = await createProduct({
+      name: newProduct.name,
+      description: newProduct.description || undefined,
+      image_url: newProduct.image_url || undefined,
+      price: newProduct.price,
+      category: newProduct.categoryName ? { id: Date.now(), name: newProduct.categoryName } : undefined,
+      variants: [{ id: productId + 1, product_id: productId, sku: newProduct.sku, price: newProduct.price, weight: 1, weight_unit: 'kg', stock_quantity: newProduct.stock }],
+    })
     setProducts((prev) => [...prev, created])
     setNewProduct(emptyProduct)
     setIsAddOpen(false)
   }
 
-  function startEdit(product: Product) {
-    setEditingId(product.id)
-    setEditValue(product.stock)
+  function startEdit(variant: ProductVariant) {
+    setEditingId(variant.id)
+    setEditValue(variant.stock_quantity)
   }
 
-  async function saveEdit(id: number) {
-    const updated = await updateProductStock(id, editValue)
-    setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)))
+  async function saveEdit(productId: number, variantId: number) {
+    const updated = await updateVariantStock(productId, variantId, editValue)
+    setProducts((prev) => prev.map((p) => (p.id === productId ? updated : p)))
     setEditingId(null)
   }
 
@@ -76,6 +93,7 @@ export default function StockPage() {
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3 text-sm">
           <span className="text-muted-foreground">{products.length} products</span>
+          <span className="text-muted-foreground">{rows.length} variants</span>
           {lowStock > 0 && <span className="text-yellow-500">{lowStock} low stock</span>}
           {outOfStock > 0 && <span className="text-red-500">{outOfStock} out of stock</span>}
         </div>
@@ -100,36 +118,65 @@ export default function StockPage() {
                 <DialogTitle>New product</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleAddProduct} className="flex flex-col gap-3">
-                <Input
-                  placeholder="Name"
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                  required
-                />
-                <Input
-                  placeholder="SKU"
-                  value={newProduct.sku}
-                  onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })}
-                  required
-                />
-                <Input
-                  placeholder="Category"
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                />
-                <Input
-                  type="number"
-                  placeholder="Stock"
-                  value={newProduct.stock}
-                  onChange={(e) => setNewProduct({ ...newProduct, stock: Number(e.target.value) })}
-                />
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="Price"
-                  value={newProduct.price}
-                  onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
-                />
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">Nume produs</label>
+                  <Input
+                    placeholder="ex. Dell XPS 15 Laptop"
+                    value={newProduct.name}
+                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">Descriere</label>
+                  <Input
+                    placeholder="Detalii produs..."
+                    value={newProduct.description}
+                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">URL imagine</label>
+                  <Input
+                    placeholder="https://..."
+                    value={newProduct.image_url}
+                    onChange={(e) => setNewProduct({ ...newProduct, image_url: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">SKU</label>
+                  <Input
+                    placeholder="ex. DEL-XPS-001"
+                    value={newProduct.sku}
+                    onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">Categorie</label>
+                  <Input
+                    placeholder="ex. Electronics"
+                    value={newProduct.categoryName}
+                    onChange={(e) => setNewProduct({ ...newProduct, categoryName: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">Cantitate în stoc</label>
+                  <Input
+                    type="number"
+                    value={newProduct.stock}
+                    onChange={(e) => setNewProduct({ ...newProduct, stock: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">Preț (lei)</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={newProduct.price}
+                    onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
+                  />
+                </div>
                 <DialogFooter>
                   <Button type="submit">Add</Button>
                 </DialogFooter>
@@ -154,13 +201,13 @@ export default function StockPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((product) => (
-              <TableRow key={product.id}>
+            {filtered.map(({ product, variant }) => (
+              <TableRow key={variant.id}>
                 <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell className="text-muted-foreground">{product.sku}</TableCell>
-                <TableCell>{product.category}</TableCell>
+                <TableCell className="text-muted-foreground">{variant.sku}</TableCell>
+                <TableCell>{product.category?.name}</TableCell>
                 <TableCell>
-                  {editingId === product.id ? (
+                  {editingId === variant.id ? (
                     <div className="flex items-center gap-2">
                       <Input
                         type="number"
@@ -169,7 +216,7 @@ export default function StockPage() {
                         className="h-7 w-20"
                         autoFocus
                       />
-                      <Button size="icon-sm" variant="ghost" onClick={() => saveEdit(product.id)}>
+                      <Button size="icon-sm" variant="ghost" onClick={() => saveEdit(product.id, variant.id)}>
                         <Check className="h-4 w-4" />
                       </Button>
                       <Button size="icon-sm" variant="ghost" onClick={() => setEditingId(null)}>
@@ -178,14 +225,14 @@ export default function StockPage() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      {renderStock(product.stock)}
-                      <Button size="icon-sm" variant="ghost" onClick={() => startEdit(product)}>
+                      {renderStock(variant.stock_quantity)}
+                      <Button size="icon-sm" variant="ghost" onClick={() => startEdit(variant)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   )}
                 </TableCell>
-                <TableCell className="text-right">{product.price.toFixed(2)} lei</TableCell>
+                <TableCell className="text-right">{variant.price.toFixed(2)} lei</TableCell>
                 <TableCell className="text-right">
                   <Button size="icon-sm" variant="ghost" onClick={() => handleDelete(product.id)}>
                     <Trash2 className="h-4 w-4 text-red-500" />

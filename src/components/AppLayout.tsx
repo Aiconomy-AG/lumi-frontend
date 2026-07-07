@@ -1,10 +1,24 @@
 import { Clock, Bell } from "lucide-react"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
-import { Outlet, useLocation } from "react-router-dom" //
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
+import { useTimeTracking } from "@/hooks/useTimeTracking"
+import { mockUsers } from "@/api/mockData"
+import { currentUserId } from "@/api/mockChat"
+
+function formatTime(totalSeconds: number) {
+    const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0')
+    const mins = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0')
+    const secs = (totalSeconds % 60).toString().padStart(2, '0')
+    return `${hrs}:${mins}:${secs}`
+}
 
 export default function AppLayout() {
     const location = useLocation()
+    const navigate = useNavigate()
+    const { todaySeconds, isRunning } = useTimeTracking()
+    const currentUser = mockUsers.find((u) => u.id === currentUserId)
+    const initials = currentUser?.name.split(" ").map((w) => w[0]).join("").toUpperCase() ?? ""
 
     const getPageTitle = () => {
         const path = location.pathname
@@ -30,16 +44,19 @@ export default function AppLayout() {
                         <h1 className="text-sm font-semibold text-white capitalize">{title}</h1>
 
                         <div className="flex items-center gap-3">
-                            <button className="flex items-center gap-2 rounded-full border border-zinc-800 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-900 transition-colors cursor-pointer bg-transparent">
-                                <Clock className="h-4 w-4 text-orange-500" />
-                                Start timer
-                            </button>
+                            <div className="flex items-center gap-2 rounded-full border border-zinc-800 px-3 py-1.5 text-xs text-zinc-400 bg-transparent">
+                                <Clock className={`h-4 w-4 ${isRunning ? "text-purple-500" : "text-zinc-500"}`} />
+                                {formatTime(todaySeconds)}
+                            </div>
                             <button className="rounded-full p-2 text-zinc-400 hover:bg-zinc-900 transition-colors cursor-pointer bg-transparent border-none">
                                 <Bell className="h-4 w-4" />
                             </button>
-                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-400 text-[10px] font-bold text-black select-none">
-                                AP
-                            </div>
+                            <button
+                                onClick={() => navigate("/profile")}
+                                className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-400 text-[10px] font-bold text-black select-none cursor-pointer border-none"
+                            >
+                                {initials}
+                            </button>
                         </div>
                     </header>
 

@@ -6,8 +6,10 @@ import TaskDetailPage from "./pages/TaskDetailPage"
 import StockPage from "./pages/StockPage"
 import ChatPage from "./pages/ChatPage"
 import AdminPage from "./pages/AdminPage"
+import ProfilePage from "./pages/ProfilePage"
 import AuthPage from "./pages/AuthPage"
 import AppLayout from "@/components/AppLayout"
+import { TimeTrackingProvider } from "@/hooks/useTimeTracking"
 
 export default function App() {
     const [user, setUser] = useState<boolean>(false)
@@ -17,6 +19,7 @@ export default function App() {
     }
 
     return (
+        <TimeTrackingProvider>
         <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
@@ -27,7 +30,9 @@ export default function App() {
                 <Route path="/stock" element={<StockPage />} />
                 <Route path="/chat" element={<ChatPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
             </Route>
         </Routes>
+        </TimeTrackingProvider>
     )
 }

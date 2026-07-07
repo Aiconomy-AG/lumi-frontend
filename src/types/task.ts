@@ -1,19 +1,22 @@
-export interface Assignee {
-    initials: string
-    color: string
-}
+import type { User } from './user'
 
-export type TaskStatus = 'To do' | 'In progress' | 'Done'
-export type TaskPriority = 'Low' | 'Medium' | 'High'
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'overdue'
 
 export interface Task {
     id: number
     title: string
-    project: string
-    priority: TaskPriority
+    description?: string
     status: TaskStatus
-    due: string
-    dotColor: string
-    isDone?: boolean
-    assignees: Assignee[]
+    created_by: number
+    due_date: string
+    assignees: User[]
+}
+
+export interface TaskTimeEntry {
+    id: number
+    task_id: number
+    employee_id: number
+    started_at: string
+    stopped_at?: string
+    duration_seconds: number
 }

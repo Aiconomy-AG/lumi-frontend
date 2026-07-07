@@ -42,7 +42,7 @@ export default function AdminPage() {
                         <TableRow>
                             <TableHead>User</TableHead>
                             <TableHead>Email</TableHead>
-                            <TableHead>Team</TableHead>
+                            <TableHead>Phone</TableHead>
                             <TableHead>Role</TableHead>
                             <TableHead>Status</TableHead>
                         </TableRow>
@@ -52,14 +52,14 @@ export default function AdminPage() {
                             <TableRow key={user.id}>
                                 <TableCell className="font-medium">{user.name}</TableCell>
                                 <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                                <TableCell>{user.team}</TableCell>
+                                <TableCell>{user.phone_number}</TableCell>
                                 <TableCell>
                                     <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
                                         {user.role}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                  <span className={user.status === 'online' ? 'text-green-600' : 'text-muted-foreground'}>
+                  <span className={user.status === 'active' ? 'text-green-600' : 'text-muted-foreground'}>
                     {user.status}
                   </span>
                                 </TableCell>

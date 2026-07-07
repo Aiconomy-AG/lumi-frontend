@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { Task } from '@/types/task'
+import type { Task, TaskStatus } from '@/types/task'
+import { mockUsers } from '@/api/mockData'
 import {
     Dialog,
     DialogContent,
@@ -10,40 +11,60 @@ import {
 } from "../components/ui/dialog"
 
 const mockTasks: Task[] = [
-    { id: 1, title: "Implement authentication module", project: "Backend", priority: "High", status: "In progress", due: "2026-07-06", dotColor: "bg-red-500", assignees: [{ initials: "AP", color: "border-amber-700 text-amber-500" }, { initials: "RP", color: "border-teal-700 text-teal-400" }] },
-    { id: 2, title: "Dashboard redesign", project: "Frontend", priority: "High", status: "To do", due: "2026-07-06", dotColor: "bg-red-500", assignees: [{ initials: "MI", color: "border-amber-700 text-amber-500" }] },
-    { id: 3, title: "Orders API testing", project: "QA", priority: "Medium", status: "To do", due: "2026-07-08", dotColor: "bg-amber-500", assignees: [{ initials: "ED", color: "border-amber-700 text-amber-500" }] },
-    { id: 4, title: "Write endpoint documentation", project: "Backend", priority: "Low", status: "Done", due: "2026-07-05", dotColor: "bg-zinc-500", isDone: true, assignees: [{ initials: "RP", color: "border-amber-700 text-amber-500" }] },
+    { id: 1, title: "Implement authentication module", status: "in_progress", created_by: 1, due_date: "2026-07-06", assignees: [mockUsers[0], mockUsers[3]] },
+    { id: 2, title: "Dashboard redesign", status: "pending", created_by: 1, due_date: "2026-07-06", assignees: [mockUsers[1]] },
+    { id: 3, title: "Orders API testing", status: "pending", created_by: 1, due_date: "2026-07-08", assignees: [mockUsers[2]] },
+    { id: 4, title: "Write endpoint documentation", status: "completed", created_by: 1, due_date: "2026-07-05", assignees: [mockUsers[3]] },
 ]
 
+const statusLabels: Record<TaskStatus, string> = {
+    pending: "Pending",
+    in_progress: "In progress",
+    completed: "Completed",
+    overdue: "Overdue",
+}
+
+const statusBadgeClass: Record<TaskStatus, string> = {
+    pending: "bg-zinc-900 text-zinc-400",
+    in_progress: "bg-amber-500/10 text-amber-500",
+    completed: "bg-green-500/10 text-green-500",
+    overdue: "bg-red-500/10 text-red-500",
+}
+
+const statusDotClass: Record<TaskStatus, string> = {
+    pending: "bg-zinc-500",
+    in_progress: "bg-amber-500",
+    completed: "bg-green-500",
+    overdue: "bg-red-500",
+}
+
+function initialsOf(name: string) {
+    return name.split(" ").map((w) => w[0]).join("").toUpperCase()
+}
+
 export default function TasksPage() {
-    const [filter, setFilter] = useState<'All' | Task['status']>("All")
+    const [filter, setFilter] = useState<'All' | TaskStatus>("All")
     const [search, setSearch] = useState("")
     const [isModalOpen, setIsModalOpen] = useState(false)
     const navigate = useNavigate()
 
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
-    const [status, setStatus] = useState("To do")
-    const [priority, setPriority] = useState("Medium")
-    const [project, setProject] = useState("")
+    const [status, setStatus] = useState<TaskStatus>("pending")
     const [dueDate, setDueDate] = useState("2026-07-07")
 
     const filteredTasks = mockTasks.filter(task =>
         (filter === "All" || task.status === filter) &&
-        (task.title.toLowerCase().includes(search.toLowerCase()) ||
-            task.project.toLowerCase().includes(search.toLowerCase()))
+        task.title.toLowerCase().includes(search.toLowerCase())
     )
 
     function handleCreateTask(e: React.FormEvent) {
         e.preventDefault()
-        console.log({ title, description, status, priority, project, dueDate })
+        console.log({ title, description, status, due_date: dueDate })
 
         setTitle("")
         setDescription("")
-        setStatus("To do")
-        setPriority("Medium")
-        setProject("")
+        setStatus("pending")
         setIsModalOpen(false)
     }
 
@@ -51,7 +72,7 @@ export default function TasksPage() {
         <div className="p-10 flex flex-col gap-6 w-full bg-zinc-950">
             <div className="flex items-center gap-6 w-full">
                 <div className="flex gap-1 bg-zinc-900/50 p-1 rounded-lg border border-zinc-850">
-                    {(["All", "To do", "In progress", "Done"] as const).map((btn) => (
+                    {(["All", "pending", "in_progress", "completed", "overdue"] as const).map((btn) => (
                         <button
                             key={btn}
                             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer border-none ${
@@ -61,7 +82,7 @@ export default function TasksPage() {
                             }`}
                             onClick={() => setFilter(btn)}
                         >
-                            {btn}
+                            {btn === "All" ? btn : statusLabels[btn]}
                         </button>
                     ))}
                 </div>
@@ -111,43 +132,18 @@ export default function TasksPage() {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Status</label>
-                                    <select
-                                        value={status}
-                                        onChange={e => setStatus(e.target.value)}
-                                        className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none cursor-pointer focus:border-zinc-700"
-                                    >
-                                        <option value="To do">To do</option>
-                                        <option value="In progress">In progress</option>
-                                        <option value="Done">Done</option>
-                                    </select>
-                                </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Priority</label>
-                                    <select
-                                        value={priority}
-                                        onChange={e => setPriority(e.target.value)}
-                                        className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none cursor-pointer focus:border-zinc-700"
-                                    >
-                                        <option value="Low">Low</option>
-                                        <option value="Medium">Medium</option>
-                                        <option value="High">High</option>
-                                    </select>
-                                </div>
-                            </div>
-
-
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Project</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Backend"
-                                    value={project}
-                                    onChange={e => setProject(e.target.value)}
-                                    className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 placeholder-zinc-700 outline-none focus:border-zinc-700 transition-colors"
-                                />
+                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Status</label>
+                                <select
+                                    value={status}
+                                    onChange={e => setStatus(e.target.value as TaskStatus)}
+                                    className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none cursor-pointer focus:border-zinc-700"
+                                >
+                                    <option value="pending">Pending</option>
+                                    <option value="in_progress">In progress</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="overdue">Overdue</option>
+                                </select>
                             </div>
 
 
@@ -171,7 +167,7 @@ export default function TasksPage() {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors"
+                                    className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors"
                                 >
                                     + Add
                                 </button>
@@ -185,9 +181,7 @@ export default function TasksPage() {
                 <thead>
                 <tr className="border-b border-zinc-900">
                     <th className="text-zinc-500 font-medium p-3">Task</th>
-                    <th className="text-zinc-500 font-medium p-3">Project</th>
                     <th className="text-zinc-500 font-medium p-3">Assigned</th>
-                    <th className="text-zinc-500 font-medium p-3">Priority</th>
                     <th className="text-zinc-500 font-medium p-3">Status</th>
                     <th className="text-zinc-500 font-medium p-3">Due</th>
                 </tr>
@@ -201,37 +195,29 @@ export default function TasksPage() {
                     >
                         <td className="p-3 text-zinc-200 font-medium">
                             <div className="flex items-center gap-3">
-                                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${task.dotColor}`}></span>
-                                <span className={task.isDone ? "line-through text-zinc-500" : ""}>{task.title}</span>
+                                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDotClass[task.status]}`}></span>
+                                <span className={task.status === "completed" ? "line-through text-zinc-500" : ""}>{task.title}</span>
                             </div>
                         </td>
-                        <td className="p-3 text-zinc-500">{task.project}</td>
                         <td className="p-3">
                             <div className="flex gap-1">
-                                {task.assignees.map((as, idx) => (
+                                {task.assignees.map((user) => (
                                     <span
-                                        key={idx}
-                                        className={`text-[10px] font-bold border px-1.5 py-0.5 rounded bg-zinc-950 ${as.color}`}
+                                        key={user.id}
+                                        className="text-[10px] font-bold border border-amber-700 text-amber-500 px-1.5 py-0.5 rounded bg-zinc-950"
                                     >
-                                        {as.initials}
+                                        {initialsOf(user.name)}
                                     </span>
                                 ))}
                             </div>
                         </td>
-                        <td className="p-3 text-zinc-500">{task.priority}</td>
                         <td className="p-3">
-                            <span className={`text-xs px-2 py-0.5 rounded font-medium ${
-                                task.status === "In progress" ? "bg-amber-500/10 text-amber-500" :
-                                    task.status === "Done" ? "bg-green-500/10 text-green-500" :
-                                        "bg-zinc-900 text-zinc-400"
-                            }`}>
-                                {task.status}
+                            <span className={`text-xs px-2 py-0.5 rounded font-medium ${statusBadgeClass[task.status]}`}>
+                                {statusLabels[task.status]}
                             </span>
                         </td>
-                        <td className={`p-3 text-zinc-400 ${
-                            task.due === '2026-07-06' ? 'text-amber-500 font-medium' : ''
-                        }`}>
-                            {task.due}
+                        <td className="p-3 text-zinc-400">
+                            {task.due_date}
                         </td>
                     </tr>
                 ))}

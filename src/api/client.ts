@@ -2,8 +2,8 @@ import type { User } from '../types/user'
 import { mockUsers } from './mockData'
 import type { Product } from '../types/product'
 import { mockProducts } from './mockProducts'
-import type { Person, Message } from '../types/chat'
-import { mockPeople, mockMessages } from './mockChat'
+import type { Conversation, Message } from '../types/chat'
+import { mockConversations, mockMessages } from './mockChat'
 
 // --- Configuration -----------------------------------------------------
 // Set VITE_USE_MOCK=false in .env once the Laravel API is reachable.
@@ -59,33 +59,33 @@ export async function getProducts(): Promise<Product[]> {
   return request<Product[]>('/products')
 }
 
-export async function getPeople(): Promise<Person[]> {
-  if (USE_MOCK) return delay(mockPeople)
-  return request<Person[]>('/people')
+export async function getConversations(): Promise<Conversation[]> {
+  if (USE_MOCK) return delay(mockConversations)
+  return request<Conversation[]>('/conversations')
 }
 
-export async function getMessages(personId: number): Promise<Message[]> {
+export async function getMessages(conversationId: number): Promise<Message[]> {
   if (USE_MOCK) {
-    return delay(mockMessages.filter((m) => m.personId === personId))
+    return delay(mockMessages.filter((m) => m.conversation_id === conversationId))
   }
-  return request<Message[]>(`/people/${personId}/messages`)
+  return request<Message[]>(`/conversations/${conversationId}/messages`)
 }
 
-export async function sendMessage(personId: number, text: string): Promise<Message> {
+export async function sendMessage(conversationId: number, senderId: number, message: string): Promise<Message> {
   const newMessage: Message = {
     id: Date.now(),
-    personId,
-    text,
-    fromMe: true,
-    time: new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }),
+    conversation_id: conversationId,
+    sender_id: senderId,
+    message,
+    sent_at: new Date().toISOString(),
   }
   if (USE_MOCK) {
     mockMessages.push(newMessage)
     return delay(newMessage)
   }
-  return request<Message>(`/people/${personId}/messages`, {
+  return request<Message>(`/conversations/${conversationId}/messages`, {
     method: 'POST',
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ message }),
   })
 }
 
@@ -101,15 +101,16 @@ export async function createProduct(payload: Omit<Product, 'id'>): Promise<Produ
   })
 }
 
-export async function updateProductStock(id: number, stock: number): Promise<Product> {
+export async function updateVariantStock(productId: number, variantId: number, stockQuantity: number): Promise<Product> {
   if (USE_MOCK) {
-    const product = mockProducts.find((p) => p.id === id)
-    if (product) product.stock = stock
+    const product = mockProducts.find((p) => p.id === productId)
+    const variant = product?.variants.find((v) => v.id === variantId)
+    if (variant) variant.stock_quantity = stockQuantity
     return delay(product as Product)
   }
-  return request<Product>(`/products/${id}`, {
+  return request<Product>(`/products/${productId}/variants/${variantId}`, {
     method: 'PATCH',
-    body: JSON.stringify({ stock }),
+    body: JSON.stringify({ stock_quantity: stockQuantity }),
   })
 }
 

@@ -1,14 +1,17 @@
-export interface Person {
+import type { User } from './user'
+
+export interface Conversation {
     id: number
-    name: string
-    role: string
-    online: boolean
+    type: 'direct' | 'group'
+    name?: string
+    created_by: number
+    participants: User[]
 }
 
 export interface Message {
     id: number
-    personId: number
-    text: string
-    fromMe: boolean
-    time: string
+    conversation_id: number
+    sender_id: number
+    message: string
+    sent_at: string
 }

@@ -72,8 +72,8 @@ export default function DashboardPage() {
                 {error && <p className="text-xs text-red-400">Error loading users</p>}
 
                 <ul className="flex flex-col gap-5 list-none p-0 m-0">
-                    {users.map((user, index) => {
-                        const isOffline = index % 2 === 1
+                    {users.map((user) => {
+                        const isOffline = user.status === 'inactive'
                         return (
                             <li key={user.id} className="flex items-center gap-3">
                                 <div className="relative w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-white">
@@ -90,7 +90,8 @@ export default function DashboardPage() {
                                 </div>
                             </li>
                         )
-                    })}
+                    }
+                    )}
                 </ul>
             </div>
         </div>

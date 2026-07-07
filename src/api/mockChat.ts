@@ -1,16 +1,18 @@
-import type { Person, Message } from '../types/chat'
+import type { Conversation, Message } from '../types/chat'
+import { mockUsers } from './mockData'
 
-export const mockPeople: Person[] = [
-    { id: 1, name: 'Mihai Ionescu',    role: 'Frontend', online: true  },
-    { id: 2, name: 'Elena Dumitrescu', role: 'QA',       online: false },
-    { id: 3, name: 'Radu Popa',        role: 'Backend',  online: true  },
-    { id: 4, name: 'Cristina Marin',   role: 'Design',   online: false },
-    { id: 5, name: 'Alexandru Stan',   role: 'Frontend', online: false },
-]
+export const currentUserId = mockUsers[0].id
+
+export const mockConversations: Conversation[] = mockUsers.slice(1).map((user, idx) => ({
+    id: idx + 1,
+    type: 'direct',
+    created_by: currentUserId,
+    participants: [mockUsers[0], user],
+}))
 
 export const mockMessages: Message[] = [
-    { id: 1, personId: 1, text: 'Hey, did you push the latest changes?', fromMe: false, time: '09:14' },
-    { id: 2, personId: 1, text: 'Yeah, just pushed. Check branch feat/auth', fromMe: true,  time: '09:16' },
-    { id: 3, personId: 1, text: "Nice, I'll review it this afternoon",       fromMe: false, time: '09:17' },
-    { id: 4, personId: 3, text: "I'll take a look after standup",            fromMe: true,  time: '10:05' },
+    { id: 1, conversation_id: 1, sender_id: mockUsers[1].id, message: 'Hey, did you push the latest changes?',    sent_at: '2026-07-07T09:14:00' },
+    { id: 2, conversation_id: 1, sender_id: currentUserId,   message: 'Yeah, just pushed. Check branch feat/auth', sent_at: '2026-07-07T09:16:00' },
+    { id: 3, conversation_id: 1, sender_id: mockUsers[1].id, message: "Nice, I'll review it this afternoon",       sent_at: '2026-07-07T09:17:00' },
+    { id: 4, conversation_id: 3, sender_id: currentUserId,   message: "I'll take a look after standup",           sent_at: '2026-07-07T10:05:00' },
 ]

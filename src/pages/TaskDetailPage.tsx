@@ -1,25 +1,14 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useTimeTracking } from '@/hooks/useTimeTracking'
 
 export default function TaskDetailPage() {
     const navigate = useNavigate()
+    const { id } = useParams()
+    const taskId = Number(id)
 
-    const [seconds, setSeconds] = useState(1)
-    const [isRunning, setIsRunning] = useState(false)
-
-    useEffect(() => {
-        let interval: NodeJS.Timeout | null = null
-
-        if (isRunning) {
-            interval = setInterval(() => {
-                setSeconds((prev) => prev + 1)
-            }, 1000)
-        }
-
-        return () => {
-            if (interval) clearInterval(interval)
-        }
-    }, [isRunning])
+    const { activeTaskId, todaySeconds, start, stop } = useTimeTracking()
+    const isRunning = activeTaskId === taskId
+    const seconds = todaySeconds
 
     const formatTime = (totalSeconds: number) => {
         const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0')
@@ -43,16 +32,18 @@ export default function TaskDetailPage() {
                 <h2 className="text-3xl font-bold text-white mb-2">Implement authentication module</h2>
                 <p className="text-xs text-zinc-500 mb-6">Backend • Due 2026-07-06</p>
 
-                {/* Rând Status */}
                 <div className="flex gap-2 mb-8">
                     <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        To do
+                        Pending
                     </button>
                     <button className="px-4 py-1.5 text-xs bg-purple-500/10 border border-purple-500 text-purple-400 rounded-md cursor-pointer font-medium">
                         In progress
                     </button>
                     <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        Done
+                        Completed
+                    </button>
+                    <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
+                        Overdue
                     </button>
                 </div>
 
@@ -70,7 +61,7 @@ export default function TaskDetailPage() {
                         className={`w-12 h-12 rounded-full border-none text-white text-sm flex items-center justify-center cursor-pointer transition-colors shadow-lg ${
                             isRunning ? "bg-red-500 hover:bg-red-400" : "bg-purple-500 hover:bg-purple-400 text-black"
                         }`}
-                        onClick={() => setIsRunning(!isRunning)}
+                        onClick={() => (isRunning ? stop() : start(taskId))}
                     >
                         {isRunning ? "■" : "▶"}
                     </button>
