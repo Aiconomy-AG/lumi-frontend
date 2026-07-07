@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { Task } from '@/types/task'
 
-const mockTasks = [
+const mockTasks: Task[] = [
     { id: 1, title: "Implement authentication module", project: "Backend", priority: "High", status: "In progress", due: "2026-07-06", dotColor: "bg-red-500", assignees: [{ initials: "AP", color: "border-amber-700 text-amber-500" }, { initials: "RP", color: "border-teal-700 text-teal-400" }] },
     { id: 2, title: "Dashboard redesign", project: "Frontend", priority: "High", status: "To do", due: "2026-07-06", dotColor: "bg-red-500", assignees: [{ initials: "MI", color: "border-amber-700 text-amber-500" }] },
     { id: 3, title: "Orders API testing", project: "QA", priority: "Medium", status: "To do", due: "2026-07-08", dotColor: "bg-amber-500", assignees: [{ initials: "ED", color: "border-amber-700 text-amber-500" }] },
     { id: 4, title: "Write endpoint documentation", project: "Backend", priority: "Low", status: "Done", due: "2026-07-05", dotColor: "bg-zinc-500", isDone: true, assignees: [{ initials: "RP", color: "border-amber-700 text-amber-500" }] },
 ]
 
-export function TasksView() {
-    const [filter, setFilter] = useState("All")
+export default function TasksPage() {
+    const [filter, setFilter] = useState<'All' | Task['status']>("All")
     const navigate = useNavigate()
 
     const filteredTasks = mockTasks.filter(task => filter === "All" || task.status === filter)
@@ -18,7 +19,7 @@ export function TasksView() {
         <div className="p-10 flex flex-col gap-6 w-full bg-zinc-950">
             <div className="flex items-center gap-6 w-full">
                 <div className="flex gap-1 bg-zinc-900/50 p-1 rounded-lg border border-zinc-850">
-                    {["All", "To do", "In progress", "Done"].map((btn) => (
+                    {(["All", "To do", "In progress", "Done"] as const).map((btn) => (
                         <button
                             key={btn}
                             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer border-none ${

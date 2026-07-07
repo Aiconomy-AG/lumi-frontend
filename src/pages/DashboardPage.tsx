@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { getUsers } from '../api/client'
 import type { User } from '../types/user'
 
-export function DashboardView() {
+export default function DashboardPage() {
     const [users, setUsers] = useState<User[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)

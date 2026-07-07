@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export function AuthView({ onLogin }: { onLogin: () => void }) {
+export default function AuthPage({ onLogin }: { onLogin: () => void }) {
     const [isRegister, setIsRegister] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
