@@ -1,0 +1,127 @@
+{
+  "sidebar": {
+    "brand": "Lumi",
+    "dashboard": "Übersicht",
+    "tasks": "Aufgaben",
+    "stock": "Lager",
+    "chat": "Chat",
+    "admin": "Admin",
+    "collapse": "Einklappen",
+    "expand": "Ausklappen"
+  },
+  "header": {
+    "startTimer": "Timer starten"
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "createAccount": "Konto erstellen",
+    "signInSubtitle": "Gib deine E-Mail und dein Passwort ein",
+    "createAccountSubtitle": "Gib deine Daten ein, um loszulegen",
+    "fullName": "Vollständiger Name",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "register": "Registrieren",
+    "haveAccount": "Bereits ein Konto? Anmelden",
+    "noAccount": "Noch kein Konto? Registrieren"
+  },
+  "dashboard": {
+    "greeting": "Guten Abend, {{name}}.",
+    "dueToday": "Heute fällig",
+    "tasksCount": "{{count}} Aufgaben",
+    "onlineNow": "Jetzt online",
+    "peopleCount": "{{count}} Personen",
+    "loading": "Lädt...",
+    "errorLoadingUsers": "Fehler beim Laden der Benutzer",
+    "offline": "Offline",
+    "active": "Aktiv"
+  },
+  "tasks": {
+    "title": "Aufgaben",
+    "filterAll": "Alle",
+    "searchPlaceholder": "Aufgaben suchen...",
+    "addButton": "+ Aufgabe hinzufügen",
+    "newTaskTitle": "Neue Aufgabe",
+    "fieldTitle": "Titel",
+    "fieldTitlePlaceholder": "Aufgabe beschreiben...",
+    "fieldDescription": "Beschreibung",
+    "fieldDescriptionPlaceholder": "Zusätzliche Details...",
+    "fieldStatus": "Status",
+    "fieldDueDate": "Fälligkeitsdatum",
+    "cancel": "Abbrechen",
+    "add": "+ Hinzufügen",
+    "columnTask": "Aufgabe",
+    "columnAssigned": "Zugewiesen",
+    "columnStatus": "Status",
+    "columnDue": "Fällig",
+    "status": {
+      "pending": "Ausstehend",
+      "in_progress": "In Bearbeitung",
+      "completed": "Abgeschlossen",
+      "overdue": "Überfällig"
+    }
+  },
+  "taskDetail": {
+    "back": "← Aufgaben",
+    "timeTracking": "Zeiterfassung",
+    "totalLogged": "Gesamt erfasst:",
+    "description": "≡ Beschreibung",
+    "assignedTo": "👥 Zugewiesen an",
+    "assign": "+ Zuweisen",
+    "timeEntries": "🕒 Zeiteinträge"
+  },
+  "stock": {
+    "productsCount": "{{count}} Produkte",
+    "variantsCount": "{{count}} Varianten",
+    "lowStock": "{{count}} niedriger Bestand",
+    "outOfStock": "{{count}} nicht vorrätig",
+    "searchPlaceholder": "Produkte suchen...",
+    "addButton": "Produkt hinzufügen",
+    "newProductTitle": "Neues Produkt",
+    "fieldName": "Produktname",
+    "fieldNamePlaceholder": "z.B. Dell XPS 15 Laptop",
+    "fieldDescription": "Beschreibung",
+    "fieldDescriptionPlaceholder": "Produktdetails...",
+    "fieldImageUrl": "Bild-URL",
+    "fieldImageUrlPlaceholder": "https://...",
+    "fieldSku": "SKU",
+    "fieldSkuPlaceholder": "z.B. DEL-XPS-001",
+    "fieldCategory": "Kategorie",
+    "fieldCategoryPlaceholder": "z.B. Electronics",
+    "fieldStock": "Lagerbestand",
+    "fieldPrice": "Preis (RON)",
+    "add": "Hinzufügen",
+    "columnProduct": "Produkt",
+    "columnSku": "SKU",
+    "columnCategory": "Kategorie",
+    "columnStock": "Bestand",
+    "columnPrice": "Preis",
+    "columnActions": "Aktionen",
+    "outOfStockLabel": "Nicht vorrätig"
+  },
+  "chat": {
+    "searchPlaceholder": "Personen suchen...",
+    "online": "Online",
+    "offline": "Offline",
+    "messagePlaceholder": "Nachricht an {{name}}...",
+    "messagePlaceholderDefault": "Nachricht..."
+  },
+  "admin": {
+    "usersCount": "{{count}} Benutzer",
+    "searchPlaceholder": "Benutzer suchen...",
+    "columnUser": "Benutzer",
+    "columnEmail": "E-Mail",
+    "columnPhone": "Telefon",
+    "columnRole": "Rolle",
+    "columnStatus": "Status",
+    "loading": "Lädt..."
+  },
+  "profile": {
+    "back": "← Zurück",
+    "loading": "Lädt...",
+    "id": "ID",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "role": "Rolle",
+    "status": "Status"
+  }
+}

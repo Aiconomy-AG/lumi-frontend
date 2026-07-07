@@ -1,7 +1,9 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useTimeTracking } from '@/hooks/useTimeTracking'
 
 export default function TaskDetailPage() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const { id } = useParams()
     const taskId = Number(id)
@@ -24,7 +26,7 @@ export default function TaskDetailPage() {
                 className="bg-transparent border-none text-zinc-500 hover:text-zinc-200 text-sm font-medium cursor-pointer mb-6 transition-colors"
                 onClick={() => navigate("/tasks")}
             >
-                ← Tasks
+                {t('taskDetail.back')}
             </button>
 
             <div className="flex flex-col w-full">
@@ -34,26 +36,26 @@ export default function TaskDetailPage() {
 
                 <div className="flex gap-2 mb-8">
                     <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        Pending
+                        {t('tasks.status.pending')}
                     </button>
                     <button className="px-4 py-1.5 text-xs bg-purple-500/10 border border-purple-500 text-purple-400 rounded-md cursor-pointer font-medium">
-                        In progress
+                        {t('tasks.status.in_progress')}
                     </button>
                     <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        Completed
+                        {t('tasks.status.completed')}
                     </button>
                     <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        Overdue
+                        {t('tasks.status.overdue')}
                     </button>
                 </div>
 
 
                 <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-8">
                     <div className="flex flex-col">
-                        <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1">Time tracking</div>
+                        <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1">{t('taskDetail.timeTracking')}</div>
                         <div className="text-3xl font-bold text-white font-mono tracking-wide">{formatTime(seconds)}</div>
                         <div className="text-xs text-zinc-500 mt-1">
-                            Total logged: <span className="text-purple-400 font-medium">{formatTime(seconds)}</span>
+                            {t('taskDetail.totalLogged')} <span className="text-purple-400 font-medium">{formatTime(seconds)}</span>
                         </div>
                     </div>
 
@@ -69,14 +71,14 @@ export default function TaskDetailPage() {
 
 
                 <div className="mb-8">
-                    <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">≡ Description</h4>
+                    <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{t('taskDetail.description')}</h4>
                     <p className="text-sm text-zinc-300 leading-relaxed m-0">
                         JWT + refresh tokens. Login, logout, session validation on each request. Sessions expire after 24h.
                     </p>
                 </div>
 
                 <div className="mb-8">
-                    <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">👥 Assigned to</h4>
+                    <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">{t('taskDetail.assignedTo')}</h4>
                     <div className="flex items-center gap-3 flex-wrap">
                         <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300">
                             <span className="text-[10px] font-bold bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded">AP</span>
@@ -87,14 +89,14 @@ export default function TaskDetailPage() {
                             Radu Popa
                         </div>
                         <button className="bg-transparent border border-dashed border-zinc-800 text-zinc-500 hover:text-zinc-300 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors">
-                            + Assign
+                            {t('taskDetail.assign')}
                         </button>
                     </div>
                 </div>
 
 
                 <div className="mb-8">
-                    <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">🕒 Time entries</h4>
+                    <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">{t('taskDetail.timeEntries')}</h4>
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl flex flex-col overflow-hidden">
                         <div className="flex items-center justify-between p-4 border-b border-zinc-800/50">
                             <div className="flex items-center gap-3">

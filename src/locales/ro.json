@@ -1,0 +1,127 @@
+{
+  "sidebar": {
+    "brand": "Lumi",
+    "dashboard": "Panou",
+    "tasks": "Sarcini",
+    "stock": "Stoc",
+    "chat": "Chat",
+    "admin": "Admin",
+    "collapse": "Restrânge",
+    "expand": "Extinde"
+  },
+  "header": {
+    "startTimer": "Pornește cronometrul"
+  },
+  "auth": {
+    "signIn": "Autentificare",
+    "createAccount": "Creează cont",
+    "signInSubtitle": "Introdu emailul și parola",
+    "createAccountSubtitle": "Introdu datele pentru a începe",
+    "fullName": "Nume complet",
+    "email": "Email",
+    "password": "Parolă",
+    "register": "Înregistrare",
+    "haveAccount": "Ai deja cont? Autentifică-te",
+    "noAccount": "Nu ai cont? Înregistrează-te"
+  },
+  "dashboard": {
+    "greeting": "Bună seara, {{name}}.",
+    "dueToday": "Scadente azi",
+    "tasksCount": "{{count}} sarcini",
+    "onlineNow": "Online acum",
+    "peopleCount": "{{count}} persoane",
+    "loading": "Se încarcă...",
+    "errorLoadingUsers": "Eroare la încărcarea utilizatorilor",
+    "offline": "Offline",
+    "active": "Activ"
+  },
+  "tasks": {
+    "title": "Sarcini",
+    "filterAll": "Toate",
+    "searchPlaceholder": "Caută sarcini...",
+    "addButton": "+ Adaugă sarcină",
+    "newTaskTitle": "Sarcină nouă",
+    "fieldTitle": "Titlu",
+    "fieldTitlePlaceholder": "Descrie sarcina...",
+    "fieldDescription": "Descriere",
+    "fieldDescriptionPlaceholder": "Detalii suplimentare...",
+    "fieldStatus": "Status",
+    "fieldDueDate": "Termen limită",
+    "cancel": "Anulează",
+    "add": "+ Adaugă",
+    "columnTask": "Sarcină",
+    "columnAssigned": "Alocat",
+    "columnStatus": "Status",
+    "columnDue": "Termen",
+    "status": {
+      "pending": "În așteptare",
+      "in_progress": "În desfășurare",
+      "completed": "Finalizat",
+      "overdue": "Întârziat"
+    }
+  },
+  "taskDetail": {
+    "back": "← Sarcini",
+    "timeTracking": "Cronometrare timp",
+    "totalLogged": "Total înregistrat:",
+    "description": "≡ Descriere",
+    "assignedTo": "👥 Alocat către",
+    "assign": "+ Alocă",
+    "timeEntries": "🕒 Intrări de timp"
+  },
+  "stock": {
+    "productsCount": "{{count}} produse",
+    "variantsCount": "{{count}} variante",
+    "lowStock": "{{count}} stoc redus",
+    "outOfStock": "{{count}} fără stoc",
+    "searchPlaceholder": "Caută produse...",
+    "addButton": "Adaugă produs",
+    "newProductTitle": "Produs nou",
+    "fieldName": "Nume produs",
+    "fieldNamePlaceholder": "ex. Dell XPS 15 Laptop",
+    "fieldDescription": "Descriere",
+    "fieldDescriptionPlaceholder": "Detalii produs...",
+    "fieldImageUrl": "URL imagine",
+    "fieldImageUrlPlaceholder": "https://...",
+    "fieldSku": "SKU",
+    "fieldSkuPlaceholder": "ex. DEL-XPS-001",
+    "fieldCategory": "Categorie",
+    "fieldCategoryPlaceholder": "ex. Electronics",
+    "fieldStock": "Cantitate în stoc",
+    "fieldPrice": "Preț (lei)",
+    "add": "Adaugă",
+    "columnProduct": "Produs",
+    "columnSku": "SKU",
+    "columnCategory": "Categorie",
+    "columnStock": "Stoc",
+    "columnPrice": "Preț",
+    "columnActions": "Acțiuni",
+    "outOfStockLabel": "Fără stoc"
+  },
+  "chat": {
+    "searchPlaceholder": "Caută persoane...",
+    "online": "Online",
+    "offline": "Offline",
+    "messagePlaceholder": "Mesaj către {{name}}...",
+    "messagePlaceholderDefault": "Mesaj..."
+  },
+  "admin": {
+    "usersCount": "{{count}} utilizatori",
+    "searchPlaceholder": "Caută utilizatori...",
+    "columnUser": "Utilizator",
+    "columnEmail": "Email",
+    "columnPhone": "Telefon",
+    "columnRole": "Rol",
+    "columnStatus": "Status",
+    "loading": "Se încarcă..."
+  },
+  "profile": {
+    "back": "← Înapoi",
+    "loading": "Se încarcă...",
+    "id": "ID",
+    "email": "Email",
+    "phone": "Telefon",
+    "role": "Rol",
+    "status": "Status"
+  }
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { Task, TaskStatus } from '@/types/task'
 import { mockUsers } from '@/api/mockData'
 import {
@@ -16,13 +17,6 @@ const mockTasks: Task[] = [
     { id: 3, title: "Orders API testing", status: "pending", created_by: 1, due_date: "2026-07-08", assignees: [mockUsers[2]] },
     { id: 4, title: "Write endpoint documentation", status: "completed", created_by: 1, due_date: "2026-07-05", assignees: [mockUsers[3]] },
 ]
-
-const statusLabels: Record<TaskStatus, string> = {
-    pending: "Pending",
-    in_progress: "In progress",
-    completed: "Completed",
-    overdue: "Overdue",
-}
 
 const statusBadgeClass: Record<TaskStatus, string> = {
     pending: "bg-zinc-900 text-zinc-400",
@@ -43,10 +37,18 @@ function initialsOf(name: string) {
 }
 
 export default function TasksPage() {
+    const { t } = useTranslation()
     const [filter, setFilter] = useState<'All' | TaskStatus>("All")
     const [search, setSearch] = useState("")
     const [isModalOpen, setIsModalOpen] = useState(false)
     const navigate = useNavigate()
+
+    const statusLabels: Record<TaskStatus, string> = {
+        pending: t('tasks.status.pending'),
+        in_progress: t('tasks.status.in_progress'),
+        completed: t('tasks.status.completed'),
+        overdue: t('tasks.status.overdue'),
+    }
 
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
@@ -82,7 +84,7 @@ export default function TasksPage() {
                             }`}
                             onClick={() => setFilter(btn)}
                         >
-                            {btn === "All" ? btn : statusLabels[btn]}
+                            {btn === "All" ? t('tasks.filterAll') : statusLabels[btn]}
                         </button>
                     ))}
                 </div>
@@ -90,7 +92,7 @@ export default function TasksPage() {
                 <div className="bg-transparent">
                     <input
                         type="text"
-                        placeholder="Search tasks..."
+                        placeholder={t('tasks.searchPlaceholder')}
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         className="bg-zinc-900 border border-zinc-850 rounded-lg px-4 py-1.5 text-zinc-300 placeholder-zinc-600 text-xs outline-none w-[240px] focus:border-purple-500/50 transition-colors"
@@ -99,21 +101,21 @@ export default function TasksPage() {
 
                 <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                     <DialogTrigger className="ml-auto bg-purple-500/10 border border-purple-500/30 text-purple-400 px-4 py-1.5 rounded-lg text-xs font-semibold cursor-pointer hover:bg-purple-500/20 transition-colors border-none">
-                        + Add task
+                        {t('tasks.addButton')}
                     </DialogTrigger>
 
                     <DialogContent className="bg-zinc-900 border border-zinc-800 text-zinc-100 max-w-[440px] rounded-xl p-6 shadow-2xl">
                         <DialogHeader className="mb-4">
-                            <DialogTitle className="text-base font-bold text-white">New task</DialogTitle>
+                            <DialogTitle className="text-base font-bold text-white">{t('tasks.newTaskTitle')}</DialogTitle>
                         </DialogHeader>
 
                         <form onSubmit={handleCreateTask} className="flex flex-col gap-4">
                             {/* Title */}
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Title</label>
+                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldTitle')}</label>
                                 <input
                                     type="text"
-                                    placeholder="Describe the task.."
+                                    placeholder={t('tasks.fieldTitlePlaceholder')}
                                     value={title}
                                     onChange={e => setTitle(e.target.value)}
                                     className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 placeholder-zinc-700 outline-none focus:border-zinc-700 transition-colors"
@@ -122,9 +124,9 @@ export default function TasksPage() {
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Description</label>
+                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldDescription')}</label>
                                 <textarea
-                                    placeholder="Additional details..."
+                                    placeholder={t('tasks.fieldDescriptionPlaceholder')}
                                     rows={3}
                                     value={description}
                                     onChange={e => setDescription(e.target.value)}
@@ -133,22 +135,22 @@ export default function TasksPage() {
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Status</label>
+                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldStatus')}</label>
                                 <select
                                     value={status}
                                     onChange={e => setStatus(e.target.value as TaskStatus)}
                                     className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none cursor-pointer focus:border-zinc-700"
                                 >
-                                    <option value="pending">Pending</option>
-                                    <option value="in_progress">In progress</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="overdue">Overdue</option>
+                                    <option value="pending">{statusLabels.pending}</option>
+                                    <option value="in_progress">{statusLabels.in_progress}</option>
+                                    <option value="completed">{statusLabels.completed}</option>
+                                    <option value="overdue">{statusLabels.overdue}</option>
                                 </select>
                             </div>
 
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Due date</label>
+                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldDueDate')}</label>
                                 <input
                                     type="date"
                                     value={dueDate}
@@ -163,13 +165,13 @@ export default function TasksPage() {
                                     onClick={() => setIsModalOpen(false)}
                                     className="bg-transparent text-zinc-400 hover:text-zinc-200 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors"
                                 >
-                                    Cancel
+                                    {t('tasks.cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors"
                                 >
-                                    + Add
+                                    {t('tasks.add')}
                                 </button>
                             </div>
                         </form>
@@ -180,10 +182,10 @@ export default function TasksPage() {
             <table className="w-full border-collapse text-left text-sm">
                 <thead>
                 <tr className="border-b border-zinc-900">
-                    <th className="text-zinc-500 font-medium p-3">Task</th>
-                    <th className="text-zinc-500 font-medium p-3">Assigned</th>
-                    <th className="text-zinc-500 font-medium p-3">Status</th>
-                    <th className="text-zinc-500 font-medium p-3">Due</th>
+                    <th className="text-zinc-500 font-medium p-3">{t('tasks.columnTask')}</th>
+                    <th className="text-zinc-500 font-medium p-3">{t('tasks.columnAssigned')}</th>
+                    <th className="text-zinc-500 font-medium p-3">{t('tasks.columnStatus')}</th>
+                    <th className="text-zinc-500 font-medium p-3">{t('tasks.columnDue')}</th>
                 </tr>
                 </thead>
                 <tbody>

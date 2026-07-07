@@ -1,3 +1,4 @@
+import axios, { type AxiosRequestConfig } from 'axios'
 import type { User } from '../types/user'
 import { mockUsers } from './mockData'
 import type { Product } from '../types/product'
@@ -8,24 +9,23 @@ import { mockConversations, mockMessages } from './mockChat'
 // --- Configuration -----------------------------------------------------
 // Set VITE_USE_MOCK=false in .env once the Laravel API is reachable.
 // Nothing else in the app needs to change - every screen just calls the
-// functions below (getUsers, getUser, ...), never fetch() directly.
+// functions below (getUsers, getUser, ...), never axios directly.
 const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false'
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api'
+
+const http = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+})
 
 // Simulates real network latency so loading states get tested honestly.
 function delay<T>(value: T, ms = 400): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(value), ms))
 }
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  })
-  if (!res.ok) {
-    throw new Error(`API error ${res.status}: ${res.statusText}`)
-  }
-  return res.json()
+async function request<T>(path: string, options?: AxiosRequestConfig): Promise<T> {
+  const res = await http.request<T>({ url: path, ...options })
+  return res.data
 }
 
 // --- Public API ----------------------------------------------------------
@@ -50,7 +50,7 @@ export async function createUser(payload: Omit<User, 'id'>): Promise<User> {
   }
   return request<User>('/users', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    data: payload,
   })
 }
 
@@ -85,7 +85,7 @@ export async function sendMessage(conversationId: number, senderId: number, mess
   }
   return request<Message>(`/conversations/${conversationId}/messages`, {
     method: 'POST',
-    body: JSON.stringify({ message }),
+    data: { message },
   })
 }
 
@@ -97,7 +97,7 @@ export async function createProduct(payload: Omit<Product, 'id'>): Promise<Produ
   }
   return request<Product>('/products', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    data: payload,
   })
 }
 
@@ -110,7 +110,7 @@ export async function updateVariantStock(productId: number, variantId: number, s
   }
   return request<Product>(`/products/${productId}/variants/${variantId}`, {
     method: 'PATCH',
-    body: JSON.stringify({ stock_quantity: stockQuantity }),
+    data: { stock_quantity: stockQuantity },
   })
 }
 

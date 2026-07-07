@@ -1,35 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getUsers } from '../api/client'
-import type { User } from '../types/user'
-
+import {useQuery} from '@tanstack/react-query'
 export default function DashboardPage() {
-    const [users, setUsers] = useState<User[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-
+    const { t } = useTranslation()
     const formattedDate = new Date().toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'long',
         day: 'numeric'
     })
 
-    useEffect(() => {
-        getUsers()
-            .then(setUsers)
-            .catch((err) => setError(err.message))
-            .finally(() => setLoading(false))
-    }, [])
+    const { data: users = [], isLoading, isError } = useQuery({
+        queryKey: ['users'],
+        queryFn: getUsers,
+    })
 
     return (
         <div className="p-10 flex gap-20 w-full bg-zinc-950 min-h-full">
             <div className="flex-[1.8]">
                 <p className="text-xs text-zinc-500 mb-2">{formattedDate}</p>
-                <h2 className="text-3xl font-bold text-white mb-8">Good evening, Ana.</h2>
+                <h2 className="text-3xl font-bold text-white mb-8">{t('dashboard.greeting', { name: 'Ana' })}</h2>
 
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-sm font-medium text-white">
-                            Due today <span className="text-zinc-500 ml-1">3 tasks</span>
+                            {t('dashboard.dueToday')} <span className="text-zinc-500 ml-1">{t('dashboard.tasksCount', { count: 3 })}</span>
                         </h3>
                     </div>
 
@@ -43,7 +37,7 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                             <span className="text-xs px-2 py-1 rounded bg-amber-500/10 text-amber-500 font-medium">
-                                In progress
+                                {t('tasks.status.in_progress')}
                             </span>
                         </div>
 
@@ -56,7 +50,7 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                             <span className="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400 font-medium">
-                                To do
+                                {t('tasks.status.pending')}
                             </span>
                         </div>
                     </div>
@@ -65,11 +59,11 @@ export default function DashboardPage() {
 
             <div className="flex-1 max-w-[280px]">
                 <h3 className="text-sm font-medium text-zinc-400 mb-5">
-                    Online now <span className="text-zinc-500 ml-1">{users.length} people</span>
+                    {t('dashboard.onlineNow')} <span className="text-zinc-500 ml-1">{t('dashboard.peopleCount', { count: users.length })}</span>
                 </h3>
 
-                {loading && <p className="text-xs text-zinc-500">Loading...</p>}
-                {error && <p className="text-xs text-red-400">Error loading users</p>}
+                {isLoading && <p className="text-xs text-zinc-500">{t('dashboard.loading')}</p>}
+                {isError && <p className="text-xs text-red-400">{t('dashboard.errorLoadingUsers')}</p>}
 
                 <ul className="flex flex-col gap-5 list-none p-0 m-0">
                     {users.map((user) => {
@@ -85,7 +79,7 @@ export default function DashboardPage() {
                                 <div className="flex flex-col">
                                     <p className="text-xs font-medium text-zinc-200 m-0">{user.name}</p>
                                     <p className="text-[11px] text-zinc-500 m-0">
-                                        {isOffline ? 'Offline' : 'Active'}
+                                        {isOffline ? t('dashboard.offline') : t('dashboard.active')}
                                     </p>
                                 </div>
                             </li>

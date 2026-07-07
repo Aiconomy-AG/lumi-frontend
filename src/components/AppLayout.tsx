@@ -1,4 +1,5 @@
 import { Clock, Bell } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
@@ -16,18 +17,19 @@ function formatTime(totalSeconds: number) {
 export default function AppLayout() {
     const location = useLocation()
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const { todaySeconds, isRunning } = useTimeTracking()
     const currentUser = mockUsers.find((u) => u.id === currentUserId)
     const initials = currentUser?.name.split(" ").map((w) => w[0]).join("").toUpperCase() ?? ""
 
     const getPageTitle = () => {
         const path = location.pathname
-        if (path.startsWith('/tasks')) return 'Tasks'
-        if (path.startsWith('/dashboard')) return 'Dashboard'
-        if (path.startsWith('/stock')) return 'Stock'
-        if (path.startsWith('/chat')) return 'Chat'
-        if (path.startsWith('/admin')) return 'Admin'
-        return 'Dashboard'
+        if (path.startsWith('/tasks')) return t('sidebar.tasks')
+        if (path.startsWith('/dashboard')) return t('sidebar.dashboard')
+        if (path.startsWith('/stock')) return t('sidebar.stock')
+        if (path.startsWith('/chat')) return t('sidebar.chat')
+        if (path.startsWith('/admin')) return t('sidebar.admin')
+        return t('sidebar.dashboard')
     }
 
     const title = getPageTitle()

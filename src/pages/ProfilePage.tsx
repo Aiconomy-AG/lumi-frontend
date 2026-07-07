@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { getUser } from '@/api/client'
 import { currentUserId } from '@/api/mockChat'
 import type { User } from '@/types/user'
@@ -14,6 +15,7 @@ function Field({ label, value }: { label: string; value: string }) {
 }
 
 export default function ProfilePage() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const [user, setUser] = useState<User | null>(null)
 
@@ -22,7 +24,7 @@ export default function ProfilePage() {
     }, [])
 
     if (!user) {
-        return <div className="p-10 text-sm text-zinc-500">Loading...</div>
+        return <div className="p-10 text-sm text-zinc-500">{t('profile.loading')}</div>
     }
 
     const initials = user.name.split(' ').map((w) => w[0]).join('').toUpperCase()
@@ -33,7 +35,7 @@ export default function ProfilePage() {
                 className="bg-transparent border-none text-zinc-500 hover:text-zinc-200 text-sm font-medium cursor-pointer mb-6 transition-colors"
                 onClick={() => navigate(-1)}
             >
-                ← Back
+                {t('profile.back')}
             </button>
 
             <div className="flex items-center gap-4 mb-8">
@@ -47,11 +49,11 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex flex-col gap-4 bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <Field label="ID" value={String(user.id)} />
-                <Field label="Email" value={user.email} />
-                <Field label="Phone" value={user.phone_number ?? "-"} />
-                <Field label="Role" value={user.role} />
-                <Field label="Status" value={user.status} />
+                <Field label={t('profile.id')} value={String(user.id)} />
+                <Field label={t('profile.email')} value={user.email} />
+                <Field label={t('profile.phone')} value={user.phone_number ?? "-"} />
+                <Field label={t('profile.role')} value={user.role} />
+                <Field label={t('profile.status')} value={user.status} />
             </div>
         </div>
     )

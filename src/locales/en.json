@@ -1,0 +1,127 @@
+{
+  "sidebar": {
+    "brand": "Lumi",
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "stock": "Stock",
+    "chat": "Chat",
+    "admin": "Admin",
+    "collapse": "Collapse",
+    "expand": "Expand"
+  },
+  "header": {
+    "startTimer": "Start timer"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "signInSubtitle": "Enter your email and password",
+    "createAccountSubtitle": "Enter your details to get started",
+    "fullName": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "register": "Register",
+    "haveAccount": "Already have an account? Sign in",
+    "noAccount": "Don't have an account? Register"
+  },
+  "dashboard": {
+    "greeting": "Good evening, {{name}}.",
+    "dueToday": "Due today",
+    "tasksCount": "{{count}} tasks",
+    "onlineNow": "Online now",
+    "peopleCount": "{{count}} people",
+    "loading": "Loading...",
+    "errorLoadingUsers": "Error loading users",
+    "offline": "Offline",
+    "active": "Active"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "filterAll": "All",
+    "searchPlaceholder": "Search tasks...",
+    "addButton": "+ Add task",
+    "newTaskTitle": "New task",
+    "fieldTitle": "Title",
+    "fieldTitlePlaceholder": "Describe the task..",
+    "fieldDescription": "Description",
+    "fieldDescriptionPlaceholder": "Additional details...",
+    "fieldStatus": "Status",
+    "fieldDueDate": "Due date",
+    "cancel": "Cancel",
+    "add": "+ Add",
+    "columnTask": "Task",
+    "columnAssigned": "Assigned",
+    "columnStatus": "Status",
+    "columnDue": "Due",
+    "status": {
+      "pending": "Pending",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "overdue": "Overdue"
+    }
+  },
+  "taskDetail": {
+    "back": "← Tasks",
+    "timeTracking": "Time tracking",
+    "totalLogged": "Total logged:",
+    "description": "≡ Description",
+    "assignedTo": "👥 Assigned to",
+    "assign": "+ Assign",
+    "timeEntries": "🕒 Time entries"
+  },
+  "stock": {
+    "productsCount": "{{count}} products",
+    "variantsCount": "{{count}} variants",
+    "lowStock": "{{count}} low stock",
+    "outOfStock": "{{count}} out of stock",
+    "searchPlaceholder": "Search products...",
+    "addButton": "Add product",
+    "newProductTitle": "New product",
+    "fieldName": "Nume produs",
+    "fieldNamePlaceholder": "ex. Dell XPS 15 Laptop",
+    "fieldDescription": "Descriere",
+    "fieldDescriptionPlaceholder": "Detalii produs...",
+    "fieldImageUrl": "URL imagine",
+    "fieldImageUrlPlaceholder": "https://...",
+    "fieldSku": "SKU",
+    "fieldSkuPlaceholder": "ex. DEL-XPS-001",
+    "fieldCategory": "Categorie",
+    "fieldCategoryPlaceholder": "ex. Electronics",
+    "fieldStock": "Cantitate în stoc",
+    "fieldPrice": "Preț (lei)",
+    "add": "Add",
+    "columnProduct": "Product",
+    "columnSku": "SKU",
+    "columnCategory": "Category",
+    "columnStock": "Stock",
+    "columnPrice": "Price",
+    "columnActions": "Actions",
+    "outOfStockLabel": "Out of stock"
+  },
+  "chat": {
+    "searchPlaceholder": "Search people...",
+    "online": "Online",
+    "offline": "Offline",
+    "messagePlaceholder": "Message {{name}}...",
+    "messagePlaceholderDefault": "Message..."
+  },
+  "admin": {
+    "usersCount": "{{count}} users",
+    "searchPlaceholder": "Search users...",
+    "columnUser": "User",
+    "columnEmail": "Email",
+    "columnPhone": "Phone",
+    "columnRole": "Role",
+    "columnStatus": "Status",
+    "loading": "Loading..."
+  },
+  "profile": {
+    "back": "← Back",
+    "loading": "Loading...",
+    "id": "ID",
+    "email": "Email",
+    "phone": "Phone",
+    "role": "Role",
+    "status": "Status"
+  }
+}

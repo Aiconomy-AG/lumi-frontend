@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { getProducts, createProduct, updateVariantStock, deleteProduct } from '@/api/client'
 import type { Product, ProductVariant } from '@/types/product'
 import {
@@ -10,12 +11,15 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
 import { Plus, Pencil, Trash2, Check, X } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {useState} from "react";
+
 
 const emptyProduct = { name: '', description: '', image_url: '', sku: '', categoryName: '', stock: 0, price: 0 }
 
-function renderStock(stock: number) {
+function renderStock(stock: number, t: TFunction) {
   if (stock === 0) {
-    return <span className="font-medium text-red-500">Out of stock</span>
+    return <span className="font-medium text-red-500">{t('stock.outOfStockLabel')}</span>
   }
   if (stock <= 5) {
     return <span className="font-medium text-yellow-500">{stock}</span>
@@ -29,8 +33,7 @@ interface StockRow {
 }
 
 export default function StockPage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const { t } = useTranslation()
   const [search, setSearch] = useState('')
 
   const [isAddOpen, setIsAddOpen] = useState(false)
@@ -39,11 +42,29 @@ export default function StockPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editValue, setEditValue] = useState<number>(0)
 
-  useEffect(() => {
-    getProducts()
-      .then(setProducts)
-      .finally(() => setLoading(false))
-  }, [])
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: getProducts,
+  })
+
+  const queryClient = useQueryClient()
+
+  const createMutation = useMutation({
+    mutationFn: createProduct,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+  })
+
+  const updateStockMutation = useMutation({
+    mutationFn: (vars: { productId: number; variantId: number; stock: number }) =>
+        updateVariantStock(vars.productId, vars.variantId, vars.stock),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+  })
+
 
   const rows: StockRow[] = products.flatMap((product) =>
     product.variants.map((variant) => ({ product, variant }))
@@ -56,10 +77,16 @@ export default function StockPage() {
   const lowStock = rows.filter((r) => r.variant.stock_quantity > 0 && r.variant.stock_quantity <= 5).length
   const outOfStock = rows.filter((r) => r.variant.stock_quantity === 0).length
 
+
+  function startEdit(variant: ProductVariant) {
+    setEditingId(variant.id)
+    setEditValue(variant.stock_quantity)
+  }
+
   async function handleAddProduct(e: React.FormEvent) {
     e.preventDefault()
     const productId = Date.now()
-    const created = await createProduct({
+    await createMutation.mutateAsync({
       name: newProduct.name,
       description: newProduct.description || undefined,
       image_url: newProduct.image_url || undefined,
@@ -67,39 +94,31 @@ export default function StockPage() {
       category: newProduct.categoryName ? { id: Date.now(), name: newProduct.categoryName } : undefined,
       variants: [{ id: productId + 1, product_id: productId, sku: newProduct.sku, price: newProduct.price, weight: 1, weight_unit: 'kg', stock_quantity: newProduct.stock }],
     })
-    setProducts((prev) => [...prev, created])
     setNewProduct(emptyProduct)
     setIsAddOpen(false)
   }
 
-  function startEdit(variant: ProductVariant) {
-    setEditingId(variant.id)
-    setEditValue(variant.stock_quantity)
-  }
-
   async function saveEdit(productId: number, variantId: number) {
-    const updated = await updateVariantStock(productId, variantId, editValue)
-    setProducts((prev) => prev.map((p) => (p.id === productId ? updated : p)))
+    await updateStockMutation.mutateAsync({ productId, variantId, stock: editValue })
     setEditingId(null)
   }
 
   async function handleDelete(id: number) {
-    await deleteProduct(id)
-    setProducts((prev) => prev.filter((p) => p.id !== id))
+    await deleteMutation.mutateAsync(id)
   }
 
   return (
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-muted-foreground">{products.length} products</span>
-          <span className="text-muted-foreground">{rows.length} variants</span>
-          {lowStock > 0 && <span className="text-yellow-500">{lowStock} low stock</span>}
-          {outOfStock > 0 && <span className="text-red-500">{outOfStock} out of stock</span>}
+          <span className="text-muted-foreground">{t('stock.productsCount', { count: products.length })}</span>
+          <span className="text-muted-foreground">{t('stock.variantsCount', { count: rows.length })}</span>
+          {lowStock > 0 && <span className="text-yellow-500">{t('stock.lowStock', { count: lowStock })}</span>}
+          {outOfStock > 0 && <span className="text-red-500">{t('stock.outOfStock', { count: outOfStock })}</span>}
         </div>
         <div className="flex items-center gap-3">
           <Input
-            placeholder="Search products..."
+            placeholder={t('stock.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-xs"
@@ -109,59 +128,59 @@ export default function StockPage() {
               render={
                 <Button>
                   <Plus className="mr-1 h-4 w-4" />
-                  Add product
+                  {t('stock.addButton')}
                 </Button>
               }
             />
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>New product</DialogTitle>
+                <DialogTitle>{t('stock.newProductTitle')}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleAddProduct} className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">Nume produs</label>
+                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldName')}</label>
                   <Input
-                    placeholder="ex. Dell XPS 15 Laptop"
+                    placeholder={t('stock.fieldNamePlaceholder')}
                     value={newProduct.name}
                     onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                     required
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">Descriere</label>
+                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldDescription')}</label>
                   <Input
-                    placeholder="Detalii produs..."
+                    placeholder={t('stock.fieldDescriptionPlaceholder')}
                     value={newProduct.description}
                     onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">URL imagine</label>
+                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldImageUrl')}</label>
                   <Input
-                    placeholder="https://..."
+                    placeholder={t('stock.fieldImageUrlPlaceholder')}
                     value={newProduct.image_url}
                     onChange={(e) => setNewProduct({ ...newProduct, image_url: e.target.value })}
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">SKU</label>
+                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldSku')}</label>
                   <Input
-                    placeholder="ex. DEL-XPS-001"
+                    placeholder={t('stock.fieldSkuPlaceholder')}
                     value={newProduct.sku}
                     onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })}
                     required
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">Categorie</label>
+                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldCategory')}</label>
                   <Input
-                    placeholder="ex. Electronics"
+                    placeholder={t('stock.fieldCategoryPlaceholder')}
                     value={newProduct.categoryName}
                     onChange={(e) => setNewProduct({ ...newProduct, categoryName: e.target.value })}
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">Cantitate în stoc</label>
+                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldStock')}</label>
                   <Input
                     type="number"
                     value={newProduct.stock}
@@ -169,7 +188,7 @@ export default function StockPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">Preț (lei)</label>
+                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldPrice')}</label>
                   <Input
                     type="number"
                     step="0.01"
@@ -178,7 +197,7 @@ export default function StockPage() {
                   />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Add</Button>
+                  <Button type="submit">{t('stock.add')}</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -186,18 +205,18 @@ export default function StockPage() {
         </div>
       </div>
 
-      {loading ? (
-        <p className="text-muted-foreground">Loading...</p>
+      {isLoading ? (
+        <p className="text-muted-foreground">{t('admin.loading')}</p>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Product</TableHead>
-              <TableHead>SKU</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Stock</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('stock.columnProduct')}</TableHead>
+              <TableHead>{t('stock.columnSku')}</TableHead>
+              <TableHead>{t('stock.columnCategory')}</TableHead>
+              <TableHead>{t('stock.columnStock')}</TableHead>
+              <TableHead className="text-right">{t('stock.columnPrice')}</TableHead>
+              <TableHead className="text-right">{t('stock.columnActions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -225,7 +244,7 @@ export default function StockPage() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      {renderStock(variant.stock_quantity)}
+                      {renderStock(variant.stock_quantity, t)}
                       <Button size="icon-sm" variant="ghost" onClick={() => startEdit(variant)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>

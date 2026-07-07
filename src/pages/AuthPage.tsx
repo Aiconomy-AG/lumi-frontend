@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { LoginCredentials } from '@/types/user'
 export default function AuthPage({ onLogin }: { onLogin: () => void }) {
+    const { t } = useTranslation()
     const [isRegister, setIsRegister] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -28,17 +30,17 @@ export default function AuthPage({ onLogin }: { onLogin: () => void }) {
                         LU
                     </div>
                     <h2 className="text-xl font-bold text-white mb-1">
-                        {isRegister ? 'Create account' : 'Sign in'}
+                        {isRegister ? t('auth.createAccount') : t('auth.signIn')}
                     </h2>
                     <p className="text-xs text-zinc-500">
-                        {isRegister ? 'Enter your details to get started' : 'Enter your email and password'}
+                        {isRegister ? t('auth.createAccountSubtitle') : t('auth.signInSubtitle')}
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                     {isRegister && (
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-zinc-400">Full name</label>
+                            <label className="text-xs font-medium text-zinc-400">{t('auth.fullName')}</label>
                             <input
                                 type="text"
                                 className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-purple-500 transition-colors"
@@ -50,7 +52,7 @@ export default function AuthPage({ onLogin }: { onLogin: () => void }) {
                     )}
 
                     <div className="flex flex-col gap-2">
-                        <label className="text-xs font-medium text-zinc-400">Email</label>
+                        <label className="text-xs font-medium text-zinc-400">{t('auth.email')}</label>
                         <input
                             type="email"
                             placeholder="nume@example.com"
@@ -62,7 +64,7 @@ export default function AuthPage({ onLogin }: { onLogin: () => void }) {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label className="text-xs font-medium text-zinc-400">Password</label>
+                        <label className="text-xs font-medium text-zinc-400">{t('auth.password')}</label>
                         <input
                             type="password"
                             placeholder="••••••••"
@@ -77,7 +79,7 @@ export default function AuthPage({ onLogin }: { onLogin: () => void }) {
                         type="submit"
                         className="bg-purple-500 hover:bg-purple-400 text-black font-semibold text-sm py-2.5 rounded-lg transition-colors mt-2"
                     >
-                        {isRegister ? 'Register' : 'Sign in'}
+                        {isRegister ? t('auth.register') : t('auth.signIn')}
                     </button>
                 </form>
 
@@ -86,7 +88,7 @@ export default function AuthPage({ onLogin }: { onLogin: () => void }) {
                         className="text-xs text-zinc-500 hover:text-purple-400 transition-colors bg-transparent border-none cursor-pointer"
                         onClick={() => setIsRegister(!isRegister)}
                     >
-                        {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
+                        {isRegister ? t('auth.haveAccount') : t('auth.noAccount')}
                     </button>
                 </div>
             </div>
