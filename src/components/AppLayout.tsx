@@ -1,75 +1,54 @@
-import { useState } from 'react' ssssssdaxs
-msacbnms
-export function AuthView({ onLogin }: { onLogin: () => void }) {
-    const [isRegister, setIsRegister] = useState(false)
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [name, setName] = useState('')
+import { Clock, Bell } from "lucide-react"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { AppSidebar } from "./app-sidebar"
+import { Outlet, useLocation } from "react-router-dom" //
 
-    function handleSubmit(e: React.FormEvent) {
-        e.preventDefault()
-        if (email && password) {
-            onLogin()
-        }
+export default function AppLayout() {
+    const location = useLocation()
+
+    const getPageTitle = () => {
+        const path = location.pathname
+        if (path.startsWith('/tasks')) return 'Tasks'
+        if (path.startsWith('/dashboard')) return 'Dashboard'
+        if (path.startsWith('/stock')) return 'Stock'
+        if (path.startsWith('/chat')) return 'Chat'
+        if (path.startsWith('/admin')) return 'Admin'
+        return 'Dashboard'
     }
 
+    const title = getPageTitle()
+
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <div className="auth-header">
-                    <div className="brand-logo">LU</div>
-                    <h2>{isRegister ? 'Create account' : 'Sign in'}</h2>
-                    <p>{isRegister ? 'Enter your details to get started' : 'Enter your email and password'}</p>
-                </div>
+        <SidebarProvider>
+            <div className="flex h-screen w-screen bg-zinc-950 text-zinc-100 overflow-hidden">
 
-                <form onSubmit={handleSubmit} className="auth-form">
-                    {isRegister && (
-                        <div className="form-group">
-                            <label>Full name</label>
-                            <input
-                                type="text"
-                                value={name}
-                                onChange={e => setName(e.target.value)}
-                                required
-                            />
+                <AppSidebar />
+
+                <SidebarInset className="flex flex-1 flex-col bg-zinc-950 overflow-hidden">
+
+                    <header className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-800 bg-zinc-950 px-6">
+                        <h1 className="text-sm font-semibold text-white capitalize">{title}</h1>
+
+                        <div className="flex items-center gap-3">
+                            <button className="flex items-center gap-2 rounded-full border border-zinc-800 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-900 transition-colors cursor-pointer bg-transparent">
+                                <Clock className="h-4 w-4 text-orange-500" />
+                                Start timer
+                            </button>
+                            <button className="rounded-full p-2 text-zinc-400 hover:bg-zinc-900 transition-colors cursor-pointer bg-transparent border-none">
+                                <Bell className="h-4 w-4" />
+                            </button>
+                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-400 text-[10px] font-bold text-black select-none">
+                                AP
+                            </div>
                         </div>
-                    )}
+                    </header>
 
-                    <div className="form-group">
-                        <label>Email</label>
-                        <input
-                            type="email"
-                            placeholder="nume@example.com"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
+                    <main className="flex-1 overflow-y-auto bg-zinc-950">
+                        <Outlet />
+                    </main>
 
-
-                    <div className="form-group">
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-
-                    <button type="submit" className="auth-submit-btn">
-                        {isRegister ? 'Register' : 'Sign in'}
-                    </button>
-                </form>
-
-
-                <div className="auth-footer">
-                    <button className="auth-toggle-btn" onClick={() => setIsRegister(!isRegister)}>
-                        {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
-                    </button>
-                </div>
+                </SidebarInset>
             </div>
-        </div>
+        </SidebarProvider>
     )
 }
