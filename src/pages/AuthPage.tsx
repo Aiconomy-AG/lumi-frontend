@@ -1,23 +1,26 @@
 import { useState } from 'react'
-import type { LoginCredentials } from '@/types/user'
+import { login } from '../api/client'
+
 export default function AuthPage({ onLogin }: { onLogin: () => void }) {
     const [isRegister, setIsRegister] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [name, setName] = useState('')
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
-        if (email && password) {
-            const payload: LoginCredentials = {
-                email,
-                password,
-                ...(isRegister && { name })
-            }
-            console.log("Auth payload:", payload)
+        if (!email || !password) return
+
+        try {
+            const { token } = await login({ email, password })
+            localStorage.setItem('token', token)
             onLogin()
+        } catch (error) {
+            console.error('Login failed', error)
+            alert('Email or Password wrong')
         }
     }
+
 
     return (
         <div className="flex items-center justify-center w-screen h-screen bg-zinc-950 p-4">

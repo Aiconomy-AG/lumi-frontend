@@ -4,6 +4,13 @@ import type { Product } from '../types/product'
 import { mockProducts } from './mockProducts'
 import type { Person, Message } from '../types/chat'
 import { mockPeople, mockMessages } from './mockChat'
+interface AuthResponse {
+  token: string
+}
+import type { LoginCredentials } from '../types/user'
+
+
+
 
 // --- Configuration -----------------------------------------------------
 // Set VITE_USE_MOCK=false in .env once the Laravel API is reachable.
@@ -121,4 +128,12 @@ export async function deleteProduct(id: number): Promise<void> {
   }
   await request<void>(`/products/${id}`, {method: 'DELETE'})
 }
+
+export async function login(payload: LoginCredentials): Promise<AuthResponse> {
+  return request<AuthResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
 
