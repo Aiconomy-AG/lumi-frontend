@@ -9,7 +9,6 @@ export default function ChatPage() {
     const [messages, setMessages] = useState<Message[]>([])
     const [draft, setDraft] = useState('')
 
-    // La deschidere: încarcă persoanele și selecteaz-o pe prima.
     useEffect(() => {
         getPeople().then((list) => {
             setPeople(list)

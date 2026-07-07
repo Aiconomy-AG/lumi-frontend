@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 
-// Decide cum se afișează stocul în funcție de cantitate.
 function renderStock(stock: number) {
   if (stock === 0) {
     return <span className="font-medium text-red-500">Out of stock</span>
