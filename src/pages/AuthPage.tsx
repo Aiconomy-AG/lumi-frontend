@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+import type { LoginCredentials } from '@/types/user'
 export default function AuthPage({ onLogin }: { onLogin: () => void }) {
     const [isRegister, setIsRegister] = useState(false)
     const [email, setEmail] = useState('')
@@ -9,6 +9,12 @@ export default function AuthPage({ onLogin }: { onLogin: () => void }) {
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
         if (email && password) {
+            const payload: LoginCredentials = {
+                email,
+                password,
+                ...(isRegister && { name })
+            }
+            console.log("Auth payload:", payload)
             onLogin()
         }
     }

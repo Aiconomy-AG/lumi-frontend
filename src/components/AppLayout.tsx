@@ -1,5 +1,5 @@
-import { useState } from 'react'
-
+import { useState } from 'react' ssssssdaxs
+msacbnms
 export function AuthView({ onLogin }: { onLogin: () => void }) {
     const [isRegister, setIsRegister] = useState(false)
     const [email, setEmail] = useState('')

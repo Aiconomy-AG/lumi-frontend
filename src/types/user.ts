@@ -9,3 +9,8 @@ export interface User {
   role: 'admin' | 'member' | 'viewer'
   status: 'online' | 'offline'
 }
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
