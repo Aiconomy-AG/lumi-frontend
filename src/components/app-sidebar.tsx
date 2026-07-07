@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom"
+import { useSidebar } from "@/components/ui/sidebar"
 import { Home, CheckSquare, ShoppingCart, MessageSquare, Users } from "lucide-react"
 import {
     Sidebar,
@@ -23,13 +24,14 @@ export const items = [
 export function AppSidebar() {
     const navigate = useNavigate()
     const location = useLocation()
+    const { open, toggleSidebar } = useSidebar() // <- Modificat aici
 
     return (
-        <Sidebar className="custom-sidebar">
+        <Sidebar className="custom-sidebar" collapsible="icon">
             <SidebarHeader className="sidebar-header">
                 <div className="header-brand">
                     <div className="brand-logo">LU</div>
-                    <span className="brand-name">Lumi</span>
+                    {open && <span className="brand-name">Lumi</span>}
                 </div>
             </SidebarHeader>
 
@@ -48,7 +50,7 @@ export function AppSidebar() {
                                         >
                                             <div className="menu-link" style={{ cursor: 'pointer' }}>
                                                 <item.icon className={`menu-icon ${isItemActive ? "icon-active" : "icon-inactive"}`} />
-                                                <span className="menu-text">{item.title}</span>
+                                                {open && <span className="menu-text">{item.title}</span>}
                                             </div>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
@@ -59,8 +61,8 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
 
-            <SidebarFooter className="sidebar-footer">
-                <span className="footer-text">Collapse</span>
+            <SidebarFooter className="sidebar-footer" onClick={toggleSidebar} style={{ cursor: 'pointer' }}>
+                {open && <span className="footer-text">Collapse</span>}
             </SidebarFooter>
         </Sidebar>
     )
