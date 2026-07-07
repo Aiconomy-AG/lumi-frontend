@@ -88,3 +88,37 @@ export async function sendMessage(personId: number, text: string): Promise<Messa
     body: JSON.stringify({ text }),
   })
 }
+
+export async function createProduct(payload: Omit<Product, 'id'>): Promise<Product> {
+  if (USE_MOCK) {
+    const newProduct: Product = { id: Date.now(), ...payload }
+    mockProducts.push(newProduct)
+    return delay(newProduct)
+  }
+  return request<Product>('/products', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function updateProductStock(id: number, stock: number): Promise<Product> {
+  if (USE_MOCK) {
+    const product = mockProducts.find((p) => p.id === id)
+    if (product) product.stock = stock
+    return delay(product as Product)
+  }
+  return request<Product>(`/products/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ stock }),
+  })
+}
+
+export async function deleteProduct(id: number): Promise<void> {
+  if (USE_MOCK) {
+    const idx = mockProducts.findIndex((p) => p.id === id)
+    if (idx !== -1) mockProducts.splice(idx, 1)
+    return delay(undefined)
+  }
+  await request<void>(`/products/${id}`, {method: 'DELETE'})
+}
+

@@ -18,6 +18,7 @@ const mockTasks: Task[] = [
 
 export default function TasksPage() {
     const [filter, setFilter] = useState<'All' | Task['status']>("All")
+    const [search, setSearch] = useState("")
     const [isModalOpen, setIsModalOpen] = useState(false)
     const navigate = useNavigate()
 
@@ -28,7 +29,11 @@ export default function TasksPage() {
     const [project, setProject] = useState("")
     const [dueDate, setDueDate] = useState("2026-07-07")
 
-    const filteredTasks = mockTasks.filter(task => filter === "All" || task.status === filter)
+    const filteredTasks = mockTasks.filter(task =>
+        (filter === "All" || task.status === filter) &&
+        (task.title.toLowerCase().includes(search.toLowerCase()) ||
+            task.project.toLowerCase().includes(search.toLowerCase()))
+    )
 
     function handleCreateTask(e: React.FormEvent) {
         e.preventDefault()
@@ -65,6 +70,8 @@ export default function TasksPage() {
                     <input
                         type="text"
                         placeholder="Search tasks..."
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
                         className="bg-zinc-900 border border-zinc-850 rounded-lg px-4 py-1.5 text-zinc-300 placeholder-zinc-600 text-xs outline-none w-[240px] focus:border-purple-500/50 transition-colors"
                     />
                 </div>
