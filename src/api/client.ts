@@ -4,6 +4,7 @@ import type { Product } from '../types/product'
 import type { Conversation, Message } from '../types/chat'
 import { mockConversations, mockMessages } from './mockChat'
 import type { Order, PaginatedResponse } from '@/types/order'
+import type { TaskTimeEntry } from '@/types/task'
 
 // --- Configuration -----------------------------------------------------
 // Set VITE_USE_MOCK=false in .env once the Laravel API is reachable.
@@ -164,5 +165,21 @@ export async function me(): Promise<User> {
 
 export async function getOrders(page = 1): Promise<PaginatedResponse<Order>> {
   return request<PaginatedResponse<Order>>(`/v1/admin/orders?page=${page}`)
+}
+
+export async function startTimeEntry(taskId: number): Promise<TaskTimeEntry> {
+  return requestData<TaskTimeEntry>(`/auth/tasks/${taskId}/time-entries/start`, {
+    method: 'POST',
+  })
+}
+
+export async function stopTimeEntry(taskId: number, entryId: number): Promise<TaskTimeEntry> {
+  return requestData<TaskTimeEntry>(`/auth/tasks/${taskId}/time-entries/${entryId}/stop`, {
+    method: 'POST',
+  })
+}
+
+export async function getTimeEntries(taskId: number): Promise<TaskTimeEntry[]> {
+  return requestData<TaskTimeEntry[]>(`/auth/tasks/${taskId}/time-entries`)
 }
 
