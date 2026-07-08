@@ -17,7 +17,7 @@ export default function AppLayout() {
     const location = useLocation()
     const navigate = useNavigate()
     const { t } = useTranslation()
-    const { todaySeconds, isRunning } = useTimeTracking()
+    const { elapsedSeconds, isRunning } = useTimeTracking()
     const { user, logout } = useAuth()
     const currentUser = user
     const initials = currentUser?.name.split(" ").map((w) => w[0]).join("").toUpperCase() ?? ""
@@ -50,7 +50,7 @@ export default function AppLayout() {
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2 rounded-full border border-zinc-800 px-3 py-1.5 text-xs text-zinc-400 bg-transparent">
                                 <Clock className={`h-4 w-4 ${isRunning ? "text-purple-500" : "text-zinc-500"}`} />
-                                {formatTime(todaySeconds)}
+                                {formatTime(elapsedSeconds)}
                             </div>
                             <button className="rounded-full p-2 text-zinc-400 hover:bg-zinc-900 transition-colors cursor-pointer bg-transparent border-none">
                                 <Bell className="h-4 w-4" />
