@@ -8,7 +8,8 @@
     "chat": "Chat",
     "admin": "Admin",
     "collapse": "Collapse",
-    "expand": "Expand"
+    "expand": "Expand",
+    "projects": "Projects"
   },
   "header": {
     "startTimer": "Start timer"
@@ -64,7 +65,8 @@
       "in_progress": "In progress",
       "blocked": "Blocked",
       "complete": "Complete"
-    }
+    },
+    "columnProject": "Project"
   },
   "taskDetail": {
     "back": "← Tasks",
@@ -173,5 +175,27 @@
     "date": "Date",
     "prev": "Previous",
     "next": "Next"
+  },
+  "projects": {
+    "title": "Projects",
+    "addButton": "Add project",
+    "newTitle": "New project",
+    "editTitle": "Edit project",
+    "fieldName": "Name",
+    "fieldDescription": "Description",
+    "fieldDeadline": "Deadline",
+    "fieldStatus": "Status",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "deleteConfirm": "Delete this project?",
+    "loading": "Loading...",
+    "empty": "No projects yet",
+    "tasksTitle": "Tasks",
+    "addTask": "Add task",
+    "noTasks": "No tasks yet",
+    "taskTitle": "Title",
+    "dueDate": "Due date"
   }
 }

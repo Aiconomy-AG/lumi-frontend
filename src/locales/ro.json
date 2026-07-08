@@ -8,7 +8,8 @@
     "chat": "Chat",
     "admin": "Admin",
     "collapse": "Restrânge",
-    "expand": "Extinde"
+    "expand": "Extinde",
+    "projects": "Proiecte"
   },
   "header": {
     "startTimer": "Pornește cronometrul"
@@ -64,7 +65,8 @@
       "in_progress": "În desfășurare",
       "blocked": "Blocat",
       "complete": "Finalizat"
-    }
+    },
+    "columnProject": "Proiect"
   },
   "taskDetail": {
     "back": "← Sarcini",
@@ -173,5 +175,27 @@
     "date": "Dată",
     "prev": "Anterior",
     "next": "Următor"
+  },
+  "projects": {
+    "title": "Proiecte",
+    "addButton": "Adaugă proiect",
+    "newTitle": "Proiect nou",
+    "editTitle": "Editează proiect",
+    "fieldName": "Nume",
+    "fieldDescription": "Descriere",
+    "fieldDeadline": "Deadline",
+    "fieldStatus": "Status",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "edit": "Editează",
+    "deleteConfirm": "Sigur ștergi acest proiect?",
+    "loading": "Se încarcă...",
+    "empty": "Niciun proiect încă",
+    "tasksTitle": "Task-uri",
+    "addTask": "Adaugă task",
+    "noTasks": "Niciun task încă",
+    "taskTitle": "Titlu",
+    "dueDate": "Scadență"
   }
 }
