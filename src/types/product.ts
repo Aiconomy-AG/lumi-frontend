@@ -21,6 +21,7 @@ export interface Product {
     price: number
     image_url?: string
     category_id?: number
+    category_name?: string | null
     category?: Category
     shopify_product_id?: string
     shopify_sync_status?: 'synced' | 'unsynced' | 'syncing' | 'error'
