@@ -60,6 +60,35 @@ export async function updateProduct(id: number, payload: UpdateProductPayload): 
   })
 }
 
+export interface VariantPayload {
+  sku?: string
+  name?: string | null
+  price?: number
+  weight?: number | null
+  weight_unit?: string | null
+  colour?: string | null
+  stock_quantity?: number
+  options?: Record<string, string> | null
+}
+
+export async function createVariant(productId: number, payload: VariantPayload): Promise<Product> {
+  return requestData<Product>(`/v1/admin/products/${productId}/variants`, {
+    method: 'POST',
+    data: payload,
+  })
+}
+
+export async function updateVariant(productId: number, variantId: number, payload: VariantPayload): Promise<Product> {
+  return requestData<Product>(`/v1/admin/products/${productId}/variants/${variantId}`, {
+    method: 'PUT',
+    data: payload,
+  })
+}
+
+export async function deleteVariant(productId: number, variantId: number): Promise<void> {
+  await request<void>(`/v1/admin/products/${productId}/variants/${variantId}`, { method: 'DELETE' })
+}
+
 export async function updateVariantStock(productId: number, variantId: number, stockQuantity: number): Promise<Product> {
   return requestData<Product>(`/v1/admin/products/${productId}/variants/${variantId}`, {
     method: 'PATCH',

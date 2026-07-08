@@ -110,7 +110,15 @@
     "columnVariant": "Variant",
     "pageOf": "Page {{page}} of {{pages}}",
     "editProductTitle": "Edit product",
-    "save": "Save"
+    "save": "Save",
+    "addVariant": "Add variant",
+    "newVariantTitle": "New variant",
+    "editVariantTitle": "Edit variant",
+    "fieldVariantName": "Variant name",
+    "fieldColour": "Colour",
+    "fieldWeight": "Weight",
+    "fieldWeightUnit": "Weight unit",
+    "defaultVariant": "Default"
   },
   "chat": {
     "searchPlaceholder": "Search people...",

@@ -110,7 +110,15 @@
     "columnVariant": "Variantă",
     "pageOf": "Pagina {{page}} din {{pages}}",
     "editProductTitle": "Editează produsul",
-    "save": "Salvează"
+    "save": "Salvează",
+    "addVariant": "Adaugă variantă",
+    "newVariantTitle": "Variantă nouă",
+    "editVariantTitle": "Editează varianta",
+    "fieldVariantName": "Nume variantă",
+    "fieldColour": "Culoare",
+    "fieldWeight": "Greutate",
+    "fieldWeightUnit": "Unitate greutate",
+    "defaultVariant": "Standard"
   },
   "chat": {
     "searchPlaceholder": "Caută persoane...",

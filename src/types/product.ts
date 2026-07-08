@@ -12,6 +12,7 @@ export interface ProductVariant {
     price: number
     weight: number
     weight_unit: string
+    colour?: string | null
     stock_quantity: number
     options?: Record<string, string> | null
 }

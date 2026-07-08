@@ -110,7 +110,15 @@
     "columnVariant": "Variante",
     "pageOf": "Seite {{page}} von {{pages}}",
     "editProductTitle": "Produkt bearbeiten",
-    "save": "Speichern"
+    "save": "Speichern",
+    "addVariant": "Variante hinzufügen",
+    "newVariantTitle": "Neue Variante",
+    "editVariantTitle": "Variante bearbeiten",
+    "fieldVariantName": "Variantenname",
+    "fieldColour": "Farbe",
+    "fieldWeight": "Gewicht",
+    "fieldWeightUnit": "Gewichtseinheit",
+    "defaultVariant": "Standard"
   },
   "chat": {
     "searchPlaceholder": "Personen suchen...",

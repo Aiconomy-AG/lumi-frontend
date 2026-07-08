@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
+import type { Product, ProductVariant, Category } from '@/types/product'
 import {
-  getProducts, createProduct, updateProduct, updateVariantStock, deleteProduct, getShopifyCategories,
-} from '@/api/client'
-import type { Product, ProductVariant } from '@/types/product'
+  useProducts, useShopifyCategories,
+  useCreateProduct, useUpdateProduct, useDeleteProduct,
+  useCreateVariant, useUpdateVariant, useDeleteVariant, useUpdateVariantStock,
+} from '@/hooks/useStock'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
@@ -16,17 +18,15 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { Plus, Pencil, Trash2, Check, X, ChevronLeft, ChevronRight, ChevronDown, CornerDownRight } from 'lucide-react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/features/auth/AuthContext'
-import type { Category } from '@/types/product'
 
 
 const emptyProduct = { name: '', description: '', image_url: '', sku: '', categoryId: null as number | null, stock: '', price: '' }
 const STOCK_CURRENCY = import.meta.env.VITE_CURRENCY ?? 'RON'
 const PER_PAGE = 25
 
-interface EditForm {
+interface ProductForm {
   id: number
   name: string
   description: string
@@ -34,6 +34,18 @@ interface EditForm {
   sku: string
   categoryId: number | null
   price: string
+}
+
+interface VariantForm {
+  productId: number
+  variantId: number | null
+  sku: string
+  name: string
+  colour: string
+  weight: string
+  weight_unit: string
+  price: string
+  stock: string
 }
 
 function renderStock(stock: number, t: TFunction) {
@@ -46,24 +58,33 @@ function renderStock(stock: number, t: TFunction) {
   return <span className="font-medium text-green-600">{stock}</span>
 }
 
-function variantLabel(product: Product, variant: ProductVariant): string | null {
+// diferenta lizibila dintre variante: optiuni ("120 g" / "Blue / M"), altfel
+// culoare + greutate, altfel numele variantei; niciodata SKU
+function variantLabel(product: Product, variant: ProductVariant, t: TFunction): string {
   if (variant.options && Object.keys(variant.options).length > 0) {
     return Object.values(variant.options).join(' / ')
+  }
+  const parts: string[] = []
+  if (variant.colour) {
+    parts.push(variant.colour)
+  }
+  if (variant.weight && Number(variant.weight) > 0) {
+    parts.push(`${Number(variant.weight)}${variant.weight_unit ?? ''}`)
+  }
+  if (parts.length) {
+    return parts.join(' / ')
   }
   if (variant.name && variant.name !== product.name) {
     return variant.name
   }
-  if (variant.weight && Number(variant.weight) > 0) {
-    return `${Number(variant.weight)}${variant.weight_unit ?? ''}`
-  }
-  return null
+  return t('stock.defaultVariant')
 }
 
 function formatPrice(value: number): string {
   return `${value.toFixed(2)} ${STOCK_CURRENCY}`
 }
 
-
+// pretul pe randul produsului: pretul variantei unice sau intervalul min-max
 function productPrice(product: Product): string {
   if (!product.variants.length) {
     return formatPrice(product.price)
@@ -106,6 +127,20 @@ function CategorySelect({ value, onChange, categories, nullLabel, className }: C
   )
 }
 
+interface FieldProps {
+  label: string
+  children: React.ReactNode
+}
+
+function Field({ label, children }: FieldProps) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-muted-foreground">{label}</label>
+      {children}
+    </div>
+  )
+}
+
 export default function StockPage() {
   const { t } = useTranslation()
   const { isAdmin } = useAuth()
@@ -119,7 +154,8 @@ export default function StockPage() {
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [newProduct, setNewProduct] = useState(emptyProduct)
 
-  const [editForm, setEditForm] = useState<EditForm | null>(null)
+  const [productForm, setProductForm] = useState<ProductForm | null>(null)
+  const [variantForm, setVariantForm] = useState<VariantForm | null>(null)
 
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editValue, setEditValue] = useState<number>(0)
@@ -139,43 +175,19 @@ export default function StockPage() {
     per_page: PER_PAGE,
   }
 
-  const { data: productPage, isLoading } = useQuery({
-    queryKey: ['products', filters],
-    queryFn: () => getProducts(filters),
-    placeholderData: (previous) => previous,
-  })
-
-  const { data: categories = [] } = useQuery({
-    queryKey: ['shopify-categories'],
-    queryFn: getShopifyCategories,
-  })
+  const { data: productPage, isLoading } = useProducts(filters)
+  const { data: categories = [] } = useShopifyCategories()
 
   const products = productPage?.data ?? []
   const meta = productPage?.meta
 
-  const queryClient = useQueryClient()
-
-  const createMutation = useMutation({
-    mutationFn: createProduct,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
-  })
-
-  const updateMutation = useMutation({
-    mutationFn: (vars: { id: number; payload: Parameters<typeof updateProduct>[1] }) =>
-        updateProduct(vars.id, vars.payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
-  })
-
-  const updateStockMutation = useMutation({
-    mutationFn: (vars: { productId: number; variantId: number; stock: number }) =>
-        updateVariantStock(vars.productId, vars.variantId, vars.stock),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteProduct,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
-  })
+  const createProduct = useCreateProduct()
+  const updateProduct = useUpdateProduct()
+  const deleteProduct = useDeleteProduct()
+  const createVariant = useCreateVariant()
+  const updateVariant = useUpdateVariant()
+  const deleteVariant = useDeleteVariant()
+  const updateVariantStock = useUpdateVariantStock()
 
   const variantCount = products.reduce((sum, p) => sum + p.variants.length, 0)
   const lowStock = products.reduce(
@@ -195,7 +207,7 @@ export default function StockPage() {
     })
   }
 
-  function startEdit(variant: ProductVariant) {
+  function startStockEdit(variant: ProductVariant) {
     setEditingId(variant.id)
     setEditValue(variant.stock_quantity)
   }
@@ -206,7 +218,7 @@ export default function StockPage() {
   }
 
   function openEditProduct(product: Product) {
-    setEditForm({
+    setProductForm({
       id: product.id,
       name: product.name,
       description: product.description ?? '',
@@ -217,12 +229,40 @@ export default function StockPage() {
     })
   }
 
+  function openCreateVariant(product: Product) {
+    setVariantForm({
+      productId: product.id,
+      variantId: null,
+      sku: '',
+      name: '',
+      colour: '',
+      weight: '',
+      weight_unit: 'g',
+      price: String(product.price),
+      stock: '0',
+    })
+  }
+
+  function openEditVariant(product: Product, variant: ProductVariant) {
+    setVariantForm({
+      productId: product.id,
+      variantId: variant.id,
+      sku: variant.sku,
+      name: variant.name ?? '',
+      colour: variant.colour ?? '',
+      weight: variant.weight ? String(Number(variant.weight)) : '',
+      weight_unit: variant.weight_unit ?? '',
+      price: String(variant.price),
+      stock: String(variant.stock_quantity),
+    })
+  }
+
   async function handleAddProduct(e: React.FormEvent) {
     e.preventDefault()
     const parsedPrice = Number(newProduct.price)
     const parsedStock = Number(newProduct.stock)
 
-    await createMutation.mutateAsync({
+    await createProduct.mutateAsync({
       name: newProduct.name,
       description: newProduct.description || undefined,
       image_url: newProduct.image_url || undefined,
@@ -231,8 +271,6 @@ export default function StockPage() {
       variants: [{
         sku: newProduct.sku,
         price: parsedPrice,
-        weight: 1,
-        weight_unit: 'kg',
         stock_quantity: parsedStock,
       }],
     })
@@ -242,29 +280,66 @@ export default function StockPage() {
 
   async function handleEditProduct(e: React.FormEvent) {
     e.preventDefault()
-    if (!editForm) return
+    if (!productForm) return
 
-    await updateMutation.mutateAsync({
-      id: editForm.id,
+    const price = Number(productForm.price)
+
+    await updateProduct.mutateAsync({
+      id: productForm.id,
       payload: {
-        name: editForm.name,
-        price: Number(editForm.price),
-        description: editForm.description || undefined,
-        image_url: editForm.image_url || undefined,
-        sku: editForm.sku || undefined,
-        category_id: editForm.categoryId ?? undefined,
+        name: productForm.name,
+        price,
+        description: productForm.description || undefined,
+        image_url: productForm.image_url || undefined,
+        sku: productForm.sku || undefined,
+        category_id: productForm.categoryId ?? undefined,
       },
     })
-    setEditForm(null)
+
+    // pretul afisat in tabel vine din variante; la produsele cu o singura
+    // varianta tinem pretul variantei sincron cu cel al produsului
+    const product = products.find((p) => p.id === productForm.id)
+    if (product && product.variants.length === 1 && product.variants[0].price !== price) {
+      await updateVariant.mutateAsync({
+        productId: productForm.id,
+        variantId: product.variants[0].id,
+        payload: { price },
+      })
+    }
+
+    setProductForm(null)
   }
 
-  async function saveEdit(productId: number, variantId: number) {
-    await updateStockMutation.mutateAsync({ productId, variantId, stock: editValue })
+  async function handleSaveVariant(e: React.FormEvent) {
+    e.preventDefault()
+    if (!variantForm) return
+
+    const payload = {
+      sku: variantForm.sku,
+      name: variantForm.name || null,
+      colour: variantForm.colour || null,
+      weight: variantForm.weight === '' ? null : Number(variantForm.weight),
+      weight_unit: variantForm.weight_unit || null,
+      price: Number(variantForm.price),
+      stock_quantity: Number(variantForm.stock),
+    }
+
+    if (variantForm.variantId === null) {
+      await createVariant.mutateAsync({ productId: variantForm.productId, payload })
+    } else {
+      await updateVariant.mutateAsync({
+        productId: variantForm.productId,
+        variantId: variantForm.variantId,
+        payload,
+      })
+    }
+
+    setVariantForm(null)
+  }
+
+  async function saveStockEdit(productId: number, variantId: number) {
+    await updateVariantStock.mutateAsync({ productId, variantId, stock: editValue })
     setEditingId(null)
-  }
-
-  async function handleDelete(id: number) {
-    await deleteMutation.mutateAsync(id)
   }
 
   function renderStockEditor(product: Product, variant: ProductVariant) {
@@ -278,7 +353,7 @@ export default function StockPage() {
             className="h-7 w-20"
             autoFocus
           />
-          <Button size="icon-sm" variant="ghost" onClick={() => saveEdit(product.id, variant.id)}>
+          <Button size="icon-sm" variant="ghost" onClick={() => saveStockEdit(product.id, variant.id)}>
             <Check className="h-4 w-4" />
           </Button>
           <Button size="icon-sm" variant="ghost" onClick={() => setEditingId(null)}>
@@ -290,7 +365,7 @@ export default function StockPage() {
     return (
       <div className="flex items-center gap-2">
         {renderStock(variant.stock_quantity, t)}
-        <Button size="icon-sm" variant="ghost" onClick={() => startEdit(variant)}>
+        <Button size="icon-sm" variant="ghost" onClick={() => startStockEdit(variant)}>
           <Pencil className="h-3.5 w-3.5" />
         </Button>
       </div>
@@ -334,51 +409,45 @@ export default function StockPage() {
                 <DialogTitle>{t('stock.newProductTitle')}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleAddProduct} className="flex flex-col gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldName')}</label>
+                <Field label={t('stock.fieldName')}>
                   <Input
                     placeholder={t('stock.fieldNamePlaceholder')}
                     value={newProduct.name}
                     onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                     required
                   />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldDescription')}</label>
+                </Field>
+                <Field label={t('stock.fieldDescription')}>
                   <Input
                     placeholder={t('stock.fieldDescriptionPlaceholder')}
                     value={newProduct.description}
                     onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                   />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldImageUrl')}</label>
+                </Field>
+                <Field label={t('stock.fieldImageUrl')}>
                   <Input
                     placeholder={t('stock.fieldImageUrlPlaceholder')}
                     value={newProduct.image_url}
                     onChange={(e) => setNewProduct({ ...newProduct, image_url: e.target.value })}
                   />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldSku')}</label>
+                </Field>
+                <Field label={t('stock.fieldSku')}>
                   <Input
                     placeholder={t('stock.fieldSkuPlaceholder')}
                     value={newProduct.sku}
                     onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })}
                     required
                   />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldCategory')}</label>
+                </Field>
+                <Field label={t('stock.fieldCategory')}>
                   <CategorySelect
                     value={newProduct.categoryId}
                     onChange={(value) => setNewProduct({ ...newProduct, categoryId: value })}
                     categories={categories}
                     nullLabel={t('stock.noCategory')}
                   />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldStock')}</label>
+                </Field>
+                <Field label={t('stock.fieldStock')}>
                   <Input
                     type="number"
                     min="0"
@@ -386,9 +455,8 @@ export default function StockPage() {
                     onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
                     required
                   />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldPrice')}</label>
+                </Field>
+                <Field label={t('stock.fieldPrice')}>
                   <Input
                     type="number"
                     step="0.01"
@@ -397,7 +465,7 @@ export default function StockPage() {
                     onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
                     required
                   />
-                </div>
+                </Field>
                 <DialogFooter>
                   <Button type="submit">{t('stock.add')}</Button>
                 </DialogFooter>
@@ -407,61 +475,130 @@ export default function StockPage() {
         </div>
       </div>
 
-      <Dialog open={editForm !== null} onOpenChange={(open) => !open && setEditForm(null)}>
+      <Dialog open={productForm !== null} onOpenChange={(open) => !open && setProductForm(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('stock.editProductTitle')}</DialogTitle>
           </DialogHeader>
-          {editForm && (
+          {productForm && (
             <form onSubmit={handleEditProduct} className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldName')}</label>
+              <Field label={t('stock.fieldName')}>
                 <Input
-                  value={editForm.name}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  value={productForm.name}
+                  onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
                   required
                 />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldDescription')}</label>
+              </Field>
+              <Field label={t('stock.fieldDescription')}>
                 <Input
-                  value={editForm.description}
-                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  value={productForm.description}
+                  onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
                 />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldImageUrl')}</label>
+              </Field>
+              <Field label={t('stock.fieldImageUrl')}>
                 <Input
-                  value={editForm.image_url}
-                  onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                  value={productForm.image_url}
+                  onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })}
                 />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldSku')}</label>
+              </Field>
+              <Field label={t('stock.fieldSku')}>
                 <Input
-                  value={editForm.sku}
-                  onChange={(e) => setEditForm({ ...editForm, sku: e.target.value })}
+                  value={productForm.sku}
+                  onChange={(e) => setProductForm({ ...productForm, sku: e.target.value })}
                 />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldCategory')}</label>
+              </Field>
+              <Field label={t('stock.fieldCategory')}>
                 <CategorySelect
-                  value={editForm.categoryId}
-                  onChange={(value) => setEditForm({ ...editForm, categoryId: value })}
+                  value={productForm.categoryId}
+                  onChange={(value) => setProductForm({ ...productForm, categoryId: value })}
                   categories={categories}
                   nullLabel={t('stock.noCategory')}
                 />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldPrice')}</label>
+              </Field>
+              <Field label={t('stock.fieldPrice')}>
                 <Input
                   type="number"
                   step="0.01"
                   min="0"
-                  value={editForm.price}
-                  onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                  value={productForm.price}
+                  onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
                   required
                 />
+              </Field>
+              <DialogFooter>
+                <Button type="submit">{t('stock.save')}</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={variantForm !== null} onOpenChange={(open) => !open && setVariantForm(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {variantForm?.variantId === null ? t('stock.newVariantTitle') : t('stock.editVariantTitle')}
+            </DialogTitle>
+          </DialogHeader>
+          {variantForm && (
+            <form onSubmit={handleSaveVariant} className="flex flex-col gap-3">
+              <Field label={t('stock.fieldSku')}>
+                <Input
+                  value={variantForm.sku}
+                  onChange={(e) => setVariantForm({ ...variantForm, sku: e.target.value })}
+                  required
+                />
+              </Field>
+              <Field label={t('stock.fieldVariantName')}>
+                <Input
+                  value={variantForm.name}
+                  onChange={(e) => setVariantForm({ ...variantForm, name: e.target.value })}
+                />
+              </Field>
+              <Field label={t('stock.fieldColour')}>
+                <Input
+                  value={variantForm.colour}
+                  onChange={(e) => setVariantForm({ ...variantForm, colour: e.target.value })}
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label={t('stock.fieldWeight')}>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={variantForm.weight}
+                    onChange={(e) => setVariantForm({ ...variantForm, weight: e.target.value })}
+                  />
+                </Field>
+                <Field label={t('stock.fieldWeightUnit')}>
+                  <Input
+                    placeholder="g / kg / ml"
+                    value={variantForm.weight_unit}
+                    onChange={(e) => setVariantForm({ ...variantForm, weight_unit: e.target.value })}
+                  />
+                </Field>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label={t('stock.fieldPrice')}>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={variantForm.price}
+                    onChange={(e) => setVariantForm({ ...variantForm, price: e.target.value })}
+                    required
+                  />
+                </Field>
+                <Field label={t('stock.fieldStock')}>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={variantForm.stock}
+                    onChange={(e) => setVariantForm({ ...variantForm, stock: e.target.value })}
+                    required
+                  />
+                </Field>
               </div>
               <DialogFooter>
                 <Button type="submit">{t('stock.save')}</Button>
@@ -498,14 +635,12 @@ export default function StockPage() {
                   <TableRow key={`p-${product.id}`}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-1">
-                        {multiVariant && (
-                          <Button size="icon-sm" variant="ghost" onClick={() => toggleExpanded(product.id)}>
-                            {isExpanded
-                              ? <ChevronDown className="h-4 w-4" />
-                              : <ChevronRight className="h-4 w-4" />}
-                          </Button>
-                        )}
-                        <span className={multiVariant ? '' : 'pl-8'}>{product.name || '-'}</span>
+                        <Button size="icon-sm" variant="ghost" onClick={() => toggleExpanded(product.id)}>
+                          {isExpanded
+                            ? <ChevronDown className="h-4 w-4" />
+                            : <ChevronRight className="h-4 w-4" />}
+                        </Button>
+                        <span>{product.name || '-'}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
@@ -518,7 +653,7 @@ export default function StockPage() {
                           {t('stock.variantsCount', { count: product.variants.length })}
                         </button>
                       ) : (
-                        single ? variantLabel(product, single) ?? '-' : '-'
+                        single ? variantLabel(product, single, t) : '-'
                       )}
                     </TableCell>
                     <TableCell className="text-muted-foreground">{product.sku ?? single?.sku ?? '-'}</TableCell>
@@ -538,7 +673,7 @@ export default function StockPage() {
                         <Pencil className="h-4 w-4" />
                       </Button>
                       {isAdmin && (
-                        <Button size="icon-sm" variant="ghost" onClick={() => handleDelete(product.id)}>
+                        <Button size="icon-sm" variant="ghost" onClick={() => deleteProduct.mutateAsync(product.id)}>
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
                       )}
@@ -546,7 +681,7 @@ export default function StockPage() {
                   </TableRow>
                 )
 
-                if (!multiVariant || !isExpanded) {
+                if (!isExpanded) {
                   return [productRow]
                 }
 
@@ -558,16 +693,38 @@ export default function StockPage() {
                       <TableCell className="text-muted-foreground">
                         <div className="flex items-center gap-2 pl-2">
                           <CornerDownRight className="h-3.5 w-3.5" />
-                          {variantLabel(product, variant) ?? variant.sku}
+                          {variantLabel(product, variant, t)}
                         </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">{variant.sku}</TableCell>
                       <TableCell />
                       <TableCell>{renderStockEditor(product, variant)}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{formatPrice(variant.price)}</TableCell>
-                      <TableCell />
+                      <TableCell className="text-right">
+                        <Button size="icon-sm" variant="ghost" onClick={() => openEditVariant(product, variant)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        {isAdmin && (
+                          <Button
+                            size="icon-sm"
+                            variant="ghost"
+                            onClick={() => deleteVariant.mutateAsync({ productId: product.id, variantId: variant.id })}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   )),
+                  <TableRow key={`add-v-${product.id}`} className="bg-muted/30">
+                    <TableCell />
+                    <TableCell colSpan={6}>
+                      <Button size="sm" variant="ghost" onClick={() => openCreateVariant(product)}>
+                        <Plus className="mr-1 h-3.5 w-3.5" />
+                        {t('stock.addVariant')}
+                      </Button>
+                    </TableCell>
+                  </TableRow>,
                 ]
               })}
             </TableBody>

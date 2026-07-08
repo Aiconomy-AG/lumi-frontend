@@ -70,7 +70,7 @@ export default function TasksPage() {
     }
 
     const [title, setTitle] = useState("")
-    const [project_id, setProject] = useState("")
+    const [, setProject] = useState("")
     const [description, setDescription] = useState("")
     const [status, setStatus] = useState<TaskStatus>("to_do")
     const [dueDate, setDueDate] = useState("2026-07-07")
