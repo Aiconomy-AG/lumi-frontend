@@ -83,12 +83,12 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <div className="flex justify-center gap-1.5 px-2 pb-2">
+                <div className="flex group-data-[collapsible=icon]:flex-col justify-center items-center gap-1.5 px-2 pb-2">
                     {languages.map((lang) => (
                         <button
                             key={lang}
                             onClick={() => changeLanguage(lang)}
-                            className={`flex h-7 w-7 items-center justify-center rounded-md border text-[10px] font-bold uppercase cursor-pointer transition-colors ${
+                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-[10px] font-bold uppercase cursor-pointer transition-colors ${
                                 i18n.resolvedLanguage === lang
                                     ? "border-purple-500 bg-purple-500/10 text-purple-400"
                                     : "border-zinc-800 text-zinc-500 hover:bg-zinc-900"
