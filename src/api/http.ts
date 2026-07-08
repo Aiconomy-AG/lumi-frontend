@@ -1,6 +1,5 @@
 import axios, { type AxiosRequestConfig } from 'axios'
 import { getAuthToken, clearAuthToken } from './token'
-import { USE_MOCK } from './config'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:80/api'
 
@@ -22,7 +21,7 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error?.response?.status === 401 && !USE_MOCK) {
+    if (error?.response?.status === 401) {
       clearAuthToken()
       window.location.assign('/login')
     }
