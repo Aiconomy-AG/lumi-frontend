@@ -1,10 +1,14 @@
+export type UserRole = 'admin' | 'employee' | 'client'
+export type UserStatus = 'available' | 'busy' | 'offline' | 'away'
+
 export interface User {
   id: number
-  role: 'admin' | 'manager' | 'employee'
+  role: UserRole
   email: string
   name: string
   phone_number?: string
-  status: 'active' | 'inactive'
+  status: UserStatus
+  language_flag?: string
 }
 
 export interface LoginCredentials {

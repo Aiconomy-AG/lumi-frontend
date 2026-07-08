@@ -54,10 +54,10 @@
     "columnStatus": "Status",
     "columnDue": "Fällig",
     "status": {
-      "pending": "Ausstehend",
+      "to_do": "Zu erledigen",
       "in_progress": "In Bearbeitung",
-      "completed": "Abgeschlossen",
-      "overdue": "Überfällig"
+      "blocked": "Blockiert",
+      "complete": "Abgeschlossen"
     }
   },
   "taskDetail": {
@@ -103,7 +103,8 @@
     "online": "Online",
     "offline": "Offline",
     "messagePlaceholder": "Nachricht an {{name}}...",
-    "messagePlaceholderDefault": "Nachricht..."
+    "messagePlaceholderDefault": "Nachricht...",
+    "send": "Senden"
   },
   "admin": {
     "usersCount": "{{count}} Benutzer",
@@ -113,7 +114,26 @@
     "columnPhone": "Telefon",
     "columnRole": "Rolle",
     "columnStatus": "Status",
-    "loading": "Lädt..."
+    "loading": "Lädt...",
+    "addButton": "Benutzer hinzufügen",
+    "newUserTitle": "Neuer Benutzer",
+    "fieldName": "Name",
+    "fieldEmail": "E-Mail",
+    "fieldPhone": "Telefon",
+    "fieldRole": "Rolle",
+    "fieldStatus": "Status",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "columnActions": "Aktionen",
+    "delete": "Löschen",
+    "deleteConfirm": "Diesen Benutzer löschen?",
+    "roleAdmin": "Admin",
+    "roleManager": "Manager",
+    "roleEmployee": "Mitarbeiter",
+    "namePlaceholder": "Vollständiger Name",
+    "emailPlaceholder": "email@firma.de",
+    "phonePlaceholder": "07xxxxxxxx",
+    "roleClient": "Kunde"
   },
   "profile": {
     "back": "← Zurück",
@@ -123,5 +143,11 @@
     "phone": "Telefon",
     "role": "Rolle",
     "status": "Status"
+  },
+  "userStatus": {
+    "available": "Verfügbar",
+    "busy": "Beschäftigt",
+    "offline": "Offline",
+    "away": "Abwesend"
   }
 }

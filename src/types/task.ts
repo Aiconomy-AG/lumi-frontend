@@ -1,14 +1,14 @@
 import type { User } from './user'
 
-export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'overdue'
+export type TaskStatus = 'to_do' | 'in_progress' | 'blocked' | 'complete'
 
 export interface Task {
     id: number
     title: string
     description?: string
     status: TaskStatus
-    created_by: number
     due_date: string
+    parent_id?: number | null
     assignees: User[]
 }
 

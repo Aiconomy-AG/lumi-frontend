@@ -54,10 +54,10 @@
     "columnStatus": "Status",
     "columnDue": "Due",
     "status": {
-      "pending": "Pending",
+      "to_do": "To do",
       "in_progress": "In progress",
-      "completed": "Completed",
-      "overdue": "Overdue"
+      "blocked": "Blocked",
+      "complete": "Complete"
     }
   },
   "taskDetail": {
@@ -103,7 +103,8 @@
     "online": "Online",
     "offline": "Offline",
     "messagePlaceholder": "Message {{name}}...",
-    "messagePlaceholderDefault": "Message..."
+    "messagePlaceholderDefault": "Message...",
+    "send": "Send"
   },
   "admin": {
     "usersCount": "{{count}} users",
@@ -113,7 +114,26 @@
     "columnPhone": "Phone",
     "columnRole": "Role",
     "columnStatus": "Status",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "addButton": "Add user",
+    "newUserTitle": "New user",
+    "fieldName": "Name",
+    "fieldEmail": "Email",
+    "fieldPhone": "Phone",
+    "fieldRole": "Role",
+    "fieldStatus": "Status",
+    "cancel": "Cancel",
+    "save": "Save",
+    "columnActions": "Actions",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this user?",
+    "roleAdmin": "Admin",
+    "roleManager": "Manager",
+    "roleEmployee": "Employee",
+    "namePlaceholder": "Full name",
+    "emailPlaceholder": "email@company.com",
+    "phonePlaceholder": "07xxxxxxxx",
+    "roleClient": "Client"
   },
   "profile": {
     "back": "← Back",
@@ -123,5 +143,11 @@
     "phone": "Phone",
     "role": "Role",
     "status": "Status"
+  },
+  "userStatus": {
+    "available": "Available",
+    "busy": "Busy",
+    "offline": "Offline",
+    "away": "Away"
   }
 }

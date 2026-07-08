@@ -12,28 +12,41 @@ import {
 } from "../components/ui/dialog"
 
 const mockTasks: Task[] = [
-    { id: 1, title: "Implement authentication module", status: "in_progress", created_by: 1, due_date: "2026-07-06", assignees: [mockUsers[0], mockUsers[3]] },
-    { id: 2, title: "Dashboard redesign", status: "pending", created_by: 1, due_date: "2026-07-06", assignees: [mockUsers[1]] },
-    { id: 3, title: "Orders API testing", status: "pending", created_by: 1, due_date: "2026-07-08", assignees: [mockUsers[2]] },
-    { id: 4, title: "Write endpoint documentation", status: "completed", created_by: 1, due_date: "2026-07-05", assignees: [mockUsers[3]] },
+    { id: 1, title: "Implement authentication module", status: "in_progress", due_date: "2026-07-06", assignees: [mockUsers[0], mockUsers[3]] },
+    { id: 2, title: "Dashboard redesign", status: "to_do", due_date: "2026-07-06", assignees: [mockUsers[1]] },
+    { id: 3, title: "Orders API testing", status: "blocked", due_date: "2026-07-08", assignees: [mockUsers[2]] },
+    { id: 4, title: "Write endpoint documentation", status: "complete", due_date: "2026-07-05", assignees: [mockUsers[3]] },
 ]
 
 const statusBadgeClass: Record<TaskStatus, string> = {
-    pending: "bg-zinc-900 text-zinc-400",
-    in_progress: "bg-amber-500/10 text-amber-500",
-    completed: "bg-green-500/10 text-green-500",
-    overdue: "bg-red-500/10 text-red-500",
+    to_do: "bg-zinc-800/60 text-zinc-300 ring-1 ring-inset ring-zinc-700/60",
+    in_progress: "bg-zinc-800/60 text-zinc-200 ring-1 ring-inset ring-zinc-700/60",
+    blocked: "bg-zinc-800/60 text-zinc-200 ring-1 ring-inset ring-zinc-700/60",
+    complete: "bg-zinc-800/60 text-zinc-400 ring-1 ring-inset ring-zinc-700/60",
 }
 
 const statusDotClass: Record<TaskStatus, string> = {
-    pending: "bg-zinc-500",
-    in_progress: "bg-amber-500",
-    completed: "bg-green-500",
-    overdue: "bg-red-500",
+    to_do: "bg-zinc-500",
+    in_progress: "bg-amber-400",
+    blocked: "bg-rose-400",
+    complete: "bg-emerald-400",
+}
+
+const avatarColors = [
+    "bg-sky-600/80",
+    "bg-violet-600/80",
+    "bg-emerald-600/80",
+    "bg-orange-600/80",
+    "bg-pink-600/80",
+    "bg-teal-600/80",
+]
+
+function avatarColorFor(id: number) {
+    return avatarColors[id % avatarColors.length]
 }
 
 function initialsOf(name: string) {
-    return name.split(" ").map((w) => w[0]).join("").toUpperCase()
+    return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
 }
 
 export default function TasksPage() {
@@ -44,15 +57,15 @@ export default function TasksPage() {
     const navigate = useNavigate()
 
     const statusLabels: Record<TaskStatus, string> = {
-        pending: t('tasks.status.pending'),
+        to_do: t('tasks.status.to_do'),
         in_progress: t('tasks.status.in_progress'),
-        completed: t('tasks.status.completed'),
-        overdue: t('tasks.status.overdue'),
+        blocked: t('tasks.status.blocked'),
+        complete: t('tasks.status.complete'),
     }
 
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
-    const [status, setStatus] = useState<TaskStatus>("pending")
+    const [status, setStatus] = useState<TaskStatus>("to_do")
     const [dueDate, setDueDate] = useState("2026-07-07")
 
     const filteredTasks = mockTasks.filter(task =>
@@ -66,7 +79,7 @@ export default function TasksPage() {
 
         setTitle("")
         setDescription("")
-        setStatus("pending")
+        setStatus("to_do")
         setIsModalOpen(false)
     }
 
@@ -74,7 +87,7 @@ export default function TasksPage() {
         <div className="p-10 flex flex-col gap-6 w-full bg-zinc-950">
             <div className="flex items-center gap-6 w-full">
                 <div className="flex gap-1 bg-zinc-900/50 p-1 rounded-lg border border-zinc-850">
-                    {(["All", "pending", "in_progress", "completed", "overdue"] as const).map((btn) => (
+                    {(["All", "to_do", "in_progress", "blocked", "complete"] as const).map((btn) => (
                         <button
                             key={btn}
                             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer border-none ${
@@ -141,10 +154,10 @@ export default function TasksPage() {
                                     onChange={e => setStatus(e.target.value as TaskStatus)}
                                     className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none cursor-pointer focus:border-zinc-700"
                                 >
-                                    <option value="pending">{statusLabels.pending}</option>
+                                    <option value="to_do">{statusLabels.to_do}</option>
                                     <option value="in_progress">{statusLabels.in_progress}</option>
-                                    <option value="completed">{statusLabels.completed}</option>
-                                    <option value="overdue">{statusLabels.overdue}</option>
+                                    <option value="blocked">{statusLabels.blocked}</option>
+                                    <option value="complete">{statusLabels.complete}</option>
                                 </select>
                             </div>
 
@@ -198,15 +211,16 @@ export default function TasksPage() {
                         <td className="p-3 text-zinc-200 font-medium">
                             <div className="flex items-center gap-3">
                                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDotClass[task.status]}`}></span>
-                                <span className={task.status === "completed" ? "line-through text-zinc-500" : ""}>{task.title}</span>
+                                <span className={task.status === "complete" ? "line-through text-zinc-500" : ""}>{task.title}</span>
                             </div>
                         </td>
                         <td className="p-3">
-                            <div className="flex gap-1">
+                            <div className="flex items-center">
                                 {task.assignees.map((user) => (
                                     <span
                                         key={user.id}
-                                        className="text-[10px] font-bold border border-amber-700 text-amber-500 px-1.5 py-0.5 rounded bg-zinc-950"
+                                        title={user.name}
+                                        className={`flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-semibold text-white ring-2 ring-zinc-950 -ml-2 first:ml-0 ${avatarColorFor(user.id)}`}
                                     >
                                         {initialsOf(user.name)}
                                     </span>
@@ -214,7 +228,8 @@ export default function TasksPage() {
                             </div>
                         </td>
                         <td className="p-3">
-                            <span className={`text-xs px-2 py-0.5 rounded font-medium ${statusBadgeClass[task.status]}`}>
+                            <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${statusBadgeClass[task.status]}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${statusDotClass[task.status]}`}></span>
                                 {statusLabels[task.status]}
                             </span>
                         </td>

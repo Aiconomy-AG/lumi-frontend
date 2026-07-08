@@ -54,10 +54,10 @@
     "columnStatus": "Status",
     "columnDue": "Termen",
     "status": {
-      "pending": "În așteptare",
+      "to_do": "De făcut",
       "in_progress": "În desfășurare",
-      "completed": "Finalizat",
-      "overdue": "Întârziat"
+      "blocked": "Blocat",
+      "complete": "Finalizat"
     }
   },
   "taskDetail": {
@@ -103,7 +103,8 @@
     "online": "Online",
     "offline": "Offline",
     "messagePlaceholder": "Mesaj către {{name}}...",
-    "messagePlaceholderDefault": "Mesaj..."
+    "messagePlaceholderDefault": "Mesaj...",
+    "send": "Trimite"
   },
   "admin": {
     "usersCount": "{{count}} utilizatori",
@@ -113,7 +114,26 @@
     "columnPhone": "Telefon",
     "columnRole": "Rol",
     "columnStatus": "Status",
-    "loading": "Se încarcă..."
+    "loading": "Se încarcă...",
+    "addButton": "Adaugă utilizator",
+    "newUserTitle": "Utilizator nou",
+    "fieldName": "Nume",
+    "fieldEmail": "Email",
+    "fieldPhone": "Telefon",
+    "fieldRole": "Rol",
+    "fieldStatus": "Status",
+    "cancel": "Anulează",
+    "save": "Salvează",
+    "columnActions": "Acțiuni",
+    "delete": "Șterge",
+    "deleteConfirm": "Sigur ștergi acest utilizator?",
+    "roleAdmin": "Admin",
+    "roleManager": "Manager",
+    "roleEmployee": "Angajat",
+    "namePlaceholder": "Nume complet",
+    "emailPlaceholder": "email@companie.ro",
+    "phonePlaceholder": "07xxxxxxxx",
+    "roleClient": "Client"
   },
   "profile": {
     "back": "← Înapoi",
@@ -123,5 +143,11 @@
     "phone": "Telefon",
     "role": "Rol",
     "status": "Status"
+  },
+  "userStatus": {
+    "available": "Disponibil",
+    "busy": "Ocupat",
+    "offline": "Offline",
+    "away": "Plecat"
   }
 }

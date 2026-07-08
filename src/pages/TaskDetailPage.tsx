@@ -36,16 +36,16 @@ export default function TaskDetailPage() {
 
                 <div className="flex gap-2 mb-8">
                     <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        {t('tasks.status.pending')}
+                        {t('tasks.status.to_do')}
                     </button>
                     <button className="px-4 py-1.5 text-xs bg-purple-500/10 border border-purple-500 text-purple-400 rounded-md cursor-pointer font-medium">
                         {t('tasks.status.in_progress')}
                     </button>
                     <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        {t('tasks.status.completed')}
+                        {t('tasks.status.blocked')}
                     </button>
                     <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        {t('tasks.status.overdue')}
+                        {t('tasks.status.complete')}
                     </button>
                 </div>
 

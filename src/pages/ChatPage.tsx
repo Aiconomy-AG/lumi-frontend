@@ -10,6 +10,19 @@ function otherParticipant(conversation: Conversation) {
     return conversation.participants.find((p) => p.id !== currentUserId) ?? conversation.participants[0]
 }
 
+const avatarColors = [
+    'bg-sky-500',
+    'bg-violet-500',
+    'bg-emerald-500',
+    'bg-orange-500',
+    'bg-pink-500',
+    'bg-teal-500',
+]
+
+function avatarColorFor(id: number) {
+    return avatarColors[id % avatarColors.length]
+}
+
 export default function ChatPage() {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
@@ -55,19 +68,19 @@ export default function ChatPage() {
                             <button
                                 key={conversation.id}
                                 onClick={() => setSelectedId(conversation.id)}
-                                className={`flex w-full items-center gap-3 rounded-md p-2 text-left ${
-                                    conversation.id === activeId ? 'bg-slate-100' : 'hover:bg-slate-50'
+                                className={`flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors ${
+                                    conversation.id === activeId ? 'bg-purple-500/20' : 'hover:bg-zinc-800/50'
                                 }`}
                             >
-                                <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-medium">
-                                    {person.name.split(' ').map((n) => n[0]).join('')}
-                                    {person.status === 'active' && (
-                                        <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500" />
+                                <div className={`relative flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold text-white ${avatarColorFor(person.id)}`}>
+                                    {person.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                                    {person.status === 'available' && (
+                                        <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-zinc-950 bg-green-500" />
                                     )}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium">{person.name}</p>
-                                    <p className="text-xs text-slate-500">{person.role}</p>
+                                    <p className="text-sm font-medium text-zinc-100">{person.name}</p>
+                                    <p className="text-xs text-zinc-400">{person.role}</p>
                                 </div>
                             </button>
                         )
@@ -80,7 +93,7 @@ export default function ChatPage() {
                     <div className="border-b p-4">
                         <p className="font-medium">{selectedPerson.name}</p>
                         <p className="text-xs text-slate-500">
-                            {selectedPerson.status === 'active' ? t('chat.online') : t('chat.offline')} · {selectedPerson.role}
+                            {t(`userStatus.${selectedPerson.status}`)} · {selectedPerson.role}
                         </p>
                     </div>
                 )}
@@ -105,15 +118,32 @@ export default function ChatPage() {
                     })}
                 </div>
 
-                <div className="border-t p-3">
-                    <Input
-                        placeholder={selectedPerson ? t('chat.messagePlaceholder', { name: selectedPerson.name }) : t('chat.messagePlaceholderDefault')}
-                        value={draft}
-                        onChange={(e) => setDraft(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') void handleSend()
-                        }}
-                    />
+                <div className="border-t border-zinc-800 p-3">
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="text"
+                            placeholder={selectedPerson ? t('chat.messagePlaceholder', { name: selectedPerson.name }) : t('chat.messagePlaceholderDefault')}
+                            value={draft}
+                            onChange={(e) => setDraft(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') void handleSend()
+                            }}
+                            disabled={activeId === null}
+                            className="flex-1 rounded-full bg-zinc-900 border border-zinc-800 px-4 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-purple-500/50 transition-colors disabled:opacity-50"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => void handleSend()}
+                            disabled={draft.trim() === '' || activeId === null || sendMutation.isPending}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-600 text-white hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                            aria-label={t('chat.send')}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m22 2-7 20-4-9-9-4Z" />
+                                <path d="M22 2 11 13" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -50,7 +50,7 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                             <span className="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400 font-medium">
-                                {t('tasks.status.pending')}
+                                {t('tasks.status.to_do')}
                             </span>
                         </div>
                     </div>
@@ -67,19 +67,21 @@ export default function DashboardPage() {
 
                 <ul className="flex flex-col gap-5 list-none p-0 m-0">
                     {users.map((user) => {
-                        const isOffline = user.status === 'inactive'
+                        const dotColor =
+                            user.status === 'available' ? 'bg-green-500'
+                            : user.status === 'busy' ? 'bg-rose-500'
+                            : user.status === 'away' ? 'bg-amber-500'
+                            : 'bg-zinc-600'
                         return (
                             <li key={user.id} className="flex items-center gap-3">
                                 <div className="relative w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-white">
                                     {user.name.substring(0, 2).toUpperCase()}
-                                    <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-zinc-950 ${
-                                        isOffline ? 'bg-zinc-600' : 'bg-green-500'
-                                    }`}></div>
+                                    <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-zinc-950 ${dotColor}`}></div>
                                 </div>
                                 <div className="flex flex-col">
                                     <p className="text-xs font-medium text-zinc-200 m-0">{user.name}</p>
                                     <p className="text-[11px] text-zinc-500 m-0">
-                                        {isOffline ? t('dashboard.offline') : t('dashboard.active')}
+                                        {t(`userStatus.${user.status}`)}
                                     </p>
                                 </div>
                             </li>

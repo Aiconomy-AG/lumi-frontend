@@ -54,6 +54,15 @@ export async function createUser(payload: Omit<User, 'id'>): Promise<User> {
   })
 }
 
+export async function deleteUser(id: number): Promise<void> {
+  if (USE_MOCK) {
+    const idx = mockUsers.findIndex((u) => u.id === id)
+    if (idx !== -1) mockUsers.splice(idx, 1)
+    return delay(undefined)
+  }
+  await request<void>(`/users/${id}`, { method: 'DELETE' })
+}
+
 export async function getProducts(): Promise<Product[]> {
   if (USE_MOCK) return delay(mockProducts)
   return request<Product[]>('/products')
