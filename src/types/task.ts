@@ -18,6 +18,6 @@ export interface TaskTimeEntry {
     task_id: number
     employee_id: number
     started_at: string
-    stopped_at?: string
-    duration_seconds: number
+    stopped_at: string | null
+    duration_seconds: number | null
 }

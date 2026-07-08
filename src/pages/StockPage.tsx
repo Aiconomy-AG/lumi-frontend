@@ -16,7 +16,8 @@ import {useState} from "react";
 import { useAuth } from '@/features/auth/AuthContext'
 
 
-const emptyProduct = { name: '', description: '', image_url: '', sku: '', categoryName: '', stock: 0, price: 0 }
+const emptyProduct = { name: '', description: '', image_url: '', sku: '', categoryName: '', stock: '', price: '' }
+const STOCK_CURRENCY = import.meta.env.VITE_CURRENCY ?? 'RON'
 
 function renderStock(stock: number, t: TFunction) {
   if (stock === 0) {
@@ -30,7 +31,7 @@ function renderStock(stock: number, t: TFunction) {
 
 interface StockRow {
   product: Product
-  variant: ProductVariant
+  variant: ProductVariant | null
 }
 
 export default function StockPage() {
@@ -68,16 +69,20 @@ export default function StockPage() {
   })
 
 
-  const rows: StockRow[] = products.flatMap((product) =>
-    product.variants.map((variant) => ({ product, variant }))
-  )
+  const rows: StockRow[] = products.flatMap((product) => {
+    if (!product.variants.length) {
+      return [{ product, variant: null }]
+    }
+
+    return product.variants.map((variant) => ({ product, variant }))
+  })
 
   const filtered = rows.filter((row) =>
     row.product.name.toLowerCase().includes(search.toLowerCase())
   )
 
-  const lowStock = rows.filter((r) => r.variant.stock_quantity > 0 && r.variant.stock_quantity <= 5).length
-  const outOfStock = rows.filter((r) => r.variant.stock_quantity === 0).length
+  const lowStock = rows.filter((r) => r.variant && r.variant.stock_quantity > 0 && r.variant.stock_quantity <= 5).length
+  const outOfStock = rows.filter((r) => r.variant && r.variant.stock_quantity === 0).length
 
 
   function startEdit(variant: ProductVariant) {
@@ -87,14 +92,22 @@ export default function StockPage() {
 
   async function handleAddProduct(e: React.FormEvent) {
     e.preventDefault()
-    const productId = Date.now()
+    const parsedPrice = Number(newProduct.price)
+    const parsedStock = Number(newProduct.stock)
+
     await createMutation.mutateAsync({
       name: newProduct.name,
       description: newProduct.description || undefined,
       image_url: newProduct.image_url || undefined,
-      price: newProduct.price,
-      category: newProduct.categoryName ? { id: Date.now(), name: newProduct.categoryName } : undefined,
-      variants: [{ id: productId + 1, product_id: productId, sku: newProduct.sku, price: newProduct.price, weight: 1, weight_unit: 'kg', stock_quantity: newProduct.stock }],
+      price: parsedPrice,
+      category_name: newProduct.categoryName || undefined,
+      variants: [{
+        sku: newProduct.sku,
+        price: parsedPrice,
+        weight: 1,
+        weight_unit: 'kg',
+        stock_quantity: parsedStock,
+      }],
     })
     setNewProduct(emptyProduct)
     setIsAddOpen(false)
@@ -185,8 +198,10 @@ export default function StockPage() {
                   <label className="text-xs font-medium text-muted-foreground">{t('stock.fieldStock')}</label>
                   <Input
                     type="number"
+                    min="0"
                     value={newProduct.stock}
-                    onChange={(e) => setNewProduct({ ...newProduct, stock: Number(e.target.value) })}
+                    onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                    required
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -194,8 +209,10 @@ export default function StockPage() {
                   <Input
                     type="number"
                     step="0.01"
+                    min="0"
                     value={newProduct.price}
-                    onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
+                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                    required
                   />
                 </div>
                 <DialogFooter>
@@ -223,37 +240,41 @@ export default function StockPage() {
           </TableHeader>
           <TableBody>
             {filtered.map(({ product, variant }) => (
-              <TableRow key={variant.id}>
+              <TableRow key={variant ? variant.id : `no-variant-${product.id}`}>
                 <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell className="text-muted-foreground">{variant.sku}</TableCell>
-                <TableCell>{product.category?.name}</TableCell>
+                <TableCell className="text-muted-foreground">{variant?.sku ?? '-'}</TableCell>
+                <TableCell>{product.category_name ?? product.category?.name ?? '-'}</TableCell>
                 <TableCell>
-                  {editingId === variant.id ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        value={editValue}
-                        onChange={(e) => setEditValue(Number(e.target.value))}
-                        className="h-7 w-20"
-                        autoFocus
-                      />
-                      <Button size="icon-sm" variant="ghost" onClick={() => saveEdit(product.id, variant.id)}>
-                        <Check className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon-sm" variant="ghost" onClick={() => setEditingId(null)}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  {variant ? (
+                    editingId === variant.id ? (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          value={editValue}
+                          onChange={(e) => setEditValue(Number(e.target.value))}
+                          className="h-7 w-20"
+                          autoFocus
+                        />
+                        <Button size="icon-sm" variant="ghost" onClick={() => saveEdit(product.id, variant.id)}>
+                          <Check className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon-sm" variant="ghost" onClick={() => setEditingId(null)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        {renderStock(variant.stock_quantity, t)}
+                        <Button size="icon-sm" variant="ghost" onClick={() => startEdit(variant)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    )
                   ) : (
-                    <div className="flex items-center gap-2">
-                      {renderStock(variant.stock_quantity, t)}
-                      <Button size="icon-sm" variant="ghost" onClick={() => startEdit(variant)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                    <span className="text-muted-foreground">-</span>
                   )}
                 </TableCell>
-                <TableCell className="text-right">{variant.price.toFixed(2)} lei</TableCell>
+                <TableCell className="text-right">{variant ? `${variant.price.toFixed(2)} ${STOCK_CURRENCY}` : '-'}</TableCell>
                 {isAdmin && (
                   <TableCell className="text-right">
                     <Button size="icon-sm" variant="ghost" onClick={() => handleDelete(product.id)}>

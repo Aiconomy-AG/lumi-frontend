@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
 import { useTimeTracking } from '@/hooks/useTimeTracking'
+import { getTimeEntries } from '@/api/client'
 
 export default function TaskDetailPage() {
     const { t } = useTranslation()
@@ -8,9 +10,25 @@ export default function TaskDetailPage() {
     const { id } = useParams()
     const taskId = Number(id)
 
-    const { activeTaskId, todaySeconds, start, stop } = useTimeTracking()
+    const { activeTaskId, elapsedSeconds, start, stop } = useTimeTracking()
     const isRunning = activeTaskId === taskId
-    const seconds = todaySeconds
+
+    const { data: entries = [], refetch: refetchEntries } = useQuery({
+        queryKey: ['time-entries', taskId],
+        queryFn: () => getTimeEntries(taskId),
+    })
+
+    async function handleToggle() {
+        if (isRunning) {
+            await stop()
+            void refetchEntries()
+        } else {
+            await start(taskId)
+        }
+    }
+
+    const loggedSeconds = entries.reduce((sum, e) => sum + (e.duration_seconds ?? 0), 0)
+    const seconds = loggedSeconds + (isRunning ? elapsedSeconds : 0)
 
     const formatTime = (totalSeconds: number) => {
         const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0')
@@ -63,7 +81,7 @@ export default function TaskDetailPage() {
                         className={`w-12 h-12 rounded-full border-none text-white text-sm flex items-center justify-center cursor-pointer transition-colors shadow-lg ${
                             isRunning ? "bg-red-500 hover:bg-red-400" : "bg-purple-500 hover:bg-purple-400 text-black"
                         }`}
-                        onClick={() => (isRunning ? stop() : start(taskId))}
+                        onClick={() => void handleToggle()}
                     >
                         {isRunning ? "■" : "▶"}
                     </button>

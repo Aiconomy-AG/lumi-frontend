@@ -1,44 +1,50 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { startTimeEntry, stopTimeEntry } from '@/api/client'
 
 interface TimeTrackingContextValue {
     activeTaskId: number | null
-    todaySeconds: number
+    elapsedSeconds: number
     isRunning: boolean
-    start: (taskId: number) => void
-    stop: () => void
+    start: (taskId: number) => Promise<void>
+    stop: () => Promise<void>
 }
 
 const TimeTrackingContext = createContext<TimeTrackingContextValue | null>(null)
 
-function todayKey() {
-    return `timeTracking:${new Date().toISOString().slice(0, 10)}`
-}
-
 export function TimeTrackingProvider({ children }: { children: ReactNode }) {
     const [activeTaskId, setActiveTaskId] = useState<number | null>(null)
-    const [todaySeconds, setTodaySeconds] = useState<number>(() => {
-        const stored = localStorage.getItem(todayKey())
-        return stored ? parseInt(stored, 10) : 0
-    })
+    const [activeEntryId, setActiveEntryId] = useState<number | null>(null)
+    const [startedAt, setStartedAt] = useState<number | null>(null)
+    const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
     useEffect(() => {
-        localStorage.setItem(todayKey(), String(todaySeconds))
-    }, [todaySeconds])
-
-    useEffect(() => {
-        if (activeTaskId === null) return
+        if (startedAt === null) return
         const interval = setInterval(() => {
-            setTodaySeconds((prev) => prev + 1)
+            setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000))
         }, 1000)
         return () => clearInterval(interval)
-    }, [activeTaskId])
+    }, [startedAt])
 
-    const start = (taskId: number) => setActiveTaskId(taskId)
-    const stop = () => setActiveTaskId(null)
+    const start = async (taskId: number) => {
+        const entry = await startTimeEntry(taskId)
+        setActiveTaskId(taskId)
+        setActiveEntryId(entry.id)
+        setStartedAt(new Date(entry.started_at).getTime())
+        setElapsedSeconds(0)
+    }
+
+    const stop = async () => {
+        if (activeTaskId === null || activeEntryId === null) return
+        await stopTimeEntry(activeTaskId, activeEntryId)
+        setActiveTaskId(null)
+        setActiveEntryId(null)
+        setStartedAt(null)
+        setElapsedSeconds(0)
+    }
 
     return (
         <TimeTrackingContext.Provider
-            value={{ activeTaskId, todaySeconds, isRunning: activeTaskId !== null, start, stop }}
+            value={{ activeTaskId, elapsedSeconds, isRunning: activeTaskId !== null, start, stop }}
         >
             {children}
         </TimeTrackingContext.Provider>
