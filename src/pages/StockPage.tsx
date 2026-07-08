@@ -2,10 +2,16 @@ import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import type { Product, ProductVariant, Category } from '@/types/product'
 import {
-  useProducts, useShopifyCategories,
-  useCreateProduct, useUpdateProduct, useDeleteProduct,
-  useCreateVariant, useUpdateVariant, useDeleteVariant, useUpdateVariantStock,
-} from '@/hooks/useStock'
+  useProductsQuery,
+  useShopifyCategoriesQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+  useCreateVariantMutation,
+  useUpdateVariantMutation,
+  useDeleteVariantMutation,
+  useUpdateVariantStockMutation,
+} from '@/features/products'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
@@ -175,19 +181,19 @@ export default function StockPage() {
     per_page: PER_PAGE,
   }
 
-  const { data: productPage, isLoading } = useProducts(filters)
-  const { data: categories = [] } = useShopifyCategories()
+  const { data: productPage, isLoading } = useProductsQuery(filters)
+  const { data: categories = [] } = useShopifyCategoriesQuery()
 
   const products = productPage?.data ?? []
   const meta = productPage?.meta
 
-  const createProduct = useCreateProduct()
-  const updateProduct = useUpdateProduct()
-  const deleteProduct = useDeleteProduct()
-  const createVariant = useCreateVariant()
-  const updateVariant = useUpdateVariant()
-  const deleteVariant = useDeleteVariant()
-  const updateVariantStock = useUpdateVariantStock()
+  const createProduct = useCreateProductMutation()
+  const updateProduct = useUpdateProductMutation()
+  const deleteProduct = useDeleteProductMutation()
+  const createVariant = useCreateVariantMutation()
+  const updateVariant = useUpdateVariantMutation()
+  const deleteVariant = useDeleteVariantMutation()
+  const updateVariantStock = useUpdateVariantStockMutation()
 
   const variantCount = products.reduce((sum, p) => sum + p.variants.length, 0)
   const lowStock = products.reduce(

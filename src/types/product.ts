@@ -10,8 +10,8 @@ export interface ProductVariant {
     sku: string
     name?: string | null
     price: number
-    weight: number
-    weight_unit: string
+    weight: number | null
+    weight_unit: string | null
     colour?: string | null
     stock_quantity: number
     options?: Record<string, string> | null
