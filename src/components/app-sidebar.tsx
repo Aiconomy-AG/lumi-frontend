@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { Home, CheckSquare, ShoppingCart, MessageSquare, Users, ChevronLeft, ChevronRight, ClipboardList } from "lucide-react"
+import { Home, CheckSquare, ShoppingCart, MessageSquare, Users, ChevronLeft, ChevronRight, ClipboardList, FolderKanban } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -19,6 +19,7 @@ import { useAuth } from "@/features/auth/AuthContext"
 export const items = [
     { titleKey: "sidebar.dashboard", path: "/dashboard", icon: Home },
     { titleKey: "sidebar.tasks", path: "/tasks", icon: CheckSquare },
+    { titleKey: "sidebar.projects", path: "/projects", icon: FolderKanban },
     { titleKey: "sidebar.stock", path: "/stock", icon: ShoppingCart },
     { titleKey: "sidebar.orders", path: "/orders", icon: ClipboardList },
     { titleKey: "sidebar.chat", path: "/chat", icon: MessageSquare },

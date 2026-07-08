@@ -8,7 +8,8 @@
     "chat": "Chat",
     "admin": "Admin",
     "collapse": "Einklappen",
-    "expand": "Ausklappen"
+    "expand": "Ausklappen",
+    "projects": "Projekte"
   },
   "header": {
     "startTimer": "Timer starten"
@@ -64,7 +65,8 @@
       "in_progress": "In Bearbeitung",
       "blocked": "Blockiert",
       "complete": "Abgeschlossen"
-    }
+    },
+    "columnProject": "Projekt"
   },
   "taskDetail": {
     "back": "← Aufgaben",
@@ -167,5 +169,27 @@
     "date": "Datum",
     "prev": "Zurück",
     "next": "Weiter"
+  },
+  "projects": {
+    "title": "Projekte",
+    "addButton": "Projekt hinzufügen",
+    "newTitle": "Neues Projekt",
+    "editTitle": "Projekt bearbeiten",
+    "fieldName": "Name",
+    "fieldDescription": "Beschreibung",
+    "fieldDeadline": "Frist",
+    "fieldStatus": "Status",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "deleteConfirm": "Dieses Projekt löschen?",
+    "loading": "Lädt...",
+    "empty": "Noch keine Projekte",
+    "tasksTitle": "Aufgaben",
+    "addTask": "Aufgabe hinzufügen",
+    "noTasks": "Noch keine Aufgaben",
+    "taskTitle": "Titel",
+    "dueDate": "Fällig am"
   }
 }
