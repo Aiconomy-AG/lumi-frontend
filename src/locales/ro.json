@@ -22,7 +22,13 @@
     "password": "Parolă",
     "register": "Înregistrare",
     "haveAccount": "Ai deja cont? Autentifică-te",
-    "noAccount": "Nu ai cont? Înregistrează-te"
+    "noAccount": "Nu ai cont? Înregistrează-te",
+    "errorEmailRequired": "Emailul este obligatoriu",
+    "errorEmailInvalid": "Adresă de email invalidă",
+    "errorPasswordRequired": "Parola este obligatorie",
+    "errorPasswordShort": "Parola trebuie să aibă minim 8 caractere",
+    "errorNameRequired": "Numele este obligatoriu",
+    "errorNameShort": "Numele trebuie să aibă minim 2 caractere"
   },
   "dashboard": {
     "greeting": "Bună seara, {{name}}.",

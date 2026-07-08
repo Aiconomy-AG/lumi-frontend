@@ -22,7 +22,13 @@
     "password": "Password",
     "register": "Register",
     "haveAccount": "Already have an account? Sign in",
-    "noAccount": "Don't have an account? Register"
+    "noAccount": "Don't have an account? Register",
+    "errorEmailRequired": "Email is required",
+    "errorEmailInvalid": "Invalid email address",
+    "errorPasswordRequired": "Password is required",
+    "errorPasswordShort": "Password must be at least 8 characters",
+    "errorNameRequired": "Name is required",
+    "errorNameShort": "Name must be at least 2 characters"
   },
   "dashboard": {
     "greeting": "Good evening, {{name}}.",
