@@ -4,6 +4,7 @@
     "dashboard": "Übersicht",
     "tasks": "Aufgaben",
     "stock": "Lager",
+    "orders": "Bestellungen",
     "chat": "Chat",
     "admin": "Admin",
     "collapse": "Einklappen",
@@ -22,7 +23,12 @@
     "password": "Passwort",
     "register": "Registrieren",
     "haveAccount": "Bereits ein Konto? Anmelden",
-    "noAccount": "Noch kein Konto? Registrieren"
+    "noAccount": "Noch kein Konto? Registrieren",
+    "logout": "Abmelden",
+    "error422": "Ungültige E-Mail oder Passwort.",
+    "error403": "Du hast keinen Zugriff auf das Panel.",
+    "error429": "Zu viele Versuche. Später erneut versuchen.",
+    "errorUnknown": "Anmeldung fehlgeschlagen."
   },
   "dashboard": {
     "greeting": "Guten Abend, {{name}}.",
@@ -133,9 +139,12 @@
     "namePlaceholder": "Vollständiger Name",
     "emailPlaceholder": "email@firma.de",
     "phonePlaceholder": "07xxxxxxxx",
-    "roleClient": "Kunde"
+    "roleClient": "Kunde",
+    "inactive": "Inaktiv",
+    "reactivate": "Reaktivieren"
   },
   "profile": {
+    "title": "Profil",
     "back": "← Zurück",
     "loading": "Lädt...",
     "id": "ID",
@@ -149,5 +158,14 @@
     "busy": "Beschäftigt",
     "offline": "Offline",
     "away": "Abwesend"
+  },
+  "orders": {
+    "customer": "Kunde",
+    "status": "Status",
+    "items": "Artikel",
+    "total": "Gesamt",
+    "date": "Datum",
+    "prev": "Zurück",
+    "next": "Weiter"
   }
 }

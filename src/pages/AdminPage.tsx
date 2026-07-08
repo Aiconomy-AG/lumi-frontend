@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { getUsers, createUser, deleteUser } from '@/api/client'
+import { getUsers, createUser, deactivateUser, reactivateUser } from '@/api/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -10,16 +10,13 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
 import { useState } from 'react'
-import { currentUserId } from '@/api/mockChat'
-import { mockUsers } from '@/api/mockData'
-import type { User } from '@/types/user'
-
-const currentUser = mockUsers.find((u) => u.id === currentUserId)
-const isAdmin = currentUser?.role === 'admin'
+import type { CreateUserPayload, User } from '@/types/user'
+import { useAuth } from '@/features/auth/AuthContext'
 
 export default function AdminPage() {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
+    const { user: currentUser, isAdmin } = useAuth()
 
     const [search, setSearch] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -27,6 +24,7 @@ export default function AdminPage() {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [phone, setPhone] = useState('')
+    const [password, setPassword] = useState('')
     const [role, setRole] = useState<User['role']>('employee')
     const [status, setStatus] = useState<User['status']>('available')
 
@@ -36,12 +34,17 @@ export default function AdminPage() {
     })
 
     const createMutation = useMutation({
-        mutationFn: (payload: Omit<User, 'id'>) => createUser(payload),
+        mutationFn: (payload: CreateUserPayload) => createUser(payload),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
     })
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => deleteUser(id),
+        mutationFn: (id: number) => deactivateUser(id),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    })
+
+    const reactivateMutation = useMutation({
+        mutationFn: (id: number) => reactivateUser(id),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
     })
 
@@ -51,10 +54,11 @@ export default function AdminPage() {
 
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
-        await createMutation.mutateAsync({ name, email, phone_number: phone, role, status })
+        await createMutation.mutateAsync({ name, email, phone_number: phone, password, role: role as 'admin' | 'employee', status })
         setName('')
         setEmail('')
         setPhone('')
+        setPassword('')
         setRole('employee')
         setStatus('available')
         setIsModalOpen(false)
@@ -64,6 +68,10 @@ export default function AdminPage() {
         if (window.confirm(t('admin.deleteConfirm'))) {
             void deleteMutation.mutateAsync(user.id)
         }
+    }
+
+    function handleReactivate(user: User) {
+        void reactivateMutation.mutateAsync(user.id)
     }
 
     const roleLabels: Record<User['role'], string> = {
@@ -102,6 +110,10 @@ export default function AdminPage() {
                                         <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('admin.emailPlaceholder')} required />
                                     </div>
                                     <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-medium text-muted-foreground">{t('auth.password')}</label>
+                                        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="******" required />
+                                    </div>
+                                    <div className="flex flex-col gap-1.5">
                                         <label className="text-xs font-medium text-muted-foreground">{t('admin.fieldPhone')}</label>
                                         <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t('admin.phonePlaceholder')} />
                                     </div>
@@ -114,7 +126,6 @@ export default function AdminPage() {
                                                 className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus:border-ring cursor-pointer"
                                             >
                                                 <option value="employee">{roleLabels.employee}</option>
-                                                <option value="client">{roleLabels.client}</option>
                                                 <option value="admin">{roleLabels.admin}</option>
                                             </select>
                                         </div>
@@ -184,16 +195,27 @@ export default function AdminPage() {
                   <span className={user.status === 'available' ? 'text-green-600' : 'text-muted-foreground'}>
                     {t(`userStatus.${user.status}`)}
                   </span>
+                                    {!user.is_active && <span className="ml-2 text-xs text-red-400">{t('admin.inactive')}</span>}
                                 </TableCell>
                                 {isAdmin && (
                                     <TableCell className="text-right">
-                                        <button
-                                            onClick={() => handleDelete(user)}
-                                            disabled={user.id === currentUserId || deleteMutation.isPending}
-                                            className="rounded-md px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-500/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                                        >
-                                            {t('admin.delete')}
-                                        </button>
+                                        {user.is_active ? (
+                                            <button
+                                                onClick={() => handleDelete(user)}
+                                                disabled={user.id === currentUser?.id || deleteMutation.isPending}
+                                                className="rounded-md px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-500/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                            >
+                                                {t('admin.delete')}
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleReactivate(user)}
+                                                disabled={reactivateMutation.isPending}
+                                                className="rounded-md px-2.5 py-1 text-xs font-medium text-green-500 hover:bg-green-500/10 disabled:opacity-30 cursor-pointer transition-colors"
+                                            >
+                                                {t('admin.reactivate')}
+                                            </button>
+                                        )}
                                     </TableCell>
                                 )}
                             </TableRow>

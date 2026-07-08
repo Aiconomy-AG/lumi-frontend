@@ -1,9 +1,6 @@
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { getUser } from '@/api/client'
-import { currentUserId } from '@/api/mockChat'
-import type { User } from '@/types/user'
+import { useAuth } from '@/features/auth/AuthContext'
 
 function Field({ label, value }: { label: string; value: string }) {
     return (
@@ -17,11 +14,7 @@ function Field({ label, value }: { label: string; value: string }) {
 export default function ProfilePage() {
     const { t } = useTranslation()
     const navigate = useNavigate()
-    const [user, setUser] = useState<User | null>(null)
-
-    useEffect(() => {
-        getUser(currentUserId).then((u) => setUser(u ?? null))
-    }, [])
+    const { user } = useAuth()
 
     if (!user) {
         return <div className="p-10 text-sm text-zinc-500">{t('profile.loading')}</div>

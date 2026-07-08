@@ -13,6 +13,7 @@ import {
 import { Plus, Pencil, Trash2, Check, X } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {useState} from "react";
+import { useAuth } from '@/features/auth/AuthContext'
 
 
 const emptyProduct = { name: '', description: '', image_url: '', sku: '', categoryName: '', stock: 0, price: 0 }
@@ -34,6 +35,7 @@ interface StockRow {
 
 export default function StockPage() {
   const { t } = useTranslation()
+  const { isAdmin } = useAuth()
   const [search, setSearch] = useState('')
 
   const [isAddOpen, setIsAddOpen] = useState(false)
@@ -216,7 +218,7 @@ export default function StockPage() {
               <TableHead>{t('stock.columnCategory')}</TableHead>
               <TableHead>{t('stock.columnStock')}</TableHead>
               <TableHead className="text-right">{t('stock.columnPrice')}</TableHead>
-              <TableHead className="text-right">{t('stock.columnActions')}</TableHead>
+              {isAdmin && <TableHead className="text-right">{t('stock.columnActions')}</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -252,11 +254,13 @@ export default function StockPage() {
                   )}
                 </TableCell>
                 <TableCell className="text-right">{variant.price.toFixed(2)} lei</TableCell>
-                <TableCell className="text-right">
-                  <Button size="icon-sm" variant="ghost" onClick={() => handleDelete(product.id)}>
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
-                </TableCell>
+                {isAdmin && (
+                  <TableCell className="text-right">
+                    <Button size="icon-sm" variant="ghost" onClick={() => handleDelete(product.id)}>
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

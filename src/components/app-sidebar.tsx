@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { Home, CheckSquare, ShoppingCart, MessageSquare, Users, ChevronLeft, ChevronRight } from "lucide-react"
+import { Home, CheckSquare, ShoppingCart, MessageSquare, Users, ChevronLeft, ChevronRight, ClipboardList } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -14,11 +14,13 @@ import {
     SidebarRail,
     useSidebar,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/features/auth/AuthContext"
 
 export const items = [
     { titleKey: "sidebar.dashboard", path: "/dashboard", icon: Home },
     { titleKey: "sidebar.tasks", path: "/tasks", icon: CheckSquare },
     { titleKey: "sidebar.stock", path: "/stock", icon: ShoppingCart },
+    { titleKey: "sidebar.orders", path: "/orders", icon: ClipboardList },
     { titleKey: "sidebar.chat", path: "/chat", icon: MessageSquare },
     { titleKey: "sidebar.admin", path: "/admin", icon: Users },
 ] as const
@@ -29,6 +31,7 @@ export function AppSidebar() {
     const location = useLocation()
     const { open, toggleSidebar } = useSidebar()
     const { t, i18n } = useTranslation()
+    const { isAdmin } = useAuth()
 
     function changeLanguage(lang: string) {
         i18n.changeLanguage(lang)
@@ -54,7 +57,7 @@ export function AppSidebar() {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {items.map((item) => {
+                            {items.filter((item) => isAdmin || item.path !== '/admin').map((item) => {
                                 const isItemActive =
                                     location.pathname === item.path ||
                                     location.pathname.startsWith(item.path + "/")

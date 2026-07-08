@@ -9,9 +9,20 @@ export interface User {
   phone_number?: string
   status: UserStatus
   language_flag?: string
+  is_active: boolean
 }
 
 export interface LoginCredentials {
-  email: string;
-  password: string;
+  email: string
+  password: string
+}
+
+export interface CreateUserPayload {
+  name: string
+  email: string
+  password: string
+  role: Exclude<UserRole, 'client'>
+  status?: UserStatus
+  phone_number?: string
+  language_flag?: string
 }

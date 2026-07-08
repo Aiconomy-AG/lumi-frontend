@@ -4,6 +4,7 @@
     "dashboard": "Dashboard",
     "tasks": "Tasks",
     "stock": "Stock",
+    "orders": "Orders",
     "chat": "Chat",
     "admin": "Admin",
     "collapse": "Collapse",
@@ -22,7 +23,12 @@
     "password": "Password",
     "register": "Register",
     "haveAccount": "Already have an account? Sign in",
-    "noAccount": "Don't have an account? Register"
+    "noAccount": "Don't have an account? Register",
+    "logout": "Logout",
+    "error422": "Invalid email or password.",
+    "error403": "You do not have panel access.",
+    "error429": "Too many attempts. Try again later.",
+    "errorUnknown": "Login failed. Please try again."
   },
   "dashboard": {
     "greeting": "Good evening, {{name}}.",
@@ -133,9 +139,12 @@
     "namePlaceholder": "Full name",
     "emailPlaceholder": "email@company.com",
     "phonePlaceholder": "07xxxxxxxx",
-    "roleClient": "Client"
+    "roleClient": "Client",
+    "inactive": "Inactive",
+    "reactivate": "Reactivate"
   },
   "profile": {
+    "title": "Profile",
     "back": "← Back",
     "loading": "Loading...",
     "id": "ID",
@@ -149,5 +158,14 @@
     "busy": "Busy",
     "offline": "Offline",
     "away": "Away"
+  },
+  "orders": {
+    "customer": "Customer",
+    "status": "Status",
+    "items": "Items",
+    "total": "Total",
+    "date": "Date",
+    "prev": "Previous",
+    "next": "Next"
   }
 }

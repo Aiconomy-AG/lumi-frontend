@@ -4,8 +4,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useTimeTracking } from "@/hooks/useTimeTracking"
-import { mockUsers } from "@/api/mockData"
-import { currentUserId } from "@/api/mockChat"
+import { useAuth } from "@/features/auth/AuthContext"
 
 function formatTime(totalSeconds: number) {
     const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0')
@@ -19,7 +18,8 @@ export default function AppLayout() {
     const navigate = useNavigate()
     const { t } = useTranslation()
     const { todaySeconds, isRunning } = useTimeTracking()
-    const currentUser = mockUsers.find((u) => u.id === currentUserId)
+    const { user, logout } = useAuth()
+    const currentUser = user
     const initials = currentUser?.name.split(" ").map((w) => w[0]).join("").toUpperCase() ?? ""
 
     const getPageTitle = () => {
@@ -27,8 +27,10 @@ export default function AppLayout() {
         if (path.startsWith('/tasks')) return t('sidebar.tasks')
         if (path.startsWith('/dashboard')) return t('sidebar.dashboard')
         if (path.startsWith('/stock')) return t('sidebar.stock')
+        if (path.startsWith('/orders')) return t('sidebar.orders')
         if (path.startsWith('/chat')) return t('sidebar.chat')
         if (path.startsWith('/admin')) return t('sidebar.admin')
+        if (path.startsWith('/profile')) return t('profile.title')
         return t('sidebar.dashboard')
     }
 
@@ -58,6 +60,12 @@ export default function AppLayout() {
                                 className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-400 text-[10px] font-bold text-black select-none cursor-pointer border-none"
                             >
                                 {initials}
+                            </button>
+                            <button
+                                onClick={() => void logout()}
+                                className="rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-900 cursor-pointer"
+                            >
+                                {t('auth.logout')}
                             </button>
                         </div>
                     </header>

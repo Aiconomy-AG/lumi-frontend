@@ -4,6 +4,7 @@
     "dashboard": "Panou",
     "tasks": "Sarcini",
     "stock": "Stoc",
+    "orders": "Comenzi",
     "chat": "Chat",
     "admin": "Admin",
     "collapse": "Restrânge",
@@ -22,7 +23,12 @@
     "password": "Parolă",
     "register": "Înregistrare",
     "haveAccount": "Ai deja cont? Autentifică-te",
-    "noAccount": "Nu ai cont? Înregistrează-te"
+    "noAccount": "Nu ai cont? Înregistrează-te",
+    "logout": "Deconectare",
+    "error422": "Email sau parolă invalidă.",
+    "error403": "Nu ai acces la panou.",
+    "error429": "Prea multe încercări. Încearcă mai târziu.",
+    "errorUnknown": "Autentificarea a eșuat."
   },
   "dashboard": {
     "greeting": "Bună seara, {{name}}.",
@@ -133,9 +139,12 @@
     "namePlaceholder": "Nume complet",
     "emailPlaceholder": "email@companie.ro",
     "phonePlaceholder": "07xxxxxxxx",
-    "roleClient": "Client"
+    "roleClient": "Client",
+    "inactive": "Inactiv",
+    "reactivate": "Reactivează"
   },
   "profile": {
+    "title": "Profil",
     "back": "← Înapoi",
     "loading": "Se încarcă...",
     "id": "ID",
@@ -149,5 +158,14 @@
     "busy": "Ocupat",
     "offline": "Offline",
     "away": "Plecat"
+  },
+  "orders": {
+    "customer": "Client",
+    "status": "Status",
+    "items": "Articole",
+    "total": "Total",
+    "date": "Dată",
+    "prev": "Anterior",
+    "next": "Următor"
   }
 }
