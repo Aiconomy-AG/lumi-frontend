@@ -1,6 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { getUsers, createUser, deactivateUser, reactivateUser } from '@/api/client'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
@@ -10,12 +8,17 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
 import { useState } from 'react'
-import type { CreateUserPayload, User } from '@/types/user'
+import type { User } from '@/types/user'
 import { useAuth } from '@/features/auth/AuthContext'
+import {
+    useCreateUserMutation,
+    useDeactivateUserMutation,
+    useReactivateUserMutation,
+    useUsersQuery,
+} from '@/features/users'
 
 export default function AdminPage() {
     const { t } = useTranslation()
-    const queryClient = useQueryClient()
     const { user: currentUser, isAdmin } = useAuth()
 
     const [search, setSearch] = useState('')
@@ -28,25 +31,10 @@ export default function AdminPage() {
     const [role, setRole] = useState<User['role']>('employee')
     const [status, setStatus] = useState<User['status']>('available')
 
-    const { data: users = [], isLoading } = useQuery({
-        queryKey: ['users'],
-        queryFn: getUsers,
-    })
-
-    const createMutation = useMutation({
-        mutationFn: (payload: CreateUserPayload) => createUser(payload),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
-    })
-
-    const deleteMutation = useMutation({
-        mutationFn: (id: number) => deactivateUser(id),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
-    })
-
-    const reactivateMutation = useMutation({
-        mutationFn: (id: number) => reactivateUser(id),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
-    })
+    const { data: users = [], isLoading } = useUsersQuery()
+    const createMutation = useCreateUserMutation()
+    const deleteMutation = useDeactivateUserMutation()
+    const reactivateMutation = useReactivateUserMutation()
 
     const filtered = users.filter((u) =>
         u.name.toLowerCase().includes(search.toLowerCase())

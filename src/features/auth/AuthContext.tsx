@@ -1,6 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getAuthToken, login as loginRequest, logout as logoutRequest, me } from '@/api/client'
 import type { LoginCredentials, User } from '@/types/user'
+import { authKeys } from './queryKeys'
 
 interface AuthContextValue {
   user: User | null
@@ -13,40 +15,43 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const queryClient = useQueryClient()
+  const [hasToken, setHasToken] = useState(() => !!getAuthToken())
 
-  useEffect(() => {
-    async function bootstrap() {
-      try {
-        if (!getAuthToken()) {
-          setUser(null)
-          return
-        }
-        const currentUser = await me()
-        setUser(currentUser)
-      } catch {
-        setUser(null)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  const meQuery = useQuery({
+    queryKey: authKeys.me(),
+    queryFn: me,
+    enabled: hasToken,
+    retry: false,
+    staleTime: Infinity,
+  })
 
-    void bootstrap()
-  }, [])
+  const loginMutation = useMutation({
+    mutationFn: loginRequest,
+    onSuccess: (currentUser) => {
+      queryClient.setQueryData(authKeys.me(), currentUser)
+      setHasToken(true)
+    },
+  })
 
-  const login = useCallback(async (credentials: LoginCredentials) => {
-    const currentUser = await loginRequest(credentials)
-    setUser(currentUser)
-  }, [])
+  const logoutMutation = useMutation({
+    mutationFn: logoutRequest,
+    onSettled: () => {
+      setHasToken(false)
+      queryClient.clear()
+    },
+  })
 
   const logout = useCallback(async () => {
-    try {
-      await logoutRequest()
-    } finally {
-      setUser(null)
-    }
-  }, [])
+    await logoutMutation.mutateAsync()
+  }, [logoutMutation])
+
+  const login = useCallback(async (credentials: LoginCredentials) => {
+    await loginMutation.mutateAsync(credentials)
+  }, [loginMutation])
+
+  const user = hasToken ? meQuery.data ?? null : null
+  const isLoading = hasToken && meQuery.isPending
 
   const value = useMemo(
     () => ({

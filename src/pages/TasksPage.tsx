@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import type { Task, TaskStatus } from '@/types/task'
-import { mockUsers } from '@/api/mockData'
-import { mockProjects } from '@/api/mockProjects'
+import type { TaskStatus } from '@/types/task'
+import { useProjectsQuery } from '@/features/projects'
+import { useCreateTaskMutation, useTasksQuery } from '@/features/tasks'
 import {
     Dialog,
     DialogContent,
@@ -11,13 +11,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "../components/ui/dialog"
-
-const mockTasks: Task[] = [
-    { id: 1,project_id:1, title: "Implement authentication module", status: "in_progress", due_date: "2026-07-06", assignees: [mockUsers[0], mockUsers[3]] },
-    { id: 2,project_id:1, title: "Dashboard redesign", status: "to_do", due_date: "2026-07-06", assignees: [mockUsers[1]] },
-    { id: 3,project_id:2, title: "Orders API testing", status: "blocked", due_date: "2026-07-08", assignees: [mockUsers[2]] },
-    { id: 4, project_id:2,title: "Write endpoint documentation", status: "complete", due_date: "2026-07-05", assignees: [mockUsers[3]] },
-]
 
 const statusBadgeClass: Record<TaskStatus, string> = {
     to_do: "bg-zinc-800/60 text-zinc-300 ring-1 ring-inset ring-zinc-700/60",
@@ -50,17 +43,15 @@ function initialsOf(name: string) {
     return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
 }
 
-function projectNameFor(id?: number) {
-    return mockProjects.find((p) => p.id === id)?.name ?? '—'
-}
-
-
 export default function TasksPage() {
     const { t } = useTranslation()
     const [filter, setFilter] = useState<'All' | TaskStatus>("All")
     const [search, setSearch] = useState("")
     const [isModalOpen, setIsModalOpen] = useState(false)
     const navigate = useNavigate()
+    const { data: tasks = [], isLoading: isLoadingTasks } = useTasksQuery()
+    const { data: projects = [], isLoading: isLoadingProjects } = useProjectsQuery()
+    const createTaskMutation = useCreateTaskMutation()
 
     const statusLabels: Record<TaskStatus, string> = {
         to_do: t('tasks.status.to_do'),
@@ -70,27 +61,39 @@ export default function TasksPage() {
     }
 
     const [title, setTitle] = useState("")
-    const [, setProject] = useState("")
+    const [projectId, setProjectId] = useState("")
     const [description, setDescription] = useState("")
     const [status, setStatus] = useState<TaskStatus>("to_do")
-    const [dueDate, setDueDate] = useState("2026-07-07")
+    const [dueDate, setDueDate] = useState("")
 
+    const projectNameFor = (id?: number) => projects.find((p) => p.id === id)?.name ?? '—'
 
-    const filteredTasks = mockTasks.filter(task =>
+    const filteredTasks = tasks.filter(task =>
         (filter === "All" || task.status === filter) &&
         task.title.toLowerCase().includes(search.toLowerCase())
     )
 
-    function handleCreateTask(e: React.FormEvent) {
+    async function handleCreateTask(e: React.FormEvent) {
         e.preventDefault()
-        console.log({ title, description, status, due_date: dueDate })
+        if (!projectId) return
+
+        await createTaskMutation.mutateAsync({
+            title,
+            description,
+            status,
+            due_date: dueDate,
+            project_id: Number(projectId),
+        })
 
         setTitle("")
-        setProject("")
+        setProjectId("")
         setDescription("")
         setStatus("to_do")
+        setDueDate("")
         setIsModalOpen(false)
     }
+
+    const isLoading = isLoadingTasks || isLoadingProjects
 
     return (
         <div className="p-10 flex flex-col gap-6 w-full bg-zinc-950">
@@ -146,6 +149,21 @@ export default function TasksPage() {
                             </div>
 
                             <div className="flex flex-col gap-1.5">
+                                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.columnProject')}</label>
+                                <select
+                                    value={projectId}
+                                    onChange={e => setProjectId(e.target.value)}
+                                    className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none cursor-pointer focus:border-zinc-700"
+                                    required
+                                >
+                                    <option value="">—</option>
+                                    {projects.map((project) => (
+                                        <option key={project.id} value={project.id}>{project.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5">
                                 <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldDescription')}</label>
                                 <textarea
                                     placeholder={t('tasks.fieldDescriptionPlaceholder')}
@@ -153,6 +171,7 @@ export default function TasksPage() {
                                     value={description}
                                     onChange={e => setDescription(e.target.value)}
                                     className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 placeholder-zinc-700 outline-none focus:border-zinc-700 transition-colors resize-none"
+                                    required
                                 />
                             </div>
 
@@ -178,6 +197,7 @@ export default function TasksPage() {
                                     value={dueDate}
                                     onChange={e => setDueDate(e.target.value)}
                                     className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none focus:border-zinc-700 transition-colors dark:[color-scheme:dark]"
+                                    required
                                 />
                             </div>
 
@@ -191,7 +211,8 @@ export default function TasksPage() {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors"
+                                    disabled={createTaskMutation.isPending || !projectId}
+                                    className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {t('tasks.add')}
                                 </button>
@@ -201,58 +222,64 @@ export default function TasksPage() {
                 </Dialog>
             </div>
 
-            <table className="w-full border-collapse text-left text-sm">
-                <thead>
-                <tr className="border-b border-zinc-900">
-                    <th className="text-zinc-500 font-medium p-3">{t('tasks.columnTask')}</th>
-                    <th className="text-zinc-500 front-medium p-3">{t('tasks.columnProject')}</th>
-                    <th className="text-zinc-500 font-medium p-3">{t('tasks.columnAssigned')}</th>
-                    <th className="text-zinc-500 font-medium p-3">{t('tasks.columnStatus')}</th>
-                    <th className="text-zinc-500 font-medium p-3">{t('tasks.columnDue')}</th>
-                </tr>
-                </thead>
-                <tbody>
-                {filteredTasks.map((task) => (
-                    <tr
-                        key={task.id}
-                        onClick={() => navigate(`/tasks/${task.id}`)}
-                        className="cursor-pointer transition-colors border-b border-zinc-900 hover:bg-zinc-900/30"
-                    >
-                        <td className="p-3 text-zinc-200 font-medium">
-                            <div className="flex items-center gap-3">
-                                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDotClass[task.status]}`}></span>
-                                <span className={task.status === "complete" ? "line-through text-zinc-500" : ""}>{task.title}</span>
-                            </div>
-                        </td>
-                        <td className="p-3">
-                            {projectNameFor(task.project_id)}
-                        </td>
-                        <td className="p-3">
-                            <div className="flex items-center">
-                                {task.assignees.map((user) => (
-                                    <span
-                                        key={user.id}
-                                        title={user.name}
-                                        className={`flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-semibold text-white ring-2 ring-zinc-950 -ml-2 first:ml-0 ${avatarColorFor(user.id)}`}
-                                    >
-                                        {initialsOf(user.name)}
-                                    </span>
-                                ))}
-                            </div>
-                        </td>
-                        <td className="p-3">
-                            <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${statusBadgeClass[task.status]}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${statusDotClass[task.status]}`}></span>
-                                {statusLabels[task.status]}
-                            </span>
-                        </td>
-                        <td className="p-3 text-zinc-400">
-                            {task.due_date}
-                        </td>
+            {isLoading ? (
+                <p className="text-sm text-zinc-500">{t('admin.loading')}</p>
+            ) : filteredTasks.length === 0 ? (
+                <p className="text-sm text-zinc-500">{t('projects.noTasks')}</p>
+            ) : (
+                <table className="w-full border-collapse text-left text-sm">
+                    <thead>
+                    <tr className="border-b border-zinc-900">
+                        <th className="text-zinc-500 font-medium p-3">{t('tasks.columnTask')}</th>
+                        <th className="text-zinc-500 front-medium p-3">{t('tasks.columnProject')}</th>
+                        <th className="text-zinc-500 font-medium p-3">{t('tasks.columnAssigned')}</th>
+                        <th className="text-zinc-500 font-medium p-3">{t('tasks.columnStatus')}</th>
+                        <th className="text-zinc-500 font-medium p-3">{t('tasks.columnDue')}</th>
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {filteredTasks.map((task) => (
+                        <tr
+                            key={task.id}
+                            onClick={() => navigate(`/tasks/${task.id}`)}
+                            className="cursor-pointer transition-colors border-b border-zinc-900 hover:bg-zinc-900/30"
+                        >
+                            <td className="p-3 text-zinc-200 font-medium">
+                                <div className="flex items-center gap-3">
+                                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDotClass[task.status]}`}></span>
+                                    <span className={task.status === "complete" ? "line-through text-zinc-500" : ""}>{task.title}</span>
+                                </div>
+                            </td>
+                            <td className="p-3">
+                                {projectNameFor(task.project_id)}
+                            </td>
+                            <td className="p-3">
+                                <div className="flex items-center">
+                                    {task.assignees.map((user) => (
+                                        <span
+                                            key={user.id}
+                                            title={user.name}
+                                            className={`flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-semibold text-white ring-2 ring-zinc-950 -ml-2 first:ml-0 ${avatarColorFor(user.id)}`}
+                                        >
+                                            {initialsOf(user.name)}
+                                        </span>
+                                    ))}
+                                </div>
+                            </td>
+                            <td className="p-3">
+                                <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${statusBadgeClass[task.status]}`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${statusDotClass[task.status]}`}></span>
+                                    {statusLabels[task.status]}
+                                </span>
+                            </td>
+                            <td className="p-3 text-zinc-400">
+                                {task.due_date}
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            )}
         </div>
     )
 }

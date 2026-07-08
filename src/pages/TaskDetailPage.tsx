@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useQuery } from '@tanstack/react-query'
 import { useTimeTracking } from '@/hooks/useTimeTracking'
-import { getTimeEntries } from '@/api/client'
+import { useTimeEntriesQuery } from '@/features/timeTracking'
 
 export default function TaskDetailPage() {
     const { t } = useTranslation()
@@ -13,15 +12,11 @@ export default function TaskDetailPage() {
     const { activeTaskId, elapsedSeconds, start, stop } = useTimeTracking()
     const isRunning = activeTaskId === taskId
 
-    const { data: entries = [], refetch: refetchEntries } = useQuery({
-        queryKey: ['time-entries', taskId],
-        queryFn: () => getTimeEntries(taskId),
-    })
+    const { data: entries = [] } = useTimeEntriesQuery(taskId)
 
     async function handleToggle() {
         if (isRunning) {
             await stop()
-            void refetchEntries()
         } else {
             await start(taskId)
         }

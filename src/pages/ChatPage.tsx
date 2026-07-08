@@ -1,13 +1,16 @@
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { getConversations, getMessages, sendMessage } from '@/api/client'
-import { currentUserId } from '@/api/mockChat'
 import type { Conversation } from '@/types/chat'
 import { Input } from '@/components/ui/input'
+import {
+    currentChatUserId,
+    useConversationsQuery,
+    useMessagesQuery,
+    useSendMessageMutation,
+} from '@/features/chat'
 
 function otherParticipant(conversation: Conversation) {
-    return conversation.participants.find((p) => p.id !== currentUserId) ?? conversation.participants[0]
+    return conversation.participants.find((p) => p.id !== currentChatUserId) ?? conversation.participants[0]
 }
 
 const avatarColors = [
@@ -25,30 +28,19 @@ function avatarColorFor(id: number) {
 
 export default function ChatPage() {
     const { t } = useTranslation()
-    const queryClient = useQueryClient()
     const [selectedId, setSelectedId] = useState<number | null>(null)
     const [draft, setDraft] = useState('')
 
-    const { data: conversations = [] } = useQuery({
-        queryKey: ['conversations'],
-        queryFn: getConversations,
-    })
+    const { data: conversations = [] } = useConversationsQuery()
 
     const activeId = selectedId ?? conversations[0]?.id ?? null
 
-    const { data: messages = [] } = useQuery({
-        queryKey: ['messages', activeId],
-        queryFn: () => getMessages(activeId!),
-        enabled: activeId !== null,
-    })
+    const { data: messages = [] } = useMessagesQuery(activeId)
 
     const selectedConversation = conversations.find((c) => c.id === activeId)
     const selectedPerson = selectedConversation && otherParticipant(selectedConversation)
 
-    const sendMutation = useMutation({
-        mutationFn: (text: string) => sendMessage(activeId!, currentUserId, text),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', activeId] }),
-    })
+    const sendMutation = useSendMessageMutation(activeId)
 
     async function handleSend() {
         const text = draft.trim()
@@ -100,7 +92,7 @@ export default function ChatPage() {
 
                 <div className="flex-1 space-y-3 overflow-y-auto p-4">
                     {messages.map((msg) => {
-                        const fromMe = msg.sender_id === currentUserId
+                        const fromMe = msg.sender_id === currentChatUserId
                         return (
                             <div key={msg.id} className={`flex ${fromMe ? 'justify-end' : 'justify-start'}`}>
                                 <div

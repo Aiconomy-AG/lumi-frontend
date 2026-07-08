@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { getOrders } from '@/api/client'
+import { useOrdersQuery } from '@/features/orders'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 
@@ -9,10 +8,7 @@ export default function OrdersPage() {
   const { t } = useTranslation()
   const [page, setPage] = useState(1)
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['orders', page],
-    queryFn: () => getOrders(page),
-  })
+  const { data, isLoading } = useOrdersQuery(page)
 
   if (isLoading) {
     return <div className="p-6 text-sm text-zinc-500">{t('admin.loading')}</div>

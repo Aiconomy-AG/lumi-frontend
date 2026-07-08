@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getProjects, createProject, updateProject, deleteProject } from '@/api/client'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import type { Project, CreateProjectPayload } from '@/types/project'
+import type { Project } from '@/types/project'
 import type { TaskStatus } from '@/types/task'
 import { useAuth } from '@/features/auth/AuthContext'
+import { useDeleteProjectMutation, useProjectsQuery, useSaveProjectMutation } from '@/features/projects'
 import axios from 'axios'
 
 const STATUSES: TaskStatus[] = ['to_do', 'in_progress', 'blocked', 'complete']
@@ -15,7 +14,6 @@ const STATUSES: TaskStatus[] = ['to_do', 'in_progress', 'blocked', 'complete']
 export default function ProjectsPage() {
     const { t } = useTranslation()
     const navigate = useNavigate()
-    const queryClient = useQueryClient()
     const { isAdmin } = useAuth()
 
     const [isOpen, setIsOpen] = useState(false)
@@ -25,32 +23,11 @@ export default function ProjectsPage() {
     const [deadline, setDeadline] = useState('')
     const [status, setStatus] = useState<TaskStatus>('to_do')
 
-    const { data: projects = [], isLoading } = useQuery({
-        queryKey: ['projects'],
-        queryFn: getProjects,
-    })
+    const { data: projects = [], isLoading } = useProjectsQuery()
 
     const [saveError, setSaveError] = useState<string | null>(null)
-
-    const saveMutation = useMutation({
-        mutationFn: (payload: CreateProjectPayload) =>
-            editing ? updateProject(editing.id, payload) : createProject(payload),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['projects'] })
-            setIsOpen(false)
-        },
-        onError: (err) => {
-            console.error('Save project failed:', err)
-            const serverMessage =
-                (axios.isAxiosError(err) && (err.response?.data?.message as string | undefined)) || undefined
-            setSaveError(serverMessage ?? (err instanceof Error ? err.message : 'Eroare la salvare'))
-        },
-    })
-
-    const deleteMutation = useMutation({
-        mutationFn: (id: number) => deleteProject(id),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['projects'] }),
-    })
+    const saveMutation = useSaveProjectMutation()
+    const deleteMutation = useDeleteProjectMutation()
 
     function openAdd() {
         setEditing(null)
@@ -67,10 +44,18 @@ export default function ProjectsPage() {
         setIsOpen(true)
     }
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
         setSaveError(null)
-        void saveMutation.mutateAsync({ name, description, deadline, status })
+        try {
+            await saveMutation.mutateAsync({ id: editing?.id, payload: { name, description, deadline, status } })
+            setIsOpen(false)
+        } catch (err) {
+            console.error('Save project failed:', err)
+            const serverMessage =
+                (axios.isAxiosError(err) && (err.response?.data?.message as string | undefined)) || undefined
+            setSaveError(serverMessage ?? (err instanceof Error ? err.message : 'Eroare la salvare'))
+        }
     }
 
     function handleDelete(project: Project) {

@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getProject, getTasks, createTask } from '@/api/client'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import type { TaskStatus } from '@/types/task'
+import { useProjectQuery } from '@/features/projects'
+import { useCreateTaskMutation, useTasksQuery } from '@/features/tasks'
 
 const STATUSES: TaskStatus[] = ['to_do', 'in_progress', 'blocked', 'complete']
 
@@ -21,7 +21,6 @@ export default function ProjectDetailPage() {
     const navigate = useNavigate()
     const { id } = useParams()
     const projectId = Number(id)
-    const queryClient = useQueryClient()
 
     const [isOpen, setIsOpen] = useState(false)
     const [title, setTitle] = useState('')
@@ -29,31 +28,20 @@ export default function ProjectDetailPage() {
     const [dueDate, setDueDate] = useState('')
     const [status, setStatus] = useState<TaskStatus>('to_do')
 
-    const { data: project } = useQuery({
-        queryKey: ['project', projectId],
-        queryFn: () => getProject(projectId),
-    })
+    const { data: project } = useProjectQuery(projectId)
 
-    const { data: allTasks = [] } = useQuery({
-        queryKey: ['tasks'],
-        queryFn: getTasks,
-    })
+    const { data: allTasks = [] } = useTasksQuery()
 
     // backend intoarce toate task-urile → filtram pe proiectul curent
     const tasks = allTasks.filter((task) => task.project_id === projectId)
 
-    const createTaskMutation = useMutation({
-        mutationFn: () => createTask({ title, description, status, due_date: dueDate, project_id: projectId }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tasks'] })
-            setTitle(''); setDescription(''); setDueDate(''); setStatus('to_do')
-            setIsOpen(false)
-        },
-    })
+    const createTaskMutation = useCreateTaskMutation()
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
-        void createTaskMutation.mutateAsync()
+        await createTaskMutation.mutateAsync({ title, description, status, due_date: dueDate, project_id: projectId })
+        setTitle(''); setDescription(''); setDueDate(''); setStatus('to_do')
+        setIsOpen(false)
     }
 
     return (

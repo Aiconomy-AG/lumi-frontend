@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { getUsers } from '../api/client'
-import {useQuery} from '@tanstack/react-query'
+import { useUsersQuery } from '@/features/users'
 export default function DashboardPage() {
     const { t } = useTranslation()
     const formattedDate = new Date().toLocaleDateString('en-US', {
@@ -9,10 +8,7 @@ export default function DashboardPage() {
         day: 'numeric'
     })
 
-    const { data: users = [], isLoading, isError } = useQuery({
-        queryKey: ['users'],
-        queryFn: getUsers,
-    })
+    const { data: users = [], isLoading, isError } = useUsersQuery()
 
     return (
         <div className="p-10 flex gap-20 w-full bg-zinc-950 min-h-full">

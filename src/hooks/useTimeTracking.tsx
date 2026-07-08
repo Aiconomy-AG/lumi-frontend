@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { startTimeEntry, stopTimeEntry } from '@/api/client'
+import { useStartTimeEntryMutation, useStopTimeEntryMutation } from '@/features/timeTracking'
 
 interface TimeTrackingContextValue {
     activeTaskId: number | null
@@ -12,6 +12,8 @@ interface TimeTrackingContextValue {
 const TimeTrackingContext = createContext<TimeTrackingContextValue | null>(null)
 
 export function TimeTrackingProvider({ children }: { children: ReactNode }) {
+    const startMutation = useStartTimeEntryMutation()
+    const stopMutation = useStopTimeEntryMutation()
     const [activeTaskId, setActiveTaskId] = useState<number | null>(null)
     const [activeEntryId, setActiveEntryId] = useState<number | null>(null)
     const [startedAt, setStartedAt] = useState<number | null>(null)
@@ -26,7 +28,7 @@ export function TimeTrackingProvider({ children }: { children: ReactNode }) {
     }, [startedAt])
 
     const start = async (taskId: number) => {
-        const entry = await startTimeEntry(taskId)
+        const entry = await startMutation.mutateAsync(taskId)
         setActiveTaskId(taskId)
         setActiveEntryId(entry.id)
         setStartedAt(new Date(entry.started_at).getTime())
@@ -35,7 +37,7 @@ export function TimeTrackingProvider({ children }: { children: ReactNode }) {
 
     const stop = async () => {
         if (activeTaskId === null || activeEntryId === null) return
-        await stopTimeEntry(activeTaskId, activeEntryId)
+        await stopMutation.mutateAsync({ taskId: activeTaskId, entryId: activeEntryId })
         setActiveTaskId(null)
         setActiveEntryId(null)
         setStartedAt(null)
