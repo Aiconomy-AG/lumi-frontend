@@ -4,6 +4,7 @@ export type TaskStatus = 'to_do' | 'in_progress' | 'blocked' | 'complete'
 
 export interface Task {
     id: number
+    project_id?: number
     title: string
     description?: string
     status: TaskStatus

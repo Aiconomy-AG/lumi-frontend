@@ -13,6 +13,8 @@ import ProtectedRoute from '@/features/auth/ProtectedRoute'
 import RequireAdmin from '@/features/auth/RequireAdmin'
 import { useAuth } from '@/features/auth/AuthContext'
 import OrdersPage from '@/pages/OrdersPage'
+import ProjectsPage from "./pages/ProjectsPage"
+import ProjectDetailPage from "./pages/ProjectDetailPage"
 
 export default function App() {
     const { user } = useAuth()
@@ -29,6 +31,8 @@ export default function App() {
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/tasks" element={<TasksPage />} />
                     <Route path="/tasks/:id" element={<TaskDetailPage />} />
+                    <Route path="/projects" element={<ProjectsPage />} />
+                    <Route path="/projects/:id" element={<ProjectDetailPage />} />
                     <Route path="/stock" element={<StockPage />} />
                     <Route path="/orders" element={<OrdersPage />} />
                     <Route path="/chat" element={<ChatPage />} />

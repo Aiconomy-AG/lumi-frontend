@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { Task, TaskStatus } from '@/types/task'
 import { mockUsers } from '@/api/mockData'
+import { mockProjects } from '@/api/mockProjects'
 import {
     Dialog,
     DialogContent,
@@ -12,10 +13,10 @@ import {
 } from "../components/ui/dialog"
 
 const mockTasks: Task[] = [
-    { id: 1, title: "Implement authentication module", status: "in_progress", due_date: "2026-07-06", assignees: [mockUsers[0], mockUsers[3]] },
-    { id: 2, title: "Dashboard redesign", status: "to_do", due_date: "2026-07-06", assignees: [mockUsers[1]] },
-    { id: 3, title: "Orders API testing", status: "blocked", due_date: "2026-07-08", assignees: [mockUsers[2]] },
-    { id: 4, title: "Write endpoint documentation", status: "complete", due_date: "2026-07-05", assignees: [mockUsers[3]] },
+    { id: 1,project_id:1, title: "Implement authentication module", status: "in_progress", due_date: "2026-07-06", assignees: [mockUsers[0], mockUsers[3]] },
+    { id: 2,project_id:1, title: "Dashboard redesign", status: "to_do", due_date: "2026-07-06", assignees: [mockUsers[1]] },
+    { id: 3,project_id:2, title: "Orders API testing", status: "blocked", due_date: "2026-07-08", assignees: [mockUsers[2]] },
+    { id: 4, project_id:2,title: "Write endpoint documentation", status: "complete", due_date: "2026-07-05", assignees: [mockUsers[3]] },
 ]
 
 const statusBadgeClass: Record<TaskStatus, string> = {
@@ -49,6 +50,11 @@ function initialsOf(name: string) {
     return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
 }
 
+function projectNameFor(id?: number) {
+    return mockProjects.find((p) => p.id === id)?.name ?? '—'
+}
+
+
 export default function TasksPage() {
     const { t } = useTranslation()
     const [filter, setFilter] = useState<'All' | TaskStatus>("All")
@@ -64,9 +70,11 @@ export default function TasksPage() {
     }
 
     const [title, setTitle] = useState("")
+    const [project_id, setProject] = useState("")
     const [description, setDescription] = useState("")
     const [status, setStatus] = useState<TaskStatus>("to_do")
     const [dueDate, setDueDate] = useState("2026-07-07")
+
 
     const filteredTasks = mockTasks.filter(task =>
         (filter === "All" || task.status === filter) &&
@@ -78,6 +86,7 @@ export default function TasksPage() {
         console.log({ title, description, status, due_date: dueDate })
 
         setTitle("")
+        setProject("")
         setDescription("")
         setStatus("to_do")
         setIsModalOpen(false)
@@ -196,6 +205,7 @@ export default function TasksPage() {
                 <thead>
                 <tr className="border-b border-zinc-900">
                     <th className="text-zinc-500 font-medium p-3">{t('tasks.columnTask')}</th>
+                    <th className="text-zinc-500 front-medium p-3">{t('tasks.columnProject')}</th>
                     <th className="text-zinc-500 font-medium p-3">{t('tasks.columnAssigned')}</th>
                     <th className="text-zinc-500 font-medium p-3">{t('tasks.columnStatus')}</th>
                     <th className="text-zinc-500 font-medium p-3">{t('tasks.columnDue')}</th>
@@ -213,6 +223,9 @@ export default function TasksPage() {
                                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDotClass[task.status]}`}></span>
                                 <span className={task.status === "complete" ? "line-through text-zinc-500" : ""}>{task.title}</span>
                             </div>
+                        </td>
+                        <td className="p-3">
+                            {projectNameFor(task.project_id)}
                         </td>
                         <td className="p-3">
                             <div className="flex items-center">
