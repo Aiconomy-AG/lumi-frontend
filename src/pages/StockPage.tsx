@@ -1,8 +1,5 @@
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import {
-  getProducts, createProduct, updateProduct, updateVariantStock, deleteProduct, getShopifyCategories,
-} from '@/api/client'
 import type { Product, ProductVariant } from '@/types/product'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -16,10 +13,17 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { Plus, Pencil, Trash2, Check, X, ChevronLeft, ChevronRight, ChevronDown, CornerDownRight } from 'lucide-react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/features/auth/AuthContext'
 import type { Category } from '@/types/product'
+import {
+  useProductsQuery,
+  useShopifyCategoriesQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useUpdateVariantStockMutation,
+  useDeleteProductMutation,
+} from '@/features/products'
 
 
 const emptyProduct = { name: '', description: '', image_url: '', sku: '', categoryId: null as number | null, stock: '', price: '' }
@@ -139,43 +143,16 @@ export default function StockPage() {
     per_page: PER_PAGE,
   }
 
-  const { data: productPage, isLoading } = useQuery({
-    queryKey: ['products', filters],
-    queryFn: () => getProducts(filters),
-    placeholderData: (previous) => previous,
-  })
-
-  const { data: categories = [] } = useQuery({
-    queryKey: ['shopify-categories'],
-    queryFn: getShopifyCategories,
-  })
+  const { data: productPage, isLoading } = useProductsQuery(filters)
+  const { data: categories = [] } = useShopifyCategoriesQuery()
 
   const products = productPage?.data ?? []
   const meta = productPage?.meta
 
-  const queryClient = useQueryClient()
-
-  const createMutation = useMutation({
-    mutationFn: createProduct,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
-  })
-
-  const updateMutation = useMutation({
-    mutationFn: (vars: { id: number; payload: Parameters<typeof updateProduct>[1] }) =>
-        updateProduct(vars.id, vars.payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
-  })
-
-  const updateStockMutation = useMutation({
-    mutationFn: (vars: { productId: number; variantId: number; stock: number }) =>
-        updateVariantStock(vars.productId, vars.variantId, vars.stock),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteProduct,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
-  })
+  const createMutation = useCreateProductMutation()
+  const updateMutation = useUpdateProductMutation()
+  const updateStockMutation = useUpdateVariantStockMutation()
+  const deleteMutation = useDeleteProductMutation()
 
   const variantCount = products.reduce((sum, p) => sum + p.variants.length, 0)
   const lowStock = products.reduce(
