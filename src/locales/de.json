@@ -102,7 +102,13 @@
     "columnStock": "Bestand",
     "columnPrice": "Preis",
     "columnActions": "Aktionen",
-    "outOfStockLabel": "Nicht vorrätig"
+    "outOfStockLabel": "Nicht vorrätig",
+    "allCategories": "Alle Kategorien",
+    "noCategory": "Keine Kategorie",
+    "columnVariant": "Variante",
+    "pageOf": "Seite {{page}} von {{pages}}",
+    "editProductTitle": "Produkt bearbeiten",
+    "save": "Speichern"
   },
   "chat": {
     "searchPlaceholder": "Personen suchen...",

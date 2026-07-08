@@ -1,4 +1,4 @@
-import type { Product } from '../types/product'
+import type { Paginated, Product, ProductFilters } from '../types/product'
 import { request, requestData } from './http'
 
 export interface CreateProductPayload {
@@ -18,22 +18,44 @@ export interface CreateProductPayload {
   }>
 }
 
-export async function getProducts(): Promise<Product[]> {
-  const products = await requestData<Product[]>('/v1/admin/products')
-  return products.map((product) => ({
-    ...product,
-    price: Number(product.price),
-    variants: product.variants.map((variant) => ({
-      ...variant,
-      price: Number(variant.price),
-      stock_quantity: Number(variant.stock_quantity),
+export async function getProducts(filters: ProductFilters = {}): Promise<Paginated<Product>> {
+  const params = Object.fromEntries(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  )
+  const page = await request<Paginated<Product>>('/v1/admin/products', { params })
+  return {
+    ...page,
+    data: page.data.map((product) => ({
+      ...product,
+      price: Number(product.price),
+      variants: product.variants.map((variant) => ({
+        ...variant,
+        price: Number(variant.price),
+        stock_quantity: Number(variant.stock_quantity),
+      })),
     })),
-  }))
+  }
 }
 
 export async function createProduct(payload: CreateProductPayload): Promise<Product> {
   return requestData<Product>('/v1/admin/products', {
     method: 'POST',
+    data: payload,
+  })
+}
+
+export interface UpdateProductPayload {
+  name?: string
+  price?: number
+  description?: string
+  image_url?: string
+  category_id?: number
+  sku?: string
+}
+
+export async function updateProduct(id: number, payload: UpdateProductPayload): Promise<Product> {
+  return requestData<Product>(`/v1/admin/products/${id}`, {
+    method: 'PUT',
     data: payload,
   })
 }

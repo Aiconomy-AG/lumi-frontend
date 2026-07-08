@@ -102,7 +102,13 @@
     "columnStock": "Stoc",
     "columnPrice": "Preț",
     "columnActions": "Acțiuni",
-    "outOfStockLabel": "Fără stoc"
+    "outOfStockLabel": "Fără stoc",
+    "allCategories": "Toate categoriile",
+    "noCategory": "Fără categorie",
+    "columnVariant": "Variantă",
+    "pageOf": "Pagina {{page}} din {{pages}}",
+    "editProductTitle": "Editează produsul",
+    "save": "Salvează"
   },
   "chat": {
     "searchPlaceholder": "Caută persoane...",

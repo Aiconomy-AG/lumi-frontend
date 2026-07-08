@@ -102,7 +102,13 @@
     "columnStock": "Stock",
     "columnPrice": "Price",
     "columnActions": "Actions",
-    "outOfStockLabel": "Out of stock"
+    "outOfStockLabel": "Out of stock",
+    "allCategories": "All categories",
+    "noCategory": "No category",
+    "columnVariant": "Variant",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "editProductTitle": "Edit product",
+    "save": "Save"
   },
   "chat": {
     "searchPlaceholder": "Search people...",
