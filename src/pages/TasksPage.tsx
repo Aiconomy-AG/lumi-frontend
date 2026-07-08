@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import type { Task, TaskStatus } from '@/types/task'
-import { mockUsers } from '@/api/mockData'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { TaskStatus } from '@/types/task'
+import { getTasks, createTask, getProjects } from '@/api/client'
 import {
     Dialog,
     DialogContent,
@@ -10,13 +11,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "../components/ui/dialog"
-
-const mockTasks: Task[] = [
-    { id: 1, title: "Implement authentication module", status: "in_progress", due_date: "2026-07-06", assignees: [mockUsers[0], mockUsers[3]] },
-    { id: 2, title: "Dashboard redesign", status: "to_do", due_date: "2026-07-06", assignees: [mockUsers[1]] },
-    { id: 3, title: "Orders API testing", status: "blocked", due_date: "2026-07-08", assignees: [mockUsers[2]] },
-    { id: 4, title: "Write endpoint documentation", status: "complete", due_date: "2026-07-05", assignees: [mockUsers[3]] },
-]
 
 const statusBadgeClass: Record<TaskStatus, string> = {
     to_do: "bg-zinc-800/60 text-zinc-300 ring-1 ring-inset ring-zinc-700/60",
@@ -67,15 +61,42 @@ export default function TasksPage() {
     const [description, setDescription] = useState("")
     const [status, setStatus] = useState<TaskStatus>("to_do")
     const [dueDate, setDueDate] = useState("2026-07-07")
+    const [projectId, setProjectId] = useState<number | null>(null)
 
-    const filteredTasks = mockTasks.filter(task =>
+    const { data: tasks = [], isLoading } = useQuery({
+        queryKey: ['tasks'],
+        queryFn: getTasks,
+    })
+
+    const { data: projects = [] } = useQuery({
+        queryKey: ['projects'],
+        queryFn: getProjects,
+    })
+
+    const queryClient = useQueryClient()
+    const createMutation = useMutation({
+        mutationFn: createTask,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+    })
+
+    const filteredTasks = tasks.filter(task =>
         (filter === "All" || task.status === filter) &&
         task.title.toLowerCase().includes(search.toLowerCase())
     )
 
-    function handleCreateTask(e: React.FormEvent) {
+    const activeProjectId = projectId ?? projects[0]?.id ?? null
+
+    async function handleCreateTask(e: React.FormEvent) {
         e.preventDefault()
-        console.log({ title, description, status, due_date: dueDate })
+        if (activeProjectId === null) return
+
+        await createMutation.mutateAsync({
+            title,
+            description,
+            status,
+            due_date: dueDate,
+            project_id: activeProjectId,
+        })
 
         setTitle("")
         setDescription("")
@@ -172,6 +193,21 @@ export default function TasksPage() {
                                 />
                             </div>
 
+                            {projects.length > 1 && (
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldProject')}</label>
+                                    <select
+                                        value={activeProjectId ?? ''}
+                                        onChange={e => setProjectId(Number(e.target.value))}
+                                        className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none cursor-pointer focus:border-zinc-700"
+                                    >
+                                        {projects.map(project => (
+                                            <option key={project.id} value={project.id}>{project.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
                             <div className="flex justify-end gap-2 mt-4">
                                 <button
                                     type="button"
@@ -202,6 +238,11 @@ export default function TasksPage() {
                 </tr>
                 </thead>
                 <tbody>
+                {isLoading && (
+                    <tr>
+                        <td colSpan={4} className="p-3 text-zinc-500 text-xs">{t('admin.loading')}</td>
+                    </tr>
+                )}
                 {filteredTasks.map((task) => (
                     <tr
                         key={task.id}
@@ -234,7 +275,7 @@ export default function TasksPage() {
                             </span>
                         </td>
                         <td className="p-3 text-zinc-400">
-                            {task.due_date}
+                            {task.due_date.slice(0, 10)}
                         </td>
                     </tr>
                 ))}

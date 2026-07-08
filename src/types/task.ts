@@ -9,7 +9,25 @@ export interface Task {
     status: TaskStatus
     due_date: string
     parent_id?: number | null
+    project_id: number
     assignees: User[]
+}
+
+export interface CreateTaskPayload {
+    title: string
+    description: string
+    status: TaskStatus
+    due_date: string
+    project_id: number
+    parent_id?: number | null
+}
+
+export interface Project {
+    id: number
+    name: string
+    description?: string | null
+    status: string
+    deadline?: string | null
 }
 
 export interface TaskTimeEntry {

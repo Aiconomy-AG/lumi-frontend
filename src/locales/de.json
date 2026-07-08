@@ -53,6 +53,7 @@
     "fieldDescriptionPlaceholder": "Zusätzliche Details...",
     "fieldStatus": "Status",
     "fieldDueDate": "Fälligkeitsdatum",
+    "fieldProject": "Projekt",
     "cancel": "Abbrechen",
     "add": "+ Hinzufügen",
     "columnTask": "Aufgabe",

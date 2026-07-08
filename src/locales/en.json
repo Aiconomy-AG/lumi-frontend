@@ -53,6 +53,7 @@
     "fieldDescriptionPlaceholder": "Additional details...",
     "fieldStatus": "Status",
     "fieldDueDate": "Due date",
+    "fieldProject": "Project",
     "cancel": "Cancel",
     "add": "+ Add",
     "columnTask": "Task",
