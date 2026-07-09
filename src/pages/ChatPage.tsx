@@ -3,15 +3,16 @@ import { useTranslation } from 'react-i18next'
 import type { Conversation } from '@/types/chat'
 import { Input } from '@/components/ui/input'
 import {
-    currentChatUserId,
     useConversationsQuery,
     useMessagesQuery,
     useSendMessageMutation,
 } from '@/features/chat'
 
-function otherParticipant(conversation: Conversation) {
-    return conversation.participants.find((p) => p.id !== currentChatUserId) ?? conversation.participants[0]
+import { useAuth} from '@/features/auth/AuthContext'
+function otherParticipant(conversation: Conversation, currentUserId?: number) {
+    return conversation.participants.find((p) => p.id !== currentUserId) ?? conversation.participants[0]
 }
+
 
 const avatarColors = [
     'bg-sky-500',
@@ -27,6 +28,8 @@ function avatarColorFor(id: number) {
 }
 
 export default function ChatPage() {
+    const { user } = useAuth();
+
     const { t } = useTranslation()
     const [selectedId, setSelectedId] = useState<number | null>(null)
     const [draft, setDraft] = useState('')
@@ -38,7 +41,7 @@ export default function ChatPage() {
     const { data: messages = [] } = useMessagesQuery(activeId)
 
     const selectedConversation = conversations.find((c) => c.id === activeId)
-    const selectedPerson = selectedConversation && otherParticipant(selectedConversation)
+    const selectedPerson = selectedConversation && otherParticipant(selectedConversation, user?.id)
 
     const sendMutation = useSendMessageMutation(activeId)
 
@@ -55,7 +58,7 @@ export default function ChatPage() {
                 <Input placeholder={t('chat.searchPlaceholder')} className="mb-3" />
                 <div className="space-y-1">
                     {conversations.map((conversation) => {
-                        const person = otherParticipant(conversation)
+                        const person = otherParticipant(conversation,user?.id)
                         return (
                             <button
                                 key={conversation.id}
@@ -92,7 +95,7 @@ export default function ChatPage() {
 
                 <div className="flex-1 space-y-3 overflow-y-auto p-4">
                     {messages.map((msg) => {
-                        const fromMe = msg.sender_id === currentChatUserId
+                        const fromMe = msg.sender_id === user?.id
                         return (
                             <div key={msg.id} className={`flex ${fromMe ? 'justify-end' : 'justify-start'}`}>
                                 <div
