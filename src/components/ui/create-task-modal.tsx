@@ -154,7 +154,7 @@ export function CreateTaskModal({ children, defaultProjectId }: CreateTaskModalP
                         <button
                             type="submit"
                             disabled={createTaskMutation.isPending || !projectId}
-                            className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="btn disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {t('tasks.add')}
                         </button>

@@ -88,7 +88,7 @@ export default function AdminPage() {
                     />
                     {isAdmin && (
                         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                            <DialogTrigger className="shrink-0 rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500 transition-colors cursor-pointer">
+                            <DialogTrigger className="btn shrink-0">
                                 {t('admin.addButton')}
                             </DialogTrigger>
                             <DialogContent className="max-w-[440px]">
@@ -122,7 +122,7 @@ export default function AdminPage() {
                                         <button
                                             type="submit"
                                             disabled={createMutation.isPending}
-                                            className="rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500 disabled:opacity-50 cursor-pointer transition-colors"
+                                            className="btn disabled:opacity-50"
                                         >
                                             {t('admin.save')}
                                         </button>
@@ -173,7 +173,7 @@ export default function AdminPage() {
                                                     <button
                                                         onClick={() => handleResendInvite(user)}
                                                         disabled={resendInviteMutation.isPending}
-                                                        className="rounded-md px-2.5 py-1 text-xs font-medium text-blue-500 hover:bg-blue-500/10 disabled:opacity-30 cursor-pointer transition-colors"
+                                                        className="btn-sm disabled:opacity-30"
                                                     >
                                                         Resend invite
                                                     </button>
@@ -181,7 +181,7 @@ export default function AdminPage() {
                                                 <button
                                                     onClick={() => handleDelete(user)}
                                                     disabled={user.id === currentUser?.id || deleteMutation.isPending}
-                                                    className="rounded-md px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-500/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                                    className="btn-sm disabled:opacity-30 disabled:cursor-not-allowed"
                                                 >
                                                     {t('admin.delete')}
                                                 </button>
@@ -190,7 +190,7 @@ export default function AdminPage() {
                                             <button
                                                 onClick={() => handleReactivate(user)}
                                                 disabled={reactivateMutation.isPending}
-                                                className="rounded-md px-2.5 py-1 text-xs font-medium text-green-500 hover:bg-green-500/10 disabled:opacity-30 cursor-pointer transition-colors"
+                                                className="btn-sm disabled:opacity-30"
                                             >
                                                 {t('admin.reactivate')}
                                             </button>

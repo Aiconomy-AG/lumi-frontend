@@ -46,7 +46,7 @@ export default function TasksPage() {
                 />
 
                 <CreateTaskModal>
-                    <button className="ml-auto bg-purple-500/10 border border-purple-500/30 text-purple-400 px-4 py-1.5 rounded-lg text-xs font-semibold cursor-pointer hover:bg-purple-500/20 transition-colors border-none">
+                    <button className="btn ml-auto">
                         {t('tasks.addButton')}
                     </button>
                 </CreateTaskModal>

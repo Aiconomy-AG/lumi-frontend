@@ -22,7 +22,7 @@ export default function ProjectDetailPage() {
         <div className="p-10 bg-zinc-950 min-h-screen">
             <button
                 onClick={() => navigate('/projects')}
-                className="bg-transparent border-none text-zinc-500 hover:text-zinc-200 text-sm font-medium cursor-pointer mb-6 transition-colors"
+                className="btn-sm mb-6"
             >
                 ← {t('projects.title')}
             </button>
@@ -38,7 +38,7 @@ export default function ProjectDetailPage() {
             <div className="mt-8 flex items-center justify-between">
                 <h2 className="text-sm font-medium text-zinc-400">{t('projects.tasksTitle')}</h2>
                 <CreateTaskModal defaultProjectId={projectId}>
-                    <button className="rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500 transition-colors cursor-pointer border-none">
+                    <button className="btn">
                         {t('projects.addTask')}
                     </button>
                 </CreateTaskModal>

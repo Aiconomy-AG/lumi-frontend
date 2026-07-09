@@ -25,7 +25,7 @@ export default function ProfilePage() {
     return (
         <div className="p-10 max-w-[480px] mx-auto w-full">
             <button
-                className="bg-transparent border-none text-zinc-500 hover:text-zinc-200 text-sm font-medium cursor-pointer mb-6 transition-colors"
+                className="btn-sm mb-6"
                 onClick={() => navigate(-1)}
             >
                 {t('profile.back')}

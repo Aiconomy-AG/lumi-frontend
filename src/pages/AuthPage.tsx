@@ -78,7 +78,7 @@ export default function AuthPage() {
 
                     <button
                         type="submit"
-                        className="bg-purple-500 hover:bg-purple-400 text-black font-semibold text-sm py-2.5 rounded-lg transition-colors mt-2"
+                        className="btn mt-2"
                     >
                         {t('auth.signIn')}
                     </button>

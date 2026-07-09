@@ -169,7 +169,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-black font-semibold text-sm py-2.5 rounded-lg transition-colors mt-2"
+            className="btn disabled:opacity-50 mt-2"
           >
             {isSubmitting ? 'Saving...' : 'Save and continue'}
           </button>

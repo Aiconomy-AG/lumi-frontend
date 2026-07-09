@@ -130,7 +130,7 @@ export default function ChatPage() {
                             type="button"
                             onClick={() => void handleSend()}
                             disabled={draft.trim() === '' || activeId === null || sendMutation.isPending}
-                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-600 text-white hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                            className="btn flex h-9 w-9 shrink-0 items-center justify-center rounded-full p-0 disabled:opacity-40 disabled:cursor-not-allowed"
                             aria-label={t('chat.send')}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
