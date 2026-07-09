@@ -22,7 +22,7 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Paginat
   const params = Object.fromEntries(
     Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
   )
-  const page = await request<Paginated<Product>>('/v1/admin/products', { params })
+  const page = await request<Paginated<Product>>('/admin/products', { params })
   return {
     ...page,
     data: page.data.map((product) => ({
@@ -38,7 +38,7 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Paginat
 }
 
 export async function createProduct(payload: CreateProductPayload): Promise<Product> {
-  return requestData<Product>('/v1/admin/products', {
+  return requestData<Product>('/admin/products', {
     method: 'POST',
     data: payload,
   })
@@ -54,7 +54,7 @@ export interface UpdateProductPayload {
 }
 
 export async function updateProduct(id: number, payload: UpdateProductPayload): Promise<Product> {
-  return requestData<Product>(`/v1/admin/products/${id}`, {
+  return requestData<Product>(`/admin/products/${id}`, {
     method: 'PUT',
     data: payload,
   })
@@ -72,30 +72,30 @@ export interface VariantPayload {
 }
 
 export async function createVariant(productId: number, payload: VariantPayload): Promise<Product> {
-  return requestData<Product>(`/v1/admin/products/${productId}/variants`, {
+  return requestData<Product>(`/admin/products/${productId}/variants`, {
     method: 'POST',
     data: payload,
   })
 }
 
 export async function updateVariant(productId: number, variantId: number, payload: VariantPayload): Promise<Product> {
-  return requestData<Product>(`/v1/admin/products/${productId}/variants/${variantId}`, {
+  return requestData<Product>(`/admin/products/${productId}/variants/${variantId}`, {
     method: 'PUT',
     data: payload,
   })
 }
 
 export async function deleteVariant(productId: number, variantId: number): Promise<void> {
-  await request<void>(`/v1/admin/products/${productId}/variants/${variantId}`, { method: 'DELETE' })
+  await request<void>(`/admin/products/${productId}/variants/${variantId}`, { method: 'DELETE' })
 }
 
 export async function updateVariantStock(productId: number, variantId: number, stockQuantity: number): Promise<Product> {
-  return requestData<Product>(`/v1/admin/products/${productId}/variants/${variantId}`, {
+  return requestData<Product>(`/admin/products/${productId}/variants/${variantId}`, {
     method: 'PATCH',
     data: { stock_quantity: stockQuantity },
   })
 }
 
 export async function deleteProduct(id: number): Promise<void> {
-  await request<void>(`/v1/admin/products/${id}`, { method: 'DELETE' })
+  await request<void>(`/admin/products/${id}`, { method: 'DELETE' })
 }

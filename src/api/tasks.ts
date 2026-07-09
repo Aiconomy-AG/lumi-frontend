@@ -11,18 +11,18 @@ export interface CreateTaskPayload {
 }
 
 export async function getTasks(): Promise<Task[]> {
-    return requestData<Task[]>('/v1/workspace/tasks');
+    return requestData<Task[]>('/workspace/tasks');
 }
 
 export async function createTask(payload: CreateTaskPayload): Promise<Task> {
-    return requestData<Task>('/v1/workspace/tasks', {
+    return requestData<Task>('/workspace/tasks', {
         method: 'POST',
         data: payload,
     })
 }
 
 export async function updateTask(id: number, payload: Partial<CreateTaskPayload>): Promise<Task> {
-    return requestData<Task>(`/v1/workspace/tasks/${id}`, {
+    return requestData<Task>(`/workspace/tasks/${id}`, {
         method: 'PUT',
         data: payload,
     })

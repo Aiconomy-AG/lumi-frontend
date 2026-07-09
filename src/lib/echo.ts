@@ -13,7 +13,7 @@ window.Pusher = Pusher
 let echoInstance: Echo<'reverb'> | null = null
 
 function parseApiUrl() {
-  const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:80/api'
+  const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:80/api/v1'
   return new URL(apiUrl)
 }
 

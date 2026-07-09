@@ -14,7 +14,7 @@ export const SHOPIFY_CATEGORY_NAMES = [
 ]
 
 export async function getCategories(): Promise<Category[]> {
-  return requestData<Category[]>('/v1/shop/categories')
+  return requestData<Category[]>('/shop/categories')
 }
 
 export async function getShopifyCategories(): Promise<Category[]> {

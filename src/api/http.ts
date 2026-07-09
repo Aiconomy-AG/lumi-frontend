@@ -1,7 +1,7 @@
 import axios, { type AxiosRequestConfig } from 'axios'
 import { getAuthToken, clearAuthToken } from './token'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:80/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:80/api/v1'
 
 export const http = axios.create({
   baseURL: API_BASE_URL,
