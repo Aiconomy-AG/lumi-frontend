@@ -9,7 +9,8 @@
     "admin": "Admin",
     "collapse": "Restrânge",
     "expand": "Extinde",
-    "projects": "Proiecte"
+    "projects": "Proiecte",
+    "auditLogs": "Jurnal de audit"
   },
   "header": {
     "startTimer": "Pornește cronometrul"
@@ -78,6 +79,7 @@
     "timeEntries": "🕒 Intrări de timp"
   },
   "stock": {
+    "reasonPlaceholder": "Motiv (opțional)",
     "productsCount": "{{count}} produse",
     "variantsCount": "{{count}} variante",
     "lowStock": "{{count}} stoc redus",
@@ -205,5 +207,18 @@
     "noTasks": "Niciun task încă",
     "taskTitle": "Titlu",
     "dueDate": "Scadență"
+  },
+  "auditLogs": {
+    "filterModule": "Filtrează după modul...",
+    "from": "De la",
+    "to": "Până la",
+    "date": "Data",
+    "actor": "Utilizator",
+    "module": "Modul",
+    "action": "Acțiune",
+    "entity": "Entitate",
+    "description": "Descriere",
+    "empty": "Nicio înregistrare",
+    "noChanges": "Nicio modificare de câmp înregistrată"
   }
 }

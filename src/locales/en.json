@@ -9,7 +9,8 @@
     "admin": "Admin",
     "collapse": "Collapse",
     "expand": "Expand",
-    "projects": "Projects"
+    "projects": "Projects",
+    "auditLogs": "Audit Log"
   },
   "header": {
     "startTimer": "Start timer"
@@ -78,6 +79,7 @@
     "timeEntries": "🕒 Time entries"
   },
   "stock": {
+    "reasonPlaceholder": "Reason (optional)",
     "productsCount": "{{count}} products",
     "variantsCount": "{{count}} variants",
     "lowStock": "{{count}} low stock",
@@ -205,5 +207,18 @@
     "noTasks": "No tasks yet",
     "taskTitle": "Title",
     "dueDate": "Due date"
+  },
+  "auditLogs": {
+    "filterModule": "Filter by module...",
+    "from": "From",
+    "to": "To",
+    "date": "Date",
+    "actor": "User",
+    "module": "Module",
+    "action": "Action",
+    "entity": "Entity",
+    "description": "Description",
+    "empty": "No audit entries",
+    "noChanges": "No field changes recorded"
   }
 }

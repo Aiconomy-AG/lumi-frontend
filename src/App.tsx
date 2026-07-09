@@ -5,6 +5,7 @@ import TaskDetailPage from "./pages/TaskDetailPage"
 import StockPage from "./pages/StockPage"
 import ChatPage from "./pages/ChatPage"
 import AdminPage from "./pages/AdminPage"
+import AuditLogsPage from "./pages/AuditLogsPage"
 import ProfilePage from "./pages/ProfilePage"
 import AuthPage from "./pages/AuthPage"
 import AppLayout from "@/components/AppLayout"
@@ -40,6 +41,7 @@ export default function App() {
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route element={<RequireAdmin />}>
                         <Route path="/admin" element={<AdminPage />} />
+                        <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
                     </Route>
                 </Route>
             </Route>

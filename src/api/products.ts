@@ -89,10 +89,10 @@ export async function deleteVariant(productId: number, variantId: number): Promi
   await request<void>(`/admin/products/${productId}/variants/${variantId}`, { method: 'DELETE' })
 }
 
-export async function updateVariantStock(productId: number, variantId: number, stockQuantity: number): Promise<Product> {
+export async function updateVariantStock(productId: number, variantId: number, stockQuantity: number, reason?: string): Promise<Product> {
   return requestData<Product>(`/admin/products/${productId}/variants/${variantId}`, {
     method: 'PATCH',
-    data: { stock_quantity: stockQuantity },
+    data: { stock_quantity: stockQuantity, ...(reason ? { reason } : {}) },
   })
 }
 

@@ -165,6 +165,7 @@ export default function StockPage() {
 
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editValue, setEditValue] = useState<number>(0)
+  const [editReason, setEditReason] = useState('')
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -216,6 +217,7 @@ export default function StockPage() {
   function startStockEdit(variant: ProductVariant) {
     setEditingId(variant.id)
     setEditValue(variant.stock_quantity)
+    setEditReason('')
   }
 
   function selectCategory(value: number | null) {
@@ -344,7 +346,12 @@ export default function StockPage() {
   }
 
   async function saveStockEdit(productId: number, variantId: number) {
-    await updateVariantStock.mutateAsync({ productId, variantId, stock: editValue })
+    await updateVariantStock.mutateAsync({
+      productId,
+      variantId,
+      stock: editValue,
+      reason: editReason.trim() || undefined,
+    })
     setEditingId(null)
   }
 
@@ -358,6 +365,12 @@ export default function StockPage() {
             onChange={(e) => setEditValue(Number(e.target.value))}
             className="h-7 w-20"
             autoFocus
+          />
+          <Input
+            value={editReason}
+            onChange={(e) => setEditReason(e.target.value)}
+            placeholder={t('stock.reasonPlaceholder')}
+            className="h-7 w-36"
           />
           <Button size="icon-sm" variant="ghost" onClick={() => saveStockEdit(product.id, variant.id)}>
             <Check className="h-4 w-4" />

@@ -87,8 +87,8 @@ export function useUpdateProductMutation() {
 export function useUpdateVariantStockMutation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (vars: { productId: number; variantId: number; stock: number }) =>
-      updateVariantStock(vars.productId, vars.variantId, vars.stock),
+    mutationFn: (vars: { productId: number; variantId: number; stock: number; reason?: string }) =>
+      updateVariantStock(vars.productId, vars.variantId, vars.stock, vars.reason),
     onMutate: async (vars) => {
       await queryClient.cancelQueries({ queryKey: productKeys.lists() })
       const snapshot = snapshotProductLists(queryClient)

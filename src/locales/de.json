@@ -9,7 +9,8 @@
     "admin": "Admin",
     "collapse": "Einklappen",
     "expand": "Ausklappen",
-    "projects": "Projekte"
+    "projects": "Projekte",
+    "auditLogs": "Aktivitätsprotokoll"
   },
   "header": {
     "startTimer": "Timer starten"
@@ -78,6 +79,7 @@
     "timeEntries": "🕒 Zeiteinträge"
   },
   "stock": {
+    "reasonPlaceholder": "Grund (optional)",
     "productsCount": "{{count}} Produkte",
     "variantsCount": "{{count}} Varianten",
     "lowStock": "{{count}} niedriger Bestand",
@@ -205,5 +207,18 @@
     "noTasks": "Noch keine Aufgaben",
     "taskTitle": "Titel",
     "dueDate": "Fällig am"
+  },
+  "auditLogs": {
+    "filterModule": "Nach Modul filtern...",
+    "from": "Von",
+    "to": "Bis",
+    "date": "Datum",
+    "actor": "Benutzer",
+    "module": "Modul",
+    "action": "Aktion",
+    "entity": "Objekt",
+    "description": "Beschreibung",
+    "empty": "Keine Einträge",
+    "noChanges": "Keine Feldänderungen erfasst"
   }
 }

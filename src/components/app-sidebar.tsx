@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { Home, CheckSquare, ShoppingCart, MessageSquare, Users, ChevronLeft, ChevronRight, ClipboardList, FolderKanban } from "lucide-react"
+import { Home, CheckSquare, ShoppingCart, MessageSquare, Users, ChevronLeft, ChevronRight, ClipboardList, FolderKanban, History } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -25,6 +25,7 @@ export const items = [
     { titleKey: "sidebar.orders", path: "/orders", icon: ClipboardList },
     { titleKey: "sidebar.chat", path: "/chat", icon: MessageSquare },
     { titleKey: "sidebar.admin", path: "/admin", icon: Users },
+    { titleKey: "sidebar.auditLogs", path: "/admin/audit-logs", icon: History },
 ] as const
 
 const languages = ["en", "ro", "de"] as const
@@ -63,10 +64,10 @@ export function AppSidebar() {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {items.filter((item) => isAdmin || item.path !== '/admin').map((item) => {
+                            {items.filter((item) => isAdmin || !item.path.startsWith('/admin')).map((item) => {
                                 const isItemActive =
                                     location.pathname === item.path ||
-                                    location.pathname.startsWith(item.path + "/")
+                                    (item.path !== '/admin' && location.pathname.startsWith(item.path + "/"))
                                 const label = t(item.titleKey)
 
                                 return (
