@@ -258,14 +258,6 @@ export default function TaskDetailPage() {
                             {task.description || <span className="text-zinc-600 italic">Click to add a description...</span>}
                         </p>
                     )}
-                    <button
-                        className={`w-12 h-12 rounded-full border-none text-white text-sm flex items-center justify-center cursor-pointer transition-colors shadow-lg ${
-                            isRunning ? "bg-red-500 hover:bg-red-400" : "bg-purple-600 hover:bg-purple-500"
-                        }`}
-                        onClick={() => void handleToggle()}
-                    >
-                        {isRunning ? "■" : "▶"}
-                    </button>
                 </div>
 
 
@@ -297,9 +289,6 @@ export default function TaskDetailPage() {
                         {(!task.assignees || task.assignees.length === 0) && (
                             <div className="text-xs text-zinc-500 italic">Unassigned</div>
                         )}
-                        <button className="btn-sm">
-                            {t('taskDetail.assign')}
-                        </button>
 
                         <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
                             <DialogTrigger render={
