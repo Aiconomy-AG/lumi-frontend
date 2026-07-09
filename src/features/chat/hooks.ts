@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getConversations, getMessages, sendMessage } from '@/api/client'
+import { createConversation, getConversations, getMessages, sendMessage } from '@/api/client'
 import { chatKeys } from './queryKeys'
 
 
@@ -15,6 +15,15 @@ export function useMessagesQuery(conversationId: number | null) {
     queryKey: chatKeys.messages(conversationId),
     queryFn: () => getMessages(conversationId!),
     enabled: conversationId !== null,
+    refetchInterval: 30_000,
+  })
+}
+
+export function useCreateConversationMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: createConversation,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: chatKeys.conversations }),
   })
 }
 
