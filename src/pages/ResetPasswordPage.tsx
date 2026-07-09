@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
+import { Button } from '@/components/ui/button'
 import { completeInvite, validateResetToken } from '@/api/auth'
 
 export default function ResetPasswordPage() {
@@ -166,13 +167,13 @@ export default function ResetPasswordPage() {
             />
           </div>
 
-          <button
+          <Button
             type="submit"
             disabled={isSubmitting}
-            className="btn disabled:opacity-50 mt-2"
+            className="mt-2"
           >
             {isSubmitting ? 'Saving...' : 'Save and continue'}
-          </button>
+          </Button>
         </form>
 
         {error && <p className="mt-4 text-xs text-red-400">{error}</p>}

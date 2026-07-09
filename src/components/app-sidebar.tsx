@@ -108,7 +108,7 @@ export function AppSidebar() {
                             onClick={() => changeLanguage(lang)}
                             className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-[10px] font-bold uppercase cursor-pointer transition-colors ${
                                 i18n.resolvedLanguage === lang
-                                    ? "border-purple-600 bg-purple-600 text-white"
+                                    ? "border-primary bg-primary text-primary-foreground"
                                     : "border-zinc-800 text-zinc-500 hover:bg-zinc-900"
                             }`}
                         >

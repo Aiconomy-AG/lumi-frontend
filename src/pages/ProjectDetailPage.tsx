@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
 import { useProjectQuery } from '@/features/projects'
 import { useTasksQuery } from '@/features/tasks'
 import { TaskCard } from '@/components/ui/task-card'
@@ -20,12 +21,14 @@ export default function ProjectDetailPage() {
 
     return (
         <div className="p-10 bg-zinc-950 min-h-screen">
-            <button
+            <Button
+                variant="ghost"
+                size="sm"
+                className="mb-6"
                 onClick={() => navigate('/projects')}
-                className="btn-sm mb-6"
             >
                 ← {t('projects.title')}
-            </button>
+            </Button>
 
             <h1 className="text-2xl font-bold text-white">{project?.name}</h1>
             <p className="text-sm text-zinc-500 mt-1">{project?.description}</p>
@@ -38,9 +41,7 @@ export default function ProjectDetailPage() {
             <div className="mt-8 flex items-center justify-between">
                 <h2 className="text-sm font-medium text-zinc-400">{t('projects.tasksTitle')}</h2>
                 <CreateTaskModal defaultProjectId={projectId}>
-                    <button className="btn">
-                        {t('projects.addTask')}
-                    </button>
+                    <Button>{t('projects.addTask')}</Button>
                 </CreateTaskModal>
             </div>
 

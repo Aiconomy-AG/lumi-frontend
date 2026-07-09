@@ -120,7 +120,10 @@
     "fieldColour": "Colour",
     "fieldWeight": "Weight",
     "fieldWeightUnit": "Weight unit",
-    "defaultVariant": "Default"
+    "defaultVariant": "Default",
+    "delete": "Delete",
+    "deleteProductConfirm": "Delete this product?",
+    "deleteVariantConfirm": "Delete this variant?"
   },
   "chat": {
     "searchPlaceholder": "Search people...",

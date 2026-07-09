@@ -4,9 +4,11 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
+import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
 import { useState } from 'react'
 import type { User } from '@/types/user'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -24,6 +26,7 @@ export default function AdminPage() {
 
     const [search, setSearch] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [pendingDelete, setPendingDelete] = useState<User | null>(null)
 
     const [email, setEmail] = useState('')
     const [role, setRole] = useState<User['role']>('employee')
@@ -49,10 +52,10 @@ export default function AdminPage() {
         setIsModalOpen(false)
     }
 
-    function handleDelete(user: User) {
-        if (window.confirm(t('admin.deleteConfirm'))) {
-            void deleteMutation.mutateAsync(user.id)
-        }
+    async function handleConfirmDelete() {
+        if (!pendingDelete) return
+        await deleteMutation.mutateAsync(pendingDelete.id)
+        setPendingDelete(null)
     }
 
     function handleReactivate(user: User) {
@@ -88,9 +91,9 @@ export default function AdminPage() {
                     />
                     {isAdmin && (
                         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                            <DialogTrigger className="btn shrink-0">
-                                {t('admin.addButton')}
-                            </DialogTrigger>
+                            <DialogTrigger
+                                render={<Button className="shrink-0">{t('admin.addButton')}</Button>}
+                            />
                             <DialogContent className="max-w-[440px]">
                                 <DialogHeader>
                                     <DialogTitle>{t('admin.newUserTitle')}</DialogTitle>
@@ -112,20 +115,19 @@ export default function AdminPage() {
                                         </select>
                                     </div>
                                     <div className="flex justify-end gap-2 mt-2">
-                                        <button
+                                        <Button
                                             type="button"
+                                            variant="ghost"
                                             onClick={() => setIsModalOpen(false)}
-                                            className="rounded-md px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
                                         >
                                             {t('admin.cancel')}
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
                                             type="submit"
                                             disabled={createMutation.isPending}
-                                            className="btn disabled:opacity-50"
                                         >
                                             {t('admin.save')}
-                                        </button>
+                                        </Button>
                                     </div>
                                 </form>
                             </DialogContent>
@@ -170,30 +172,34 @@ export default function AdminPage() {
                                         {user.is_active ? (
                                             <div className="flex justify-end gap-2">
                                                 {user.must_change_password && (
-                                                    <button
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
                                                         onClick={() => handleResendInvite(user)}
                                                         disabled={resendInviteMutation.isPending}
-                                                        className="btn-sm disabled:opacity-30"
                                                     >
                                                         Resend invite
-                                                    </button>
+                                                    </Button>
                                                 )}
-                                                <button
-                                                    onClick={() => handleDelete(user)}
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    className="text-destructive hover:text-destructive"
+                                                    onClick={() => setPendingDelete(user)}
                                                     disabled={user.id === currentUser?.id || deleteMutation.isPending}
-                                                    className="btn-sm disabled:opacity-30 disabled:cursor-not-allowed"
                                                 >
                                                     {t('admin.delete')}
-                                                </button>
+                                                </Button>
                                             </div>
                                         ) : (
-                                            <button
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
                                                 onClick={() => handleReactivate(user)}
                                                 disabled={reactivateMutation.isPending}
-                                                className="btn-sm disabled:opacity-30"
                                             >
                                                 {t('admin.reactivate')}
-                                            </button>
+                                            </Button>
                                         )}
                                     </TableCell>
                                 )}
@@ -202,6 +208,17 @@ export default function AdminPage() {
                     </TableBody>
                 </Table>
             )}
+
+            <ConfirmDeleteDialog
+                open={pendingDelete !== null}
+                onOpenChange={(open) => { if (!open) setPendingDelete(null) }}
+                title={t('admin.delete')}
+                description={t('admin.deleteConfirm')}
+                confirmLabel={t('admin.delete')}
+                cancelLabel={t('admin.cancel')}
+                onConfirm={handleConfirmDelete}
+                isPending={deleteMutation.isPending}
+            />
         </div>
     )
 }

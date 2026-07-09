@@ -28,7 +28,7 @@ export function TaskFilters({ filter, setFilter, search, setSearch, showDueToday
                         key={btn}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer border-none ${
                             filter === btn
-                                ? "bg-purple-600 text-white"
+                                ? "bg-primary text-primary-foreground"
                                 : "bg-transparent text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
                         }`}
                         onClick={() => setFilter(btn)}
@@ -43,7 +43,7 @@ export function TaskFilters({ filter, setFilter, search, setSearch, showDueToday
                     onClick={() => setShowDueToday(!showDueToday)}
                     className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer border ${
                         showDueToday 
-                            ? 'bg-purple-600 text-white border-purple-600' 
+                            ? 'bg-primary text-primary-foreground border-primary' 
                             : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-300'
                     }`}
                 >
