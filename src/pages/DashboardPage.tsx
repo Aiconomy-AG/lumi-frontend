@@ -24,8 +24,6 @@ export default function DashboardPage() {
     const onlineUsersCount = users.filter(
         (currentUser) => currentUser.status === 'available' || currentUser.status === 'busy'
     ).length
-    // #TODO:  instead of mockTasks use the real tasks when the endpoint is ready
-    const { data: mockTasks = [], isLoading: isTasksLoading } = useTasksQuery()
     const { data: listTasks = [], isLoading: isTasksLoading } = useTasksQuery()
     const { data: projects = []} = useProjectsQuery()
 
