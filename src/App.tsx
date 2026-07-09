@@ -15,6 +15,7 @@ import { useAuth } from '@/features/auth/AuthContext'
 import OrdersPage from '@/pages/OrdersPage'
 import ProjectsPage from "./pages/ProjectsPage"
 import ProjectDetailPage from "./pages/ProjectDetailPage"
+import ResetPasswordPage from '@/pages/ResetPasswordPage'
 
 export default function App() {
     const { user } = useAuth()
@@ -25,7 +26,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
-
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>
                     <Route path="/dashboard" element={<DashboardPage />} />

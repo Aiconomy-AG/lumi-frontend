@@ -13,6 +13,7 @@ import { useAuth } from '@/features/auth/AuthContext'
 import {
     useCreateUserMutation,
     useDeactivateUserMutation,
+    useResendInviteMutation,
     useReactivateUserMutation,
     useUsersQuery,
 } from '@/features/users'
@@ -24,17 +25,14 @@ export default function AdminPage() {
     const [search, setSearch] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const [name, setName] = useState('')
     const [email, setEmail] = useState('')
-    const [phone, setPhone] = useState('')
-    const [password, setPassword] = useState('')
     const [role, setRole] = useState<User['role']>('employee')
-    const [status, setStatus] = useState<User['status']>('available')
 
     const { data: users = [], isLoading } = useUsersQuery()
     const createMutation = useCreateUserMutation()
     const deleteMutation = useDeactivateUserMutation()
     const reactivateMutation = useReactivateUserMutation()
+    const resendInviteMutation = useResendInviteMutation()
 
     const filtered = users.filter((u) =>
         u.name.toLowerCase().includes(search.toLowerCase())
@@ -42,13 +40,12 @@ export default function AdminPage() {
 
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
-        await createMutation.mutateAsync({ name, email, phone_number: phone, password, role: role as 'admin' | 'employee', status })
-        setName('')
+        await createMutation.mutateAsync({
+            email: email.trim().toLowerCase(),
+            role: role as 'admin' | 'employee',
+        })
         setEmail('')
-        setPhone('')
-        setPassword('')
         setRole('employee')
-        setStatus('available')
         setIsModalOpen(false)
     }
 
@@ -60,6 +57,10 @@ export default function AdminPage() {
 
     function handleReactivate(user: User) {
         void reactivateMutation.mutateAsync(user.id)
+    }
+
+    function handleResendInvite(user: User) {
+        void resendInviteMutation.mutateAsync(user.id)
     }
 
     const roleLabels: Record<User['role'], string> = {
@@ -90,46 +91,19 @@ export default function AdminPage() {
                                 </DialogHeader>
                                 <form onSubmit={handleCreate} className="flex flex-col gap-4 mt-2">
                                     <div className="flex flex-col gap-1.5">
-                                        <label className="text-xs font-medium text-muted-foreground">{t('admin.fieldName')}</label>
-                                        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('admin.namePlaceholder')} required />
-                                    </div>
-                                    <div className="flex flex-col gap-1.5">
                                         <label className="text-xs font-medium text-muted-foreground">{t('admin.fieldEmail')}</label>
                                         <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('admin.emailPlaceholder')} required />
                                     </div>
                                     <div className="flex flex-col gap-1.5">
-                                        <label className="text-xs font-medium text-muted-foreground">{t('auth.password')}</label>
-                                        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="******" required />
-                                    </div>
-                                    <div className="flex flex-col gap-1.5">
-                                        <label className="text-xs font-medium text-muted-foreground">{t('admin.fieldPhone')}</label>
-                                        <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t('admin.phonePlaceholder')} />
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <div className="flex flex-1 flex-col gap-1.5">
-                                            <label className="text-xs font-medium text-muted-foreground">{t('admin.fieldRole')}</label>
-                                            <select
-                                                value={role}
-                                                onChange={(e) => setRole(e.target.value as User['role'])}
-                                                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus:border-ring cursor-pointer"
-                                            >
-                                                <option value="employee">{roleLabels.employee}</option>
-                                                <option value="admin">{roleLabels.admin}</option>
-                                            </select>
-                                        </div>
-                                        <div className="flex flex-1 flex-col gap-1.5">
-                                            <label className="text-xs font-medium text-muted-foreground">{t('admin.fieldStatus')}</label>
-                                            <select
-                                                value={status}
-                                                onChange={(e) => setStatus(e.target.value as User['status'])}
-                                                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus:border-ring cursor-pointer"
-                                            >
-                                                <option value="available">{t('userStatus.available')}</option>
-                                                <option value="busy">{t('userStatus.busy')}</option>
-                                                <option value="away">{t('userStatus.away')}</option>
-                                                <option value="offline">{t('userStatus.offline')}</option>
-                                            </select>
-                                        </div>
+                                        <label className="text-xs font-medium text-muted-foreground">{t('admin.fieldRole')}</label>
+                                        <select
+                                            value={role}
+                                            onChange={(e) => setRole(e.target.value as User['role'])}
+                                            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus:border-ring cursor-pointer"
+                                        >
+                                            <option value="employee">{roleLabels.employee}</option>
+                                            <option value="admin">{roleLabels.admin}</option>
+                                        </select>
                                     </div>
                                     <div className="flex justify-end gap-2 mt-2">
                                         <button
@@ -188,13 +162,24 @@ export default function AdminPage() {
                                 {isAdmin && (
                                     <TableCell className="text-right">
                                         {user.is_active ? (
-                                            <button
-                                                onClick={() => handleDelete(user)}
-                                                disabled={user.id === currentUser?.id || deleteMutation.isPending}
-                                                className="rounded-md px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-500/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                                            >
-                                                {t('admin.delete')}
-                                            </button>
+                                            <div className="flex justify-end gap-2">
+                                                {user.must_change_password && (
+                                                    <button
+                                                        onClick={() => handleResendInvite(user)}
+                                                        disabled={resendInviteMutation.isPending}
+                                                        className="rounded-md px-2.5 py-1 text-xs font-medium text-blue-500 hover:bg-blue-500/10 disabled:opacity-30 cursor-pointer transition-colors"
+                                                    >
+                                                        Resend invite
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => handleDelete(user)}
+                                                    disabled={user.id === currentUser?.id || deleteMutation.isPending}
+                                                    className="rounded-md px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-500/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                                >
+                                                    {t('admin.delete')}
+                                                </button>
+                                            </div>
                                         ) : (
                                             <button
                                                 onClick={() => handleReactivate(user)}

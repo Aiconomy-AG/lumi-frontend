@@ -10,6 +10,7 @@ export interface User {
   status: UserStatus
   language_flag?: string
   is_active: boolean
+  must_change_password?: boolean
 }
 
 export interface LoginCredentials {
@@ -18,11 +19,23 @@ export interface LoginCredentials {
 }
 
 export interface CreateUserPayload {
-  name: string
   email: string
-  password: string
   role: Exclude<UserRole, 'client'>
-  status?: UserStatus
+}
+
+export interface ValidateResetTokenResponse {
+  email: string
+  name: string
+  phone_number: string
+  language_flag: string
+}
+
+export interface CompleteInvitePayload {
+  email: string
+  token: string
+  password: string
+  password_confirmation: string
+  name: string
   phone_number?: string
   language_flag?: string
 }

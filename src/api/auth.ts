@@ -1,4 +1,9 @@
-import type { LoginCredentials, User } from '../types/user'
+import type { 
+  LoginCredentials,
+  User,
+  ValidateResetTokenResponse,
+  CompleteInvitePayload,
+} from '../types/user'
 import { request, requestData } from './http'
 import { setAuthToken, clearAuthToken } from './token'
 
@@ -18,4 +23,18 @@ export async function logout(): Promise<void> {
 
 export async function me(): Promise<User> {
   return requestData<User>('/auth/me')
+}
+
+export async function validateResetToken(email: string, token: string): Promise<ValidateResetTokenResponse> {
+  const response = await request<{ message: string; data: ValidateResetTokenResponse }>(
+    '/auth/reset-password/validate',
+    { method: 'GET', params: { email, token } }
+  )
+  return response.data
+}
+export async function completeInvite(payload: CompleteInvitePayload): Promise<void> {
+  await request('/auth/reset-password', {
+    method: 'POST',
+    data: payload,
+  })
 }

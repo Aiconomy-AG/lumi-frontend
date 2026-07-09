@@ -3,6 +3,7 @@ import {
   createUser,
   deactivateUser,
   getUsers,
+  resendInvite,
   reactivateUser,
 } from '@/api/client'
 import type { CreateUserPayload } from '@/types/user'
@@ -35,6 +36,14 @@ export function useReactivateUserMutation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => reactivateUser(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: userKeys.all }),
+  })
+}
+
+export function useResendInviteMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => resendInvite(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: userKeys.all }),
   })
 }

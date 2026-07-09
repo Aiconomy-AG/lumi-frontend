@@ -26,3 +26,7 @@ export async function reactivateUser(id: number): Promise<User> {
     data: { is_active: true },
   })
 }
+
+export async function resendInvite(id: number): Promise<void> {
+  await request<void>(`/v1/admin/users/${id}/resend-invite`, { method: 'POST' })
+}
