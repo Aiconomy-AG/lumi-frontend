@@ -71,16 +71,51 @@ export function useCreateConversationMutation() {
   })
 }
 
-export function useSendMessageMutation(conversationId: number | null) {
+export function useSendMessageMutation(conversationId: number | null, currentUserId?: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (text: string) => sendMessage(conversationId!, text),
-    onSuccess: (message) => {
+    onMutate: async (text) => {
+      if (conversationId === null) {
+        return
+      }
+
+      await queryClient.cancelQueries({ queryKey: chatKeys.messages(conversationId) })
+
+      const previousMessages = queryClient.getQueryData<Message[]>(chatKeys.messages(conversationId))
+      const optimisticMessage: Message = {
+        id: -Date.now(),
+        conversation_id: conversationId,
+        sender_id: currentUserId ?? 0,
+        message: text,
+        sent_at: new Date().toISOString(),
+      }
+
       queryClient.setQueryData<Message[] | undefined>(
         chatKeys.messages(conversationId),
-        (currentMessages) => upsertMessage(currentMessages, message)
+        (currentMessages) => upsertMessage(currentMessages, optimisticMessage)
+      )
+
+      return { optimisticMessage, previousMessages }
+    },
+    onSuccess: (message, _text, context) => {
+      queryClient.setQueryData<Message[] | undefined>(
+        chatKeys.messages(conversationId),
+        (currentMessages) => {
+          const withoutOptimisticMessage = currentMessages?.filter(
+            (existingMessage) => existingMessage.id !== context?.optimisticMessage.id
+          )
+          return upsertMessage(withoutOptimisticMessage, message)
+        }
       )
       void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+    },
+    onError: (_error, _text, context) => {
+      if (conversationId === null) {
+        return
+      }
+
+      queryClient.setQueryData(chatKeys.messages(conversationId), context?.previousMessages)
     },
   })
 }

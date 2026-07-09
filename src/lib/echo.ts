@@ -18,7 +18,7 @@ function parseApiUrl() {
 }
 
 function buildBroadcastAuthEndpoint(apiUrl: URL): string {
-  const apiPath = apiUrl.pathname.replace(/\/$/, '')
+  const apiPath = apiUrl.pathname.replace(/\/$/, '').replace(/\/v\d+$/, '')
   return `${apiUrl.origin}${apiPath}/broadcasting/auth`
 }
 
