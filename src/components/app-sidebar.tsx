@@ -90,7 +90,7 @@ export function AppSidebar() {
             <SidebarFooter>
                 <div className="px-2 pb-2">
                     <select
-                        value={user?.status ?? 'offline'}
+                        value={user?.status === 'offline' ? 'available' : (user?.status ?? 'available')}
                         onChange={(e) => handleStatusChange(e.target.value as UserStatus)}
                         className="w-full h-8 rounded-md border border-zinc-800 bg-zinc-900 px-2 text-xs text-zinc-200 outline-none focus:border-purple-500 cursor-pointer"
                         aria-label={t('profile.status')}
@@ -98,7 +98,6 @@ export function AppSidebar() {
                         <option value="available">{t('userStatus.available')}</option>
                         <option value="busy">{t('userStatus.busy')}</option>
                         <option value="away">{t('userStatus.away')}</option>
-                        <option value="offline">{t('userStatus.offline')}</option>
                     </select>
                 </div>
                 <div className="flex group-data-[collapsible=icon]:flex-col justify-center items-center gap-1.5 px-2 pb-2">

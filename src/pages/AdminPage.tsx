@@ -68,6 +68,12 @@ export default function AdminPage() {
         employee: t('admin.roleEmployee'),
         client: t('admin.roleClient'),
     }
+    const statusClassNames: Record<User['status'], string> = {
+        available: 'text-green-600',
+        busy: 'text-rose-500',
+        away: 'text-amber-500',
+        offline: 'text-muted-foreground',
+    }
 
     return (
         <div className="p-6">
@@ -154,9 +160,9 @@ export default function AdminPage() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                  <span className={user.status === 'available' ? 'text-green-600' : 'text-muted-foreground'}>
-                    {t(`userStatus.${user.status}`)}
-                  </span>
+                                    <span className={statusClassNames[user.status]}>
+                                        {t(`userStatus.${user.status}`)}
+                                    </span>
                                     {!user.is_active && <span className="ml-2 text-xs text-red-400">{t('admin.inactive')}</span>}
                                 </TableCell>
                                 {isAdmin && (

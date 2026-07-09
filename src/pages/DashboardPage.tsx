@@ -13,6 +13,9 @@ export default function DashboardPage() {
     })
 
     const { data: users = [], isLoading, isError } = useUsersQuery()
+    const onlineUsersCount = users.filter(
+        (currentUser) => currentUser.status === 'available' || currentUser.status === 'busy'
+    ).length
     // #TODO:  instead of mockTasks use the real tasks when the endpoint is ready
     const { data: mockTasks = [], isLoading: isTasksLoading } = useTasksQuery()
 
@@ -54,7 +57,7 @@ export default function DashboardPage() {
 
             <div className="flex-1 max-w-70">
                 <h3 className="text-sm font-medium text-zinc-400 mb-5">
-                    {t('dashboard.onlineNow')} <span className="text-zinc-500 ml-1">{t('dashboard.peopleCount', { count: users.length })}</span>
+                    {t('dashboard.onlineNow')} <span className="text-zinc-500 ml-1">{t('dashboard.peopleCount', { count: onlineUsersCount })}</span>
                 </h3>
 
                 {isLoading && <p className="text-xs text-zinc-500">{t('dashboard.loading')}</p>}
