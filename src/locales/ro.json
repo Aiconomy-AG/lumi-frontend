@@ -129,7 +129,12 @@
     "fieldColour": "Culoare",
     "fieldWeight": "Greutate",
     "fieldWeightUnit": "Unitate greutate",
-    "defaultVariant": "Standard"
+    "defaultVariant": "Standard",
+    "productDetailsNoDescription": "Nu exista descriere.",
+    "noImageAvailable": "Nu exista imagine",
+    "productVariantsTitle": "Variante",
+    "variantStockCount": "Stoc: {{count}}",
+    "productNoVariants": "Nu exista variante"
   },
   "chat": {
     "searchPlaceholder": "Caută persoane...",

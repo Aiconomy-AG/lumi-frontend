@@ -129,7 +129,12 @@
     "fieldColour": "Farbe",
     "fieldWeight": "Gewicht",
     "fieldWeightUnit": "Gewichtseinheit",
-    "defaultVariant": "Standard"
+    "defaultVariant": "Standard",
+    "productDetailsNoDescription": "Keine Beschreibung verfuegbar.",
+    "noImageAvailable": "Kein Bild verfuegbar",
+    "productVariantsTitle": "Varianten",
+    "variantStockCount": "Bestand: {{count}}",
+    "productNoVariants": "Keine Varianten verfuegbar"
   },
   "chat": {
     "searchPlaceholder": "Personen suchen...",

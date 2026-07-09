@@ -129,7 +129,12 @@
     "fieldColour": "Colour",
     "fieldWeight": "Weight",
     "fieldWeightUnit": "Weight unit",
-    "defaultVariant": "Default"
+    "defaultVariant": "Default",
+    "productDetailsNoDescription": "No description available.",
+    "noImageAvailable": "No image available",
+    "productVariantsTitle": "Variants",
+    "variantStockCount": "Stock: {{count}}",
+    "productNoVariants": "No variants available"
   },
   "chat": {
     "searchPlaceholder": "Search people...",
