@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createTask, getTasks, updateTask, type CreateTaskPayload } from '@/api/client'
+import { createTask, getTasks, updateTask, assignTask, unassignTask, type CreateTaskPayload, type UpdateTaskPayload } from '@/api/client'
 import { taskKeys } from './queryKeys'
 
 export function useTasksQuery() {
@@ -20,7 +20,23 @@ export function useCreateTaskMutation() {
 export function useUpdateTaskMutation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number, payload: Partial<CreateTaskPayload> }) => updateTask(id, payload),
+    mutationFn: ({ id, payload }: { id: number, payload: UpdateTaskPayload }) => updateTask(id, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: taskKeys.all }),
+  })
+}
+
+export function useAssignTaskMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ taskId, employeeId }: { taskId: number, employeeId: number }) => assignTask(taskId, employeeId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: taskKeys.all }),
+  })
+}
+
+export function useUnassignTaskMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ taskId, employeeId }: { taskId: number, employeeId: number }) => unassignTask(taskId, employeeId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: taskKeys.all }),
   })
 }
