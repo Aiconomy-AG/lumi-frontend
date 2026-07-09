@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 
 function Field({ label, value }: { label: string; value: string }) {
@@ -24,12 +25,14 @@ export default function ProfilePage() {
 
     return (
         <div className="p-10 max-w-[480px] mx-auto w-full">
-            <button
-                className="bg-transparent border-none text-zinc-500 hover:text-zinc-200 text-sm font-medium cursor-pointer mb-6 transition-colors"
+            <Button
+                variant="ghost"
+                size="sm"
+                className="mb-6"
                 onClick={() => navigate(-1)}
             >
                 {t('profile.back')}
-            </button>
+            </Button>
 
             <div className="flex items-center gap-4 mb-8">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-purple-400 text-lg font-bold text-black select-none">

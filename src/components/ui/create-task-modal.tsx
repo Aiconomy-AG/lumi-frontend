@@ -10,6 +10,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 
 export interface CreateTaskModalProps {
     children: React.ReactNode
@@ -144,20 +145,19 @@ export function CreateTaskModal({ children, defaultProjectId }: CreateTaskModalP
                     </div>
 
                     <div className="flex justify-end gap-2 mt-4">
-                        <button
+                        <Button
                             type="button"
+                            variant="ghost"
                             onClick={() => setIsOpen(false)}
-                            className="bg-transparent text-zinc-400 hover:text-zinc-200 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors"
                         >
                             {t('tasks.cancel')}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
                             disabled={createTaskMutation.isPending || !projectId}
-                            className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {t('tasks.add')}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </DialogContent>

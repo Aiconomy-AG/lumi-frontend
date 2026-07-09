@@ -130,6 +130,9 @@
     "fieldWeight": "Greutate",
     "fieldWeightUnit": "Unitate greutate",
     "defaultVariant": "Standard",
+    "delete": "Șterge",
+    "deleteProductConfirm": "Ștergi acest produs?",
+    "deleteVariantConfirm": "Ștergi această variantă?"
     "productDetailsNoDescription": "Nu exista descriere.",
     "noImageAvailable": "Nu exista imagine",
     "productVariantsTitle": "Variante",

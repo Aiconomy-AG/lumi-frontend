@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 import axios from 'axios'
 
@@ -76,12 +77,9 @@ export default function AuthPage() {
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        className="bg-purple-500 hover:bg-purple-400 text-black font-semibold text-sm py-2.5 rounded-lg transition-colors mt-2"
-                    >
+                    <Button type="submit" className="mt-2">
                         {t('auth.signIn')}
-                    </button>
+                    </Button>
                 </form>
 
                 {error && <p className="mt-4 text-xs text-red-400">{error}</p>}

@@ -1,6 +1,7 @@
 import { Clock, Bell } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
 import { AppSidebar } from "./app-sidebar"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useTimeTracking } from "@/hooks/useTimeTracking"
@@ -62,12 +63,13 @@ export default function AppLayout() {
                             >
                                 {initials}
                             </button>
-                            <button
+                            <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => void logout()}
-                                className="rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-900 cursor-pointer"
                             >
                                 {t('auth.logout')}
-                            </button>
+                            </Button>
                         </div>
                     </header>
 

@@ -130,6 +130,9 @@
     "fieldWeight": "Gewicht",
     "fieldWeightUnit": "Gewichtseinheit",
     "defaultVariant": "Standard",
+    "delete": "Löschen",
+    "deleteProductConfirm": "Dieses Produkt löschen?",
+    "deleteVariantConfirm": "Diese Variante löschen?"
     "productDetailsNoDescription": "Keine Beschreibung verfuegbar.",
     "noImageAvailable": "Kein Bild verfuegbar",
     "productVariantsTitle": "Varianten",

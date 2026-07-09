@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
 import type { Project } from '@/types/project'
 import type { TaskStatus } from '@/types/task'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -18,6 +20,7 @@ export default function ProjectsPage() {
 
     const [isOpen, setIsOpen] = useState(false)
     const [editing, setEditing] = useState<Project | null>(null)
+    const [pendingDelete, setPendingDelete] = useState<Project | null>(null)
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
     const [deadline, setDeadline] = useState('')
@@ -58,10 +61,10 @@ export default function ProjectsPage() {
         }
     }
 
-    function handleDelete(project: Project) {
-        if (window.confirm(t('projects.deleteConfirm'))) {
-            void deleteMutation.mutateAsync(project.id)
-        }
+    async function handleConfirmDelete() {
+        if (!pendingDelete) return
+        await deleteMutation.mutateAsync(pendingDelete.id)
+        setPendingDelete(null)
     }
 
     return (
@@ -72,10 +75,8 @@ export default function ProjectsPage() {
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                     <DialogTrigger
                         onClick={openAdd}
-                        className="rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500 transition-colors cursor-pointer"
-                    >
-                        {t('projects.addButton')}
-                    </DialogTrigger>
+                        render={<Button>{t('projects.addButton')}</Button>}
+                    />
                     <DialogContent className="max-w-[440px]">
                         <DialogHeader>
                             <DialogTitle>{editing ? t('projects.editTitle') : t('projects.newTitle')}</DialogTitle>
@@ -107,20 +108,19 @@ export default function ProjectsPage() {
                             </div>
                             {saveError && <p className="text-xs text-red-400">{saveError}</p>}
                             <div className="flex justify-end gap-2 mt-2">
-                                <button
+                                <Button
                                     type="button"
+                                    variant="ghost"
                                     onClick={() => setIsOpen(false)}
-                                    className="rounded-md px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
                                 >
                                     {t('projects.cancel')}
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="submit"
                                     disabled={saveMutation.isPending}
-                                    className="rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500 disabled:opacity-50 cursor-pointer transition-colors"
                                 >
                                     {t('projects.save')}
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     </DialogContent>
@@ -147,13 +147,18 @@ export default function ProjectsPage() {
                                     </p>
                                 </div>
                                 {isAdmin && (
-                                <div className="flex gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
-                                    <button onClick={() => openEdit(project)} className="text-xs text-zinc-400 hover:text-white cursor-pointer">
+                                <div className="flex gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                                    <Button size="sm" variant="ghost" onClick={() => openEdit(project)}>
                                         {t('projects.edit')}
-                                    </button>
-                                    <button onClick={() => handleDelete(project)} className="text-xs text-red-500 hover:text-red-400 cursor-pointer">
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-destructive hover:text-destructive"
+                                        onClick={() => setPendingDelete(project)}
+                                    >
                                         {t('projects.delete')}
-                                    </button>
+                                    </Button>
                                 </div>
                                 )}
                             </div>
@@ -162,6 +167,17 @@ export default function ProjectsPage() {
                     {projects.length === 0 && <p className="text-sm text-zinc-600">{t('projects.empty')}</p>}
                 </div>
             )}
+
+            <ConfirmDeleteDialog
+                open={pendingDelete !== null}
+                onOpenChange={(open) => { if (!open) setPendingDelete(null) }}
+                title={t('projects.delete')}
+                description={t('projects.deleteConfirm')}
+                confirmLabel={t('projects.delete')}
+                cancelLabel={t('projects.cancel')}
+                onConfirm={handleConfirmDelete}
+                isPending={deleteMutation.isPending}
+            />
         </div>
     )
 }

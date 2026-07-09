@@ -52,7 +52,7 @@ export default function TaskDetailPage() {
         <div className="p-10 max-w-170 mx-auto w-full bg-zinc-950">
 
             <button
-                className="bg-transparent border-none text-zinc-500 hover:text-zinc-200 text-sm font-medium cursor-pointer mb-6 transition-colors"
+                className="btn-sm mb-6"
                 onClick={() => navigate(-1)}
             >
                 {t('taskDetail.back')}
@@ -75,28 +75,28 @@ export default function TaskDetailPage() {
                             <button 
                                 onClick={() => handleStatusChange('to_do')}
                                 disabled={updateTaskMutation.isPending}
-                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'to_do' ? 'bg-zinc-800 text-zinc-300 font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'to_do' ? 'bg-purple-600 text-white font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
                             >
                                 {t('tasks.status.to_do')}
                             </button>
                             <button 
                                 onClick={() => handleStatusChange('in_progress')}
                                 disabled={updateTaskMutation.isPending}
-                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'in_progress' ? 'bg-purple-500/10 border border-purple-500 text-purple-400 font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'in_progress' ? 'bg-purple-600 text-white font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
                             >
                                 {t('tasks.status.in_progress')}
                             </button>
                             <button 
                                 onClick={() => handleStatusChange('blocked')}
                                 disabled={updateTaskMutation.isPending}
-                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'blocked' ? 'bg-rose-500/10 border border-rose-500 text-rose-400 font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'blocked' ? 'bg-purple-600 text-white font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
                             >
                                 {t('tasks.status.blocked')}
                             </button>
                             <button 
                                 onClick={() => handleStatusChange('complete')}
                                 disabled={updateTaskMutation.isPending}
-                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'complete' ? 'bg-emerald-500/10 border border-emerald-500 text-emerald-400 font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'complete' ? 'bg-purple-600 text-white font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
                             >
                                 {t('tasks.status.complete')}
                             </button>
@@ -114,7 +114,7 @@ export default function TaskDetailPage() {
 
                     <button
                         className={`w-12 h-12 rounded-full border-none text-white text-sm flex items-center justify-center cursor-pointer transition-colors shadow-lg ${
-                            isRunning ? "bg-red-500 hover:bg-red-400" : "bg-purple-500 hover:bg-purple-400 text-black"
+                            isRunning ? "bg-red-500 hover:bg-red-400" : "bg-purple-600 hover:bg-purple-500"
                         }`}
                         onClick={() => void handleToggle()}
                     >
@@ -144,7 +144,7 @@ export default function TaskDetailPage() {
                         {(!task.assignees || task.assignees.length === 0) && (
                             <div className="text-xs text-zinc-500 italic">Unassigned</div>
                         )}
-                        <button className="bg-transparent border border-dashed border-zinc-800 text-zinc-500 hover:text-zinc-300 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors">
+                        <button className="btn-sm">
                             {t('taskDetail.assign')}
                         </button>
                     </div>

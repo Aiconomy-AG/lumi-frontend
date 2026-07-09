@@ -130,6 +130,9 @@
     "fieldWeight": "Weight",
     "fieldWeightUnit": "Weight unit",
     "defaultVariant": "Default",
+    "delete": "Delete",
+    "deleteProductConfirm": "Delete this product?",
+    "deleteVariantConfirm": "Delete this variant?"
     "productDetailsNoDescription": "No description available.",
     "noImageAvailable": "No image available",
     "productVariantsTitle": "Variants",

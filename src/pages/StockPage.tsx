@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -210,6 +211,12 @@ export default function StockPage() {
   const [editValue, setEditValue] = useState<number>(0)
   const [editReason, setEditReason] = useState('')
 
+  const [pendingDelete, setPendingDelete] = useState<
+    | { type: 'product'; id: number }
+    | { type: 'variant'; productId: number; variantId: number }
+    | null
+  >(null)
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search)
@@ -249,6 +256,19 @@ export default function StockPage() {
     (sum, p) => sum + p.variants.filter((v) => v.stock_quantity > 0 && v.stock_quantity <= 5).length, 0)
   const outOfStock = products.reduce(
     (sum, p) => sum + p.variants.filter((v) => v.stock_quantity === 0).length, 0)
+
+  async function handleConfirmDelete() {
+    if (!pendingDelete) return
+    if (pendingDelete.type === 'product') {
+      await deleteProduct.mutateAsync(pendingDelete.id)
+    } else {
+      await deleteVariant.mutateAsync({
+        productId: pendingDelete.productId,
+        variantId: pendingDelete.variantId,
+      })
+    }
+    setPendingDelete(null)
+  }
 
   function toggleExpanded(productId: number) {
     setExpanded((prev) => {
@@ -877,10 +897,7 @@ export default function StockPage() {
                         <Button
                           size="icon-sm"
                           variant="ghost"
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            deleteProduct.mutateAsync(product.id)
-                          }}
+                          onClick={() => setPendingDelete({ type: 'product', id: product.id })}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
@@ -916,7 +933,11 @@ export default function StockPage() {
                           <Button
                             size="icon-sm"
                             variant="ghost"
-                            onClick={() => deleteVariant.mutateAsync({ productId: product.id, variantId: variant.id })}
+                            onClick={() => setPendingDelete({
+                              type: 'variant',
+                              productId: product.id,
+                              variantId: variant.id,
+                            })}
                           >
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>
@@ -962,6 +983,21 @@ export default function StockPage() {
           )}
         </>
       )}
+
+      <ConfirmDeleteDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => { if (!open) setPendingDelete(null) }}
+        title={t('stock.delete')}
+        description={
+          pendingDelete?.type === 'variant'
+            ? t('stock.deleteVariantConfirm')
+            : t('stock.deleteProductConfirm')
+        }
+        confirmLabel={t('stock.delete')}
+        cancelLabel={t('admin.cancel')}
+        onConfirm={handleConfirmDelete}
+        isPending={deleteProduct.isPending || deleteVariant.isPending}
+      />
     </div>
   )
 }

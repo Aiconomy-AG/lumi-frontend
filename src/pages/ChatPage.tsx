@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { Conversation } from '@/types/chat'
 import type { User } from '@/types/user'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
     useConversationsQuery,
     useCreateConversationMutation,
@@ -150,18 +151,19 @@ export default function ChatPage() {
                             disabled={activeId === null}
                             className="flex-1 rounded-full bg-zinc-900 border border-zinc-800 px-4 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-purple-500/50 transition-colors disabled:opacity-50"
                         />
-                        <button
+                        <Button
                             type="button"
+                            size="icon"
+                            className="h-9 w-9 shrink-0 rounded-full"
                             onClick={() => void handleSend()}
                             disabled={draft.trim() === '' || activeId === null || sendMutation.isPending}
-                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-600 text-white hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                             aria-label={t('chat.send')}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="m22 2-7 20-4-9-9-4Z" />
                                 <path d="M22 2 11 13" />
                             </svg>
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

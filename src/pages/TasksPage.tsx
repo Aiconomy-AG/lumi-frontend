@@ -6,6 +6,7 @@ import { useTasksQuery } from '@/features/tasks'
 import { TaskCard } from '@/components/ui/task-card'
 import { CreateTaskModal } from '@/components/ui/create-task-modal'
 import { TaskFilters } from '@/components/ui/task-filters'
+import { Button } from '@/components/ui/button'
 
 export default function TasksPage() {
     const { t } = useTranslation()
@@ -46,9 +47,7 @@ export default function TasksPage() {
                 />
 
                 <CreateTaskModal>
-                    <button className="ml-auto bg-purple-500/10 border border-purple-500/30 text-purple-400 px-4 py-1.5 rounded-lg text-xs font-semibold cursor-pointer hover:bg-purple-500/20 transition-colors border-none">
-                        {t('tasks.addButton')}
-                    </button>
+                    <Button className="ml-auto">{t('tasks.addButton')}</Button>
                 </CreateTaskModal>
             </div>
 
