@@ -34,6 +34,15 @@
   },
   "dashboard": {
     "greeting": "Guten Abend, {{name}}.",
+    "greetings": {
+      "earlyMorningWeekday": "Guten Morgen, {{name}}. Womit moechtest du heute beginnen?",
+      "earlyMorningWeekend": "Guten Morgen, {{name}}. Ich bin da, wenn du entspannt starten willst.",
+      "lateMorning": "Guten Morgen, {{name}}. Ich bin bereit, sobald du es bist.",
+      "afternoon": "Guten Tag, {{name}}. Wollen wir die naechste Prioritaet angehen?",
+      "eveningWeekday": "Guten Abend, {{name}}. Wir koennen den Tag Schritt fuer Schritt abschliessen.",
+      "eveningWeekend": "Guten Abend, {{name}}. Ich helfe gern bei einem kurzen Check-in.",
+      "night": "Guten Abend, {{name}}. Wir halten es kurz und fokussiert."
+    },
     "dueToday": "Heute fällig",
     "tasksCount": "{{count}} Aufgaben",
     "onlineNow": "Jetzt online",
