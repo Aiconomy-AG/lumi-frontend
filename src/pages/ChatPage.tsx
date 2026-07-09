@@ -52,7 +52,7 @@ export default function ChatPage() {
     const selectedConversation = conversations.find((c) => c.id === activeId)
     const selectedPerson = selectedConversation && otherParticipant(selectedConversation, user?.id)
 
-    const sendMutation = useSendMessageMutation(activeId)
+    const sendMutation = useSendMessageMutation(activeId, user?.id)
     const createMutation = useCreateConversationMutation()
 
     async function openConversationWith(person: User) {
@@ -73,8 +73,8 @@ export default function ChatPage() {
     async function handleSend() {
         const text = draft.trim()
         if (text === '' || activeId === null) return
-        await sendMutation.mutateAsync(text)
         setDraft('')
+        await sendMutation.mutateAsync(text)
     }
 
     return (
