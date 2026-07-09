@@ -209,6 +209,9 @@
     "dueDate": "Due date"
   },
   "auditLogs": {
+    "pageInfo": "Page {{page}} of {{pages}} · {{total}} entries",
+    "perPage": "Entries per page",
+    "perPageOption": "{{count}} / page",
     "filterModule": "Filter by module...",
     "from": "From",
     "to": "To",

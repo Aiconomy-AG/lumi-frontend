@@ -33,6 +33,7 @@ function ChangesDiff({ log }: { log: AuditLog }) {
 export default function AuditLogsPage() {
   const { t } = useTranslation()
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(20)
   const [module, setModule] = useState('')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
@@ -40,6 +41,7 @@ export default function AuditLogsPage() {
 
   const { data, isLoading } = useAuditLogsQuery({
     page,
+    per_page: perPage,
     module: module || undefined,
     from: from || undefined,
     to: to || undefined,
@@ -128,7 +130,7 @@ export default function AuditLogsPage() {
         </Table>
       )}
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex items-center gap-2">
         <Button disabled={!meta || meta.current_page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
           {t('orders.prev')}
         </Button>
@@ -138,6 +140,26 @@ export default function AuditLogsPage() {
         >
           {t('orders.next')}
         </Button>
+        {meta && (
+          <span className="ml-2 text-xs text-zinc-500">
+            {t('auditLogs.pageInfo', { page: meta.current_page, pages: meta.last_page, total: meta.total ?? 0 })}
+          </span>
+        )}
+        <select
+          value={perPage}
+          onChange={(e) => {
+            setPerPage(Number(e.target.value))
+            setPage(1)
+          }}
+          className="ml-auto h-8 rounded-md border border-zinc-800 bg-zinc-900 px-2 text-xs text-zinc-200 outline-none focus:border-purple-500 cursor-pointer"
+          aria-label={t('auditLogs.perPage')}
+        >
+          {[20, 50, 100].map((size) => (
+            <option key={size} value={size}>
+              {t('auditLogs.perPageOption', { count: size })}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   )

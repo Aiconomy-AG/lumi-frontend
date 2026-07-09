@@ -209,6 +209,9 @@
     "dueDate": "Scadență"
   },
   "auditLogs": {
+    "pageInfo": "Pagina {{page}} din {{pages}} · {{total}} înregistrări",
+    "perPage": "Înregistrări pe pagină",
+    "perPageOption": "{{count}} / pagină",
     "filterModule": "Filtrează după modul...",
     "from": "De la",
     "to": "Până la",

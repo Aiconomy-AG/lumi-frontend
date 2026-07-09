@@ -209,6 +209,9 @@
     "dueDate": "Fällig am"
   },
   "auditLogs": {
+    "pageInfo": "Seite {{page}} von {{pages}} · {{total}} Einträge",
+    "perPage": "Einträge pro Seite",
+    "perPageOption": "{{count}} / Seite",
     "filterModule": "Nach Modul filtern...",
     "from": "Von",
     "to": "Bis",
