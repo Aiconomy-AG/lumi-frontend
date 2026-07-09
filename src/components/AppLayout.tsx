@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useTimeTracking } from "@/hooks/useTimeTracking"
+import { useDailyTotalTimeQuery } from "@/features/timeTracking"
 import { useAuth } from "@/features/auth/AuthContext"
 
 function formatTime(totalSeconds: number) {
@@ -17,10 +18,14 @@ export default function AppLayout() {
     const location = useLocation()
     const navigate = useNavigate()
     const { t } = useTranslation()
-    const { elapsedSeconds, isRunning } = useTimeTracking()
+    const { elapsedSeconds, isRunning, activeTaskId } = useTimeTracking()
     const { user, logout } = useAuth()
     const currentUser = user
     const initials = currentUser?.name.split(" ").map((w) => w[0]).join("").toUpperCase() ?? ""
+
+    const { data: dailyTotalData, isFetching } = useDailyTotalTimeQuery(currentUser?.id)
+    const baseTotalSeconds = typeof dailyTotalData === 'number' ? dailyTotalData : 0
+    const displayTotalSeconds = baseTotalSeconds + (isRunning ? elapsedSeconds : 0)
 
     const getPageTitle = () => {
         const path = location.pathname
@@ -48,9 +53,27 @@ export default function AppLayout() {
                         <h1 className="text-sm font-semibold text-white capitalize">{title}</h1>
 
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2 rounded-full border border-zinc-800 px-3 py-1.5 text-xs text-zinc-400 bg-transparent">
-                                <Clock className={`h-4 w-4 ${isRunning ? "text-purple-500" : "text-zinc-500"}`} />
-                                {formatTime(elapsedSeconds)}
+                            <div 
+                                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                                    isRunning 
+                                        ? "border-purple-500/30 bg-purple-500/10 text-purple-400 cursor-pointer hover:bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]" 
+                                        : "border-zinc-800 bg-transparent text-zinc-400"
+                                }`}
+                                onClick={() => {
+                                    if (isRunning && activeTaskId) navigate(`/tasks/${activeTaskId}`)
+                                }}
+                                title={isRunning ? "Click to view active task" : "No active session"}
+                            >
+                                {isFetching && !isRunning ? (
+                                    <>
+                                        <div className="h-4 w-4 rounded-full border-2 border-zinc-700 border-t-zinc-400 animate-spin" />
+                                    </>
+                                ) : (
+                                    <>
+                                        <Clock className={`h-4 w-4 ${isRunning ? "text-purple-400" : "text-zinc-500"}`} />
+                                        {formatTime(displayTotalSeconds)}
+                                    </>
+                                )}
                             </div>
                             <button className="rounded-full p-2 text-zinc-400 hover:bg-zinc-900 transition-colors cursor-pointer bg-transparent border-none">
                                 <Bell className="h-4 w-4" />

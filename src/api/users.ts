@@ -1,4 +1,4 @@
-import type { CreateUserPayload, User } from '../types/user'
+import type { CreateUserPayload, User } from '@/types/user'
 import { request, requestData } from './http'
 
 export async function getUsers(): Promise<User[]> {
@@ -29,4 +29,11 @@ export async function reactivateUser(id: number): Promise<User> {
 
 export async function resendInvite(id: number): Promise<void> {
   await request<void>(`/admin/users/${id}/resend-invite`, { method: 'POST' })
+}
+
+export async function updatePassword(id: number, payload: { current_password: string, password: string, password_confirmation: string }): Promise<void> {
+  await request<void>(`/admin/users/${id}`, {
+    method: 'PUT',
+    data: payload
+  })
 }
