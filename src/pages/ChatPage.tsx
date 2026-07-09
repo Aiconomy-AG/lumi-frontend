@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import {
     useConversationsQuery,
     useCreateConversationMutation,
+    useConversationMessagesRealtime,
     useMessagesQuery,
     useSendMessageMutation,
 } from '@/features/chat'
@@ -45,6 +46,7 @@ export default function ChatPage() {
     const activeId = selectedId ?? conversations[0]?.id ?? null
 
     const { data: messages = [] } = useMessagesQuery(activeId)
+    useConversationMessagesRealtime(activeId)
 
     const selectedConversation = conversations.find((c) => c.id === activeId)
     const selectedPerson = selectedConversation && otherParticipant(selectedConversation, user?.id)
