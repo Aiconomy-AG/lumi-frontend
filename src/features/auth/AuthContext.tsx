@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getAuthToken, login as loginRequest, logout as logoutRequest, me } from '@/api/client'
-import type { LoginCredentials, User } from '@/types/user'
+import { getAuthToken, login as loginRequest, logout as logoutRequest, me, updateMyStatus } from '@/api/client'
+import type { LoginCredentials, User, UserStatus } from '@/types/user'
 import { authKeys } from './queryKeys'
 
 interface AuthContextValue {
@@ -10,6 +10,7 @@ interface AuthContextValue {
   isAdmin: boolean
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => Promise<void>
+  updateStatus: (status: UserStatus) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -46,6 +47,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await logoutMutation.mutateAsync()
   }, [logoutMutation])
 
+  const updateStatus = useCallback(async (status: UserStatus) => {
+    const updatedUser = await updateMyStatus(status)
+    queryClient.setQueryData(authKeys.me(), updatedUser)
+  }, [queryClient])
+
   const login = useCallback(async (credentials: LoginCredentials) => {
     await loginMutation.mutateAsync(credentials)
   }, [loginMutation])
@@ -60,8 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAdmin: user?.role === 'admin',
       login,
       logout,
+      updateStatus,
     }),
-    [user, isLoading, login, logout]
+    [user, isLoading, login, logout, updateStatus]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

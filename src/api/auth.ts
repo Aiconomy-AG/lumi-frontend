@@ -1,6 +1,7 @@
-import type { 
+import type {
   LoginCredentials,
   User,
+  UserStatus,
   ValidateResetTokenResponse,
   CompleteInvitePayload,
 } from '../types/user'
@@ -23,6 +24,13 @@ export async function logout(): Promise<void> {
 
 export async function me(): Promise<User> {
   return requestData<User>('/auth/me')
+}
+
+export async function updateMyStatus(status: UserStatus): Promise<User> {
+  return requestData<User>('/auth/me/status', {
+    method: 'PATCH',
+    data: { status },
+  })
 }
 
 export async function validateResetToken(email: string, token: string): Promise<ValidateResetTokenResponse> {

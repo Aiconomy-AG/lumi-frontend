@@ -15,6 +15,7 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/features/auth/AuthContext"
+import type { UserStatus } from "@/types/user"
 
 export const items = [
     { titleKey: "sidebar.dashboard", path: "/dashboard", icon: Home },
@@ -32,11 +33,15 @@ export function AppSidebar() {
     const location = useLocation()
     const { open, toggleSidebar } = useSidebar()
     const { t, i18n } = useTranslation()
-    const { isAdmin } = useAuth()
+    const { isAdmin, user, updateStatus } = useAuth()
 
     function changeLanguage(lang: string) {
         i18n.changeLanguage(lang)
         localStorage.setItem("lang", lang)
+    }
+
+    function handleStatusChange(status: UserStatus) {
+        void updateStatus(status)
     }
 
     return (
@@ -83,6 +88,19 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
+                <div className="px-2 pb-2">
+                    <select
+                        value={user?.status ?? 'offline'}
+                        onChange={(e) => handleStatusChange(e.target.value as UserStatus)}
+                        className="w-full h-8 rounded-md border border-zinc-800 bg-zinc-900 px-2 text-xs text-zinc-200 outline-none focus:border-purple-500 cursor-pointer"
+                        aria-label={t('profile.status')}
+                    >
+                        <option value="available">{t('userStatus.available')}</option>
+                        <option value="busy">{t('userStatus.busy')}</option>
+                        <option value="away">{t('userStatus.away')}</option>
+                        <option value="offline">{t('userStatus.offline')}</option>
+                    </select>
+                </div>
                 <div className="flex group-data-[collapsible=icon]:flex-col justify-center items-center gap-1.5 px-2 pb-2">
                     {languages.map((lang) => (
                         <button
