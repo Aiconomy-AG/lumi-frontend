@@ -1,11 +1,19 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUsersQuery } from '@/features/users'
 import { useTasksQuery } from '@/features/tasks'
 import { useAuth } from '@/features/auth/AuthContext'
 import { TaskCard } from '@/components/ui/task-card'
+import { useProjectsQuery } from '@/features/projects'
+import type { TaskStatus } from '@/types/task'
+import { TaskFilters } from '@/components/ui/task-filters'
 
 export default function DashboardPage() {
     const { t } = useTranslation()
+    const [showDueToday, setShowDueToday] = useState(false)
+    const [filter, setFilter] = useState<'All' | TaskStatus>("All")
+    const [search, setSearch] = useState("")
+
     const formattedDate = new Date().toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'long',
@@ -18,10 +26,32 @@ export default function DashboardPage() {
     ).length
     // #TODO:  instead of mockTasks use the real tasks when the endpoint is ready
     const { data: mockTasks = [], isLoading: isTasksLoading } = useTasksQuery()
+    const { data: listTasks = [], isLoading: isTasksLoading } = useTasksQuery()
+    const { data: projects = []} = useProjectsQuery()
+
 
     const { user } = useAuth()
     const firstName = user?.name.split(' ')[0] || 'User'
+    const projectNameFor = (id?: number) => projects.find((p) => p.id === id)?.name ?? '—'
 
+    // Filter tasks for current user, and optionally by due date, search, and status
+    const today = new Date().toISOString().slice(0, 10)
+    const myTasks = listTasks.filter(task => {
+        const isMine = task.assignees?.some(assignee => assignee.id === user?.id)
+        if (!isMine) return false
+
+        if (showDueToday && task.due_date?.slice(0, 10) !== today) {
+            return false
+        }
+
+        if (filter !== "All" && task.status !== filter) {
+            return false
+        }
+
+        return !(search && !task.title.toLowerCase().includes(search.toLowerCase()));
+
+
+    })
 
     return (
         <div className="p-10 flex gap-20 w-full bg-zinc-950 min-h-full">
@@ -30,24 +60,47 @@ export default function DashboardPage() {
                 <h2 className="text-3xl font-bold text-white mb-8">{t('dashboard.greeting', { name: firstName })}</h2>
 
                 <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-medium text-white">
-                            {t('dashboard.dueToday')} <span className="text-zinc-500 ml-1">{t('dashboard.tasksCount', { count: mockTasks.length })}</span>
+                    <div className="flex items-center gap-4 mb-4">
+                        <h3 className="text-sm font-medium text-white flex items-center gap-3">
+                            {t('dashboard.myTasks', 'My Tasks')}
+                            <span className="text-zinc-500 text-xs font-normal bg-zinc-900 px-2 py-0.5 rounded-full">{t('dashboard.tasksCount', { count: myTasks.length })}</span>
                         </h3>
                     </div>
 
-                    <div className="flex flex-col border-t border-zinc-900">
+                    <div className="mb-4">
+                        <TaskFilters
+                            filter={filter}
+                            setFilter={setFilter}
+                            search={search}
+                            setSearch={setSearch}
+                            showDueToday={showDueToday}
+                            setShowDueToday={setShowDueToday}
+                        />
+                    </div>
+
+                    <div className="flex flex-col border-t border-zinc-900 pt-4">
+                        <div className="grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1fr] gap-4 border-b border-zinc-900 p-3 text-zinc-500 font-medium">
+                            <div>{t('tasks.columnTask')}</div>
+                            <div>{t('tasks.columnProject')}</div>
+                            <div>{t('tasks.columnAssigned')}</div>
+                            <div>{t('tasks.columnStatus')}</div>
+                            <div>{t('tasks.columnDue')}</div>
+                        </div>
                         {isTasksLoading ? (
                             <p className="text-xs text-zinc-500 py-4">{t('dashboard.loading')}</p>
+                        ) : myTasks.length === 0 ? (
+                            <p className="text-xs text-zinc-500 py-4">No tasks assigned to you today.</p>
                         ) : (
-                            mockTasks.slice(0, 5).map(task => (
+                            myTasks.slice(0, 5).map(task => (
                                 <TaskCard 
                                     key={task.id}
+                                    taskId={task.id}
                                     title={task.title}
-                                    subtitle={task.assignees?.map(a => a.name).join(', ') || 'Unassigned'}
+                                    projectName={projectNameFor(task.project_id)}
+                                    assignees={task.assignees || []}
+                                    status={task.status}
+                                    dueDate={task.due_date}
                                     statusLabel={t(`tasks.status.${task.status}`)}
-                                    statusVariant={task.status === 'in_progress' ? 'in-progress' : task.status === 'to_do' ? 'todo' : 'done'}
-                                    dotColorClass={task.status === 'complete' ? 'bg-green-500' : task.status === 'in_progress' ? 'bg-amber-500' : 'bg-red-500'}
                                 />
                             ))
                         )}
