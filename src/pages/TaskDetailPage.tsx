@@ -2,6 +2,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useTimeTracking } from '@/hooks/useTimeTracking'
 import { useTimeEntriesQuery } from '@/features/timeTracking'
+import { useTasksQuery, useUpdateTaskMutation } from '@/features/tasks'
+import { useProjectsQuery } from '@/features/projects'
+import type { TaskStatus } from '@/types/task'
 
 export default function TaskDetailPage() {
     const { t } = useTranslation()
@@ -13,6 +16,19 @@ export default function TaskDetailPage() {
     const isRunning = activeTaskId === taskId
 
     const { data: entries = [] } = useTimeEntriesQuery(taskId)
+
+    const { data: tasks = [], isLoading: isTasksLoading } = useTasksQuery()
+    const { data: projects = [] } = useProjectsQuery()
+
+    const task = tasks.find(t => t.id === taskId)
+    const project = projects.find(p => p.id === task?.project_id)
+
+    const updateTaskMutation = useUpdateTaskMutation()
+
+    async function handleStatusChange(status: TaskStatus) {
+        if (!task || task.status === status) return
+        await updateTaskMutation.mutateAsync({ id: taskId, payload: { status } })
+    }
 
     async function handleToggle() {
         if (isRunning) {
@@ -33,34 +49,58 @@ export default function TaskDetailPage() {
     }
 
     return (
-        <div className="p-10 max-w-[680px] mx-auto w-full bg-zinc-950">
+        <div className="p-10 max-w-170 mx-auto w-full bg-zinc-950">
 
             <button
                 className="bg-transparent border-none text-zinc-500 hover:text-zinc-200 text-sm font-medium cursor-pointer mb-6 transition-colors"
-                onClick={() => navigate("/tasks")}
+                onClick={() => navigate(-1)}
             >
                 {t('taskDetail.back')}
             </button>
 
             <div className="flex flex-col w-full">
 
-                <h2 className="text-3xl font-bold text-white mb-2">Implement authentication module</h2>
-                <p className="text-xs text-zinc-500 mb-6">Backend • Due 2026-07-06</p>
+                {isTasksLoading ? (
+                    <p className="text-zinc-500">{t('dashboard.loading')}</p>
+                ) : !task ? (
+                    <p className="text-rose-400">Task not found</p>
+                ) : (
+                    <>
+                        <h2 className="text-3xl font-bold text-white mb-2">{task.title}</h2>
+                        <p className="text-xs text-zinc-500 mb-6">
+                            {project?.name || '—'} • Due {task.due_date?.slice(0, 10)}
+                        </p>
 
-                <div className="flex gap-2 mb-8">
-                    <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        {t('tasks.status.to_do')}
-                    </button>
-                    <button className="px-4 py-1.5 text-xs bg-purple-500/10 border border-purple-500 text-purple-400 rounded-md cursor-pointer font-medium">
-                        {t('tasks.status.in_progress')}
-                    </button>
-                    <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        {t('tasks.status.blocked')}
-                    </button>
-                    <button className="px-4 py-1.5 text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-md cursor-pointer hover:bg-zinc-800 transition-colors">
-                        {t('tasks.status.complete')}
-                    </button>
-                </div>
+                        <div className="flex gap-2 mb-8">
+                            <button 
+                                onClick={() => handleStatusChange('to_do')}
+                                disabled={updateTaskMutation.isPending}
+                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'to_do' ? 'bg-zinc-800 text-zinc-300 font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                            >
+                                {t('tasks.status.to_do')}
+                            </button>
+                            <button 
+                                onClick={() => handleStatusChange('in_progress')}
+                                disabled={updateTaskMutation.isPending}
+                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'in_progress' ? 'bg-purple-500/10 border border-purple-500 text-purple-400 font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                            >
+                                {t('tasks.status.in_progress')}
+                            </button>
+                            <button 
+                                onClick={() => handleStatusChange('blocked')}
+                                disabled={updateTaskMutation.isPending}
+                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'blocked' ? 'bg-rose-500/10 border border-rose-500 text-rose-400 font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                            >
+                                {t('tasks.status.blocked')}
+                            </button>
+                            <button 
+                                onClick={() => handleStatusChange('complete')}
+                                disabled={updateTaskMutation.isPending}
+                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'complete' ? 'bg-emerald-500/10 border border-emerald-500 text-emerald-400 font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                            >
+                                {t('tasks.status.complete')}
+                            </button>
+                        </div>
 
 
                 <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-8">
@@ -85,22 +125,25 @@ export default function TaskDetailPage() {
 
                 <div className="mb-8">
                     <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{t('taskDetail.description')}</h4>
-                    <p className="text-sm text-zinc-300 leading-relaxed m-0">
-                        JWT + refresh tokens. Login, logout, session validation on each request. Sessions expire after 24h.
+                    <p className="text-sm text-zinc-300 leading-relaxed m-0 whitespace-pre-wrap">
+                        {task.description || "No description provided."}
                     </p>
                 </div>
 
                 <div className="mb-8">
                     <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">{t('taskDetail.assignedTo')}</h4>
                     <div className="flex items-center gap-3 flex-wrap">
-                        <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300">
-                            <span className="text-[10px] font-bold bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded">AP</span>
-                            Ana Popescu
-                        </div>
-                        <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300">
-                            <span className="text-[10px] font-bold bg-teal-500/10 text-teal-400 px-1.5 py-0.5 rounded">RP</span>
-                            Radu Popa
-                        </div>
+                        {task.assignees?.map(user => (
+                            <div key={user.id} className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300">
+                                <span className="text-[10px] font-bold bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded">
+                                    {user.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+                                </span>
+                                {user.name}
+                            </div>
+                        ))}
+                        {(!task.assignees || task.assignees.length === 0) && (
+                            <div className="text-xs text-zinc-500 italic">Unassigned</div>
+                        )}
                         <button className="bg-transparent border border-dashed border-zinc-800 text-zinc-500 hover:text-zinc-300 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors">
                             {t('taskDetail.assign')}
                         </button>
@@ -115,8 +158,10 @@ export default function TaskDetailPage() {
                             <div className="flex items-center gap-3">
                                 <span className="text-sm text-zinc-500">🕒</span>
                                 <div>
-                                    <p className="text-xs font-medium text-zinc-200 m-0">Implement authentication module</p>
-                                    <p className="text-[11px] text-zinc-500 m-0 mt-0.5">Ana Popescu • 2026-07-06</p>
+                                    <p className="text-xs font-medium text-zinc-200 m-0">{task.title}</p>
+                                    <p className="text-[11px] text-zinc-500 m-0 mt-0.5">
+                                        {task.assignees?.[0]?.name || 'Unknown'} • {task.due_date?.slice(0, 10)}
+                                    </p>
                                 </div>
                             </div>
                             <span className="text-xs font-semibold text-purple-400 font-mono">{formatTime(seconds)}</span>
@@ -124,6 +169,8 @@ export default function TaskDetailPage() {
                     </div>
                 </div>
 
+                    </>
+                )}
             </div>
         </div>
     )
