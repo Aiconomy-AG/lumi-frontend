@@ -2,7 +2,7 @@ import type { CreateUserPayload, User } from '../types/user'
 import { request, requestData } from './http'
 
 export async function getUsers(): Promise<User[]> {
-  return requestData<User[]>('/v1/admin/users')
+  return requestData<User[]>('/v1/users')
 }
 
 export async function getUser(id: number): Promise<User | undefined> {
