@@ -8,6 +8,30 @@ import { useProjectsQuery } from '@/features/projects'
 import type { TaskStatus } from '@/types/task'
 import { TaskFilters } from '@/components/ui/task-filters'
 
+function getDashboardGreetingKey(now: Date): string {
+    const hour = now.getHours()
+    const day = now.getDay()
+    const isWeekend = day === 0 || day === 6
+
+    if (hour >= 5 && hour < 9) {
+        return isWeekend ? 'dashboard.greetings.earlyMorningWeekend' : 'dashboard.greetings.earlyMorningWeekday'
+    }
+
+    if (hour >= 9 && hour < 12) {
+        return 'dashboard.greetings.lateMorning'
+    }
+
+    if (hour >= 12 && hour < 17) {
+        return 'dashboard.greetings.afternoon'
+    }
+
+    if (hour >= 17 && hour < 22) {
+        return isWeekend ? 'dashboard.greetings.eveningWeekend' : 'dashboard.greetings.eveningWeekday'
+    }
+
+    return 'dashboard.greetings.night'
+}
+
 export default function DashboardPage() {
     const { t } = useTranslation()
     const [showDueToday, setShowDueToday] = useState(false)
@@ -30,6 +54,7 @@ export default function DashboardPage() {
 
     const { user } = useAuth()
     const firstName = user?.name.split(' ')[0] || 'User'
+    const greetingKey = getDashboardGreetingKey(new Date())
     const projectNameFor = (id?: number) => projects.find((p) => p.id === id)?.name ?? '—'
 
     // Filter tasks for current user, and optionally by due date, search, and status
@@ -55,7 +80,7 @@ export default function DashboardPage() {
         <div className="p-10 flex gap-20 w-full bg-zinc-950 min-h-full">
             <div className="flex-[1.8]">
                 <p className="text-xs text-zinc-500 mb-2">{formattedDate}</p>
-                <h2 className="text-3xl font-bold text-white mb-8">{t('dashboard.greeting', { name: firstName })}</h2>
+                <h2 className="text-3xl font-bold text-white mb-8">{t(greetingKey, { name: firstName })}</h2>
 
                 <div className="flex flex-col">
                     <div className="flex items-center gap-4 mb-4">

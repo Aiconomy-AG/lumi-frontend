@@ -34,6 +34,15 @@
   },
   "dashboard": {
     "greeting": "Bună seara, {{name}}.",
+    "greetings": {
+      "earlyMorningWeekday": "Bună dimineața, {{name}}. Cu ce vrei să începem azi?",
+      "earlyMorningWeekend": "Bună dimineața, {{name}}. Sunt aici dacă vrei un start relaxat.",
+      "lateMorning": "Bună dimineața, {{name}}. Sunt gata când ești și tu.",
+      "afternoon": "Bună ziua, {{name}}. Vrei să atacăm următoarea prioritate?",
+      "eveningWeekday": "Bună seara, {{name}}. Putem închide ziua pas cu pas.",
+      "eveningWeekend": "Bună seara, {{name}}. Te ajut cu plăcere la un check-in rapid.",
+      "night": "Bună seara, {{name}}. Putem ține totul scurt și clar."
+    },
     "dueToday": "Scadente azi",
     "tasksCount": "{{count}} sarcini",
     "onlineNow": "Online acum",
@@ -124,6 +133,11 @@
     "delete": "Șterge",
     "deleteProductConfirm": "Ștergi acest produs?",
     "deleteVariantConfirm": "Ștergi această variantă?"
+    "productDetailsNoDescription": "Nu exista descriere.",
+    "noImageAvailable": "Nu exista imagine",
+    "productVariantsTitle": "Variante",
+    "variantStockCount": "Stoc: {{count}}",
+    "productNoVariants": "Nu exista variante"
   },
   "chat": {
     "searchPlaceholder": "Caută persoane...",

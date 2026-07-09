@@ -18,13 +18,29 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
 import {
+  Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle,
+} from '@/components/ui/sheet'
+import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import { Plus, Pencil, Trash2, Check, X, ChevronLeft, ChevronRight, ChevronDown, CornerDownRight } from 'lucide-react'
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  CornerDownRight,
+  ImageIcon,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/features/auth/AuthContext'
 
@@ -89,6 +105,31 @@ function variantLabel(product: Product, variant: ProductVariant, t: TFunction): 
 
 function formatPrice(value: number): string {
   return `${value.toFixed(2)} ${STOCK_CURRENCY}`
+}
+
+function hasHtmlContent(value?: string): boolean {
+  if (!value) return false
+  return /<\/?[a-z][\s\S]*>/i.test(value)
+}
+
+function sanitizeHtml(value: string): string {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(value, 'text/html')
+
+  doc.querySelectorAll('script, style, iframe, object, embed, link, meta').forEach((node) => node.remove())
+  doc.querySelectorAll('*').forEach((node) => {
+    Array.from(node.attributes).forEach((attribute) => {
+      const name = attribute.name.toLowerCase()
+      const attrValue = attribute.value.trim().toLowerCase()
+      const isEventHandler = name.startsWith('on')
+      const isUnsafeUrl = (name === 'href' || name === 'src') && attrValue.startsWith('javascript:')
+      if (isEventHandler || isUnsafeUrl) {
+        node.removeAttribute(attribute.name)
+      }
+    })
+  })
+
+  return doc.body.innerHTML
 }
 
 // pretul pe randul produsului: pretul variantei unice sau intervalul min-max
@@ -157,9 +198,11 @@ export default function StockPage() {
   const [categoryId, setCategoryId] = useState<number | null>(null)
   const [page, setPage] = useState(1)
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
+  const [imageErrorIds, setImageErrorIds] = useState<Set<number>>(new Set())
 
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [newProduct, setNewProduct] = useState(emptyProduct)
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
 
   const [productForm, setProductForm] = useState<ProductForm | null>(null)
   const [variantForm, setVariantForm] = useState<VariantForm | null>(null)
@@ -194,6 +237,11 @@ export default function StockPage() {
 
   const products = productPage?.data ?? []
   const meta = productPage?.meta
+  const selectedProduct = selectedProductId === null
+    ? null
+    : products.find((product) => product.id === selectedProductId) ?? null
+  const selectedProductDescription = selectedProduct?.description?.trim() ?? ''
+  const selectedProductDescriptionIsHtml = hasHtmlContent(selectedProductDescription)
 
   const createProduct = useCreateProductMutation()
   const updateProduct = useUpdateProductMutation()
@@ -232,6 +280,21 @@ export default function StockPage() {
       }
       return next
     })
+  }
+
+  function markImageError(productId: number) {
+    setImageErrorIds((prev) => {
+      if (prev.has(productId)) {
+        return prev
+      }
+      const next = new Set(prev)
+      next.add(productId)
+      return next
+    })
+  }
+
+  function openProductDetails(productId: number) {
+    setSelectedProductId(productId)
   }
 
   function startStockEdit(variant: ProductVariant) {
@@ -647,6 +710,92 @@ export default function StockPage() {
         </DialogContent>
       </Dialog>
 
+      <Sheet open={selectedProductId !== null} onOpenChange={(open) => !open && setSelectedProductId(null)}>
+        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
+          {selectedProduct && (
+            <>
+              <SheetHeader>
+                <SheetTitle>{selectedProduct.name || '-'}</SheetTitle>
+                {selectedProductDescription ? (
+                  selectedProductDescriptionIsHtml ? (
+                    <div
+                      className="text-sm text-muted-foreground [&_a]:underline [&_li]:ml-4 [&_ol]:list-decimal [&_p]:mb-2 [&_ul]:list-disc"
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedProductDescription) }}
+                    />
+                  ) : (
+                    <SheetDescription>{selectedProductDescription}</SheetDescription>
+                  )
+                ) : (
+                  <SheetDescription>{t('stock.productDetailsNoDescription')}</SheetDescription>
+                )}
+              </SheetHeader>
+
+              <div className="space-y-4 p-4 pt-0">
+                <div className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg border bg-muted">
+                  {selectedProduct.image_url && !imageErrorIds.has(selectedProduct.id) ? (
+                    <img
+                      src={selectedProduct.image_url}
+                      alt={selectedProduct.name}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      onError={() => markImageError(selectedProduct.id)}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <ImageIcon className="h-8 w-8" />
+                      <span className="text-xs">{t('stock.noImageAvailable')}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">{t('stock.columnSku')}</p>
+                    <p className="font-medium">{selectedProduct.sku ?? '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">{t('stock.columnCategory')}</p>
+                    <p className="font-medium">{selectedProduct.category_name ?? selectedProduct.category?.name ?? '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">{t('stock.columnPrice')}</p>
+                    <p className="font-medium">{productPrice(selectedProduct)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">{t('stock.columnStock')}</p>
+                    <div>{renderStock(selectedProduct.variants.reduce((sum, variant) => sum + variant.stock_quantity, 0), t)}</div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">{t('stock.productVariantsTitle')}</p>
+                  {selectedProduct.variants.length ? (
+                    <div className="space-y-2">
+                      {selectedProduct.variants.map((variant) => (
+                        <div key={variant.id} className="rounded-md border p-2">
+                          <div className="mb-1 flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium">{variantLabel(selectedProduct, variant, t)}</span>
+                            <Badge variant="outline">{variant.sku}</Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{formatPrice(variant.price)}</span>
+                            <span>{t('stock.variantStockCount', { count: variant.stock_quantity })}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{t('stock.productNoVariants')}</p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
       {isLoading ? (
         <p className="text-muted-foreground">{t('admin.loading')}</p>
       ) : (
@@ -669,16 +818,39 @@ export default function StockPage() {
                 const single = product.variants.length === 1 ? product.variants[0] : null
                 const totalStock = product.variants.reduce((sum, v) => sum + v.stock_quantity, 0)
                 const isExpanded = expanded.has(product.id)
+                const showImagePreview = isExpanded && !!product.image_url && !imageErrorIds.has(product.id)
 
                 const productRow = (
-                  <TableRow key={`p-${product.id}`}>
+                  <TableRow
+                    key={`p-${product.id}`}
+                    className="cursor-pointer"
+                    onClick={() => openProductDetails(product.id)}
+                  >
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-1">
-                        <Button size="icon-sm" variant="ghost" onClick={() => toggleExpanded(product.id)}>
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            toggleExpanded(product.id)
+                          }}
+                        >
                           {isExpanded
                             ? <ChevronDown className="h-4 w-4" />
                             : <ChevronRight className="h-4 w-4" />}
                         </Button>
+                        {showImagePreview && (
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
+                            <img
+                              src={product.image_url ?? ''}
+                              alt={product.name}
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                              onError={() => markImageError(product.id)}
+                            />
+                          </div>
+                        )}
                         <span>{product.name || '-'}</span>
                       </div>
                     </TableCell>
@@ -687,7 +859,10 @@ export default function StockPage() {
                         <button
                           type="button"
                           className="cursor-pointer underline-offset-2 hover:underline"
-                          onClick={() => toggleExpanded(product.id)}
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            toggleExpanded(product.id)
+                          }}
                         >
                           {t('stock.variantsCount', { count: product.variants.length })}
                         </button>
@@ -708,7 +883,14 @@ export default function StockPage() {
                     </TableCell>
                     <TableCell className="text-right">{productPrice(product)}</TableCell>
                     <TableCell className="text-right">
-                      <Button size="icon-sm" variant="ghost" onClick={() => openEditProduct(product)}>
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          openEditProduct(product)
+                        }}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       {isAdmin && (

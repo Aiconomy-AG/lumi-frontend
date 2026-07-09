@@ -1,13 +1,17 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Conversation } from '@/types/chat'
+import type { User } from '@/types/user'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
     useConversationsQuery,
+    useCreateConversationMutation,
+    useConversationMessagesRealtime,
     useMessagesQuery,
     useSendMessageMutation,
 } from '@/features/chat'
+import { useUsersQuery } from '@/features/users'
 
 import { useAuth} from '@/features/auth/AuthContext'
 function otherParticipant(conversation: Conversation, currentUserId?: number) {
@@ -36,15 +40,35 @@ export default function ChatPage() {
     const [draft, setDraft] = useState('')
 
     const { data: conversations = [] } = useConversationsQuery()
+    const { data: users = [] } = useUsersQuery()
+
+    const people = users.filter((u) => u.is_active && u.id !== user?.id)
 
     const activeId = selectedId ?? conversations[0]?.id ?? null
 
     const { data: messages = [] } = useMessagesQuery(activeId)
+    useConversationMessagesRealtime(activeId)
 
     const selectedConversation = conversations.find((c) => c.id === activeId)
     const selectedPerson = selectedConversation && otherParticipant(selectedConversation, user?.id)
 
     const sendMutation = useSendMessageMutation(activeId)
+    const createMutation = useCreateConversationMutation()
+
+    async function openConversationWith(person: User) {
+        const existing = conversations.find(
+            (c) => c.type === 'direct' && c.participants.some((p) => p.id === person.id)
+        )
+        if (existing) {
+            setSelectedId(existing.id)
+            return
+        }
+        const conversation = await createMutation.mutateAsync({
+            type: 'direct',
+            participants_employee_ids: [person.id],
+        })
+        setSelectedId(conversation.id)
+    }
 
     async function handleSend() {
         const text = draft.trim()
@@ -58,14 +82,14 @@ export default function ChatPage() {
             <div className="w-72 border-r p-3">
                 <Input placeholder={t('chat.searchPlaceholder')} className="mb-3" />
                 <div className="space-y-1">
-                    {conversations.map((conversation) => {
-                        const person = otherParticipant(conversation,user?.id)
+                    {people.map((person) => {
                         return (
                             <button
-                                key={conversation.id}
-                                onClick={() => setSelectedId(conversation.id)}
+                                key={person.id}
+                                onClick={() => void openConversationWith(person)}
+                                disabled={createMutation.isPending}
                                 className={`flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors ${
-                                    conversation.id === activeId ? 'bg-purple-500/20' : 'hover:bg-zinc-800/50'
+                                    person.id === selectedPerson?.id ? 'bg-purple-500/20' : 'hover:bg-zinc-800/50'
                                 }`}
                             >
                                 <div className={`relative flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold text-white ${avatarColorFor(person.id)}`}>

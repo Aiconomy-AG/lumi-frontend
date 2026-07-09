@@ -1,6 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getAuthToken, login as loginRequest, logout as logoutRequest, me, updateMyStatus } from '@/api/client'
+import {
+  getAuthToken,
+  login as loginRequest,
+  logout as logoutRequest,
+  me,
+  sendPresenceDisconnectBeacon,
+  sendPresencePing,
+  updateMyStatus,
+} from '@/api/client'
 import type { LoginCredentials, User, UserStatus } from '@/types/user'
 import { authKeys } from './queryKeys'
 import { userKeys } from '@/features/users'
@@ -94,6 +102,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const channel = echo.join('team')
+    const heartbeatIntervalSeconds = Number(import.meta.env.VITE_PRESENCE_HEARTBEAT_INTERVAL_SECONDS ?? 25)
+    const heartbeatIntervalMs = Math.max(
+      5_000,
+      (Number.isFinite(heartbeatIntervalSeconds) ? heartbeatIntervalSeconds : 25) * 1_000
+    )
+    let heartbeatTimer: number | null = null
+
+    const pingPresence = () => {
+      void sendPresencePing().catch(() => {
+        // tolerate transient ping failures; scheduler handles stale cleanup
+      })
+    }
+
+    pingPresence()
+    heartbeatTimer = window.setInterval(pingPresence, heartbeatIntervalMs)
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        pingPresence()
+      }
+    }
+
+    const handlePageExit = () => {
+      sendPresenceDisconnectBeacon()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('beforeunload', handlePageExit)
+    window.addEventListener('pagehide', handlePageExit)
 
     channel.here((members: Array<{ id: number; status?: UserStatus }>) => {
       const statusByUserId = new Map(
@@ -138,6 +175,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     return () => {
+      if (heartbeatTimer !== null) {
+        window.clearInterval(heartbeatTimer)
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('beforeunload', handlePageExit)
+      window.removeEventListener('pagehide', handlePageExit)
       echo.leave('team')
       disconnectEcho()
     }

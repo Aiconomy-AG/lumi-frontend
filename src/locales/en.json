@@ -34,6 +34,15 @@
   },
   "dashboard": {
     "greeting": "Good evening, {{name}}.",
+    "greetings": {
+      "earlyMorningWeekday": "Good morning, {{name}}. What would you like to focus on first?",
+      "earlyMorningWeekend": "Good morning, {{name}}. I'm here if you want a calm start.",
+      "lateMorning": "Good morning, {{name}}. Ready when you are.",
+      "afternoon": "Good afternoon, {{name}}. Want to tackle the next priority?",
+      "eveningWeekday": "Good evening, {{name}}. We can wrap things up step by step.",
+      "eveningWeekend": "Good evening, {{name}}. Happy to help with a light check-in.",
+      "night": "Good evening, {{name}}. We can keep this short and focused."
+    },
     "dueToday": "Due today",
     "tasksCount": "{{count}} tasks",
     "onlineNow": "Online now",
@@ -124,6 +133,11 @@
     "delete": "Delete",
     "deleteProductConfirm": "Delete this product?",
     "deleteVariantConfirm": "Delete this variant?"
+    "productDetailsNoDescription": "No description available.",
+    "noImageAvailable": "No image available",
+    "productVariantsTitle": "Variants",
+    "variantStockCount": "Stock: {{count}}",
+    "productNoVariants": "No variants available"
   },
   "chat": {
     "searchPlaceholder": "Search people...",
