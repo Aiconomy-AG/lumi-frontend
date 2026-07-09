@@ -820,8 +820,8 @@ export default function StockPage() {
                             ? <ChevronDown className="h-4 w-4" />
                             : <ChevronRight className="h-4 w-4" />}
                         </Button>
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
-                          {showImagePreview ? (
+                        {showImagePreview && (
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
                             <img
                               src={product.image_url ?? ''}
                               alt={product.name}
@@ -829,10 +829,8 @@ export default function StockPage() {
                               loading="lazy"
                               onError={() => markImageError(product.id)}
                             />
-                          ) : (
-                            <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </div>
+                          </div>
+                        )}
                         <span>{product.name || '-'}</span>
                       </div>
                     </TableCell>
