@@ -186,7 +186,14 @@
     "email": "Email",
     "phone": "Telefon",
     "role": "Rol",
-    "status": "Status"
+    "status": "Status",
+    "editData": "Modifică datele",
+    "invalidPhone": "Introdu un număr de telefon valid (7-15 cifre, + opțional).",
+    "savePhone": "Salvează numărul de telefon",
+    "currentPassword": "Parola curentă",
+    "newPassword": "Parolă nouă",
+    "confirmPassword": "Confirmă parola nouă",
+    "savePassword": "Actualizează parola"
   },
   "userStatus": {
     "available": "Disponibil",

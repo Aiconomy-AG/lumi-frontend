@@ -186,7 +186,14 @@
     "email": "Email",
     "phone": "Phone",
     "role": "Role",
-    "status": "Status"
+    "status": "Status",
+    "editData": "Edit data",
+    "invalidPhone": "Enter a valid phone number (7-15 digits, optional +).",
+    "savePhone": "Save phone number",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "savePassword": "Update Password"
   },
   "userStatus": {
     "available": "Available",
