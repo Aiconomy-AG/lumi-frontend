@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useOrdersQuery } from '@/features/orders'
-import type { OrderStatus } from '@/types/order'
+import { useReturnsQuery } from '@/features/returns'
+import type { ReturnStatus } from '@/types/return'
 import { formatPrice } from '@/lib/currency'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
@@ -16,27 +16,33 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const ORDER_STATUSES: OrderStatus[] = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
+const RETURN_STATUSES: ReturnStatus[] = [
+  'requested',
+  'approved',
+  'rejected',
+  'received',
+  'refunded',
+]
 
-function orderStatusVariant(status: OrderStatus): 'default' | 'secondary' | 'outline' | 'destructive' {
+function returnStatusVariant(status: ReturnStatus): 'default' | 'secondary' | 'outline' | 'destructive' {
   switch (status) {
-    case 'delivered':
+    case 'refunded':
       return 'default'
-    case 'shipped':
-    case 'processing':
+    case 'approved':
+    case 'received':
       return 'secondary'
-    case 'cancelled':
+    case 'rejected':
       return 'destructive'
     default:
       return 'outline'
   }
 }
 
-export default function OrdersPage() {
+export default function ReturnsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
-  const [status, setStatus] = useState<OrderStatus | ''>('')
+  const [status, setStatus] = useState<ReturnStatus | ''>('')
   const [search, setSearch] = useState('')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
@@ -49,9 +55,9 @@ export default function OrdersPage() {
     to: to || undefined,
   }
 
-  const { data, isLoading } = useOrdersQuery(filters)
+  const { data, isLoading } = useReturnsQuery(filters)
 
-  const orders = data?.data ?? []
+  const returns = data?.data ?? []
   const meta = data?.meta
 
   function resetPage<T>(setter: (value: T) => void) {
@@ -64,29 +70,29 @@ export default function OrdersPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h2 className="text-lg font-semibold text-white">{t('orders.title')}</h2>
-        <p className="text-sm text-zinc-500">{t('orders.subtitle')}</p>
+        <h2 className="text-lg font-semibold text-white">{t('returns.title')}</h2>
+        <p className="text-sm text-zinc-500">{t('returns.subtitle')}</p>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Input
           value={search}
           onChange={(e) => resetPage(setSearch)(e.target.value)}
-          placeholder={t('orders.searchPlaceholder')}
+          placeholder={t('returns.searchPlaceholder')}
           className="w-56"
         />
         <Select
           value={status || 'all'}
-          onValueChange={(value) => resetPage(setStatus)(value === 'all' ? '' : (value as OrderStatus))}
+          onValueChange={(value) => resetPage(setStatus)(value === 'all' ? '' : (value as ReturnStatus))}
         >
           <SelectTrigger className="w-44">
-            <SelectValue placeholder={t('orders.filterStatus')} />
+            <SelectValue placeholder={t('returns.filterStatus')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t('orders.allStatuses')}</SelectItem>
-            {ORDER_STATUSES.map((value) => (
+            <SelectItem value="all">{t('returns.allStatuses')}</SelectItem>
+            {RETURN_STATUSES.map((value) => (
               <SelectItem key={value} value={value}>
-                {t(`orders.statuses.${value}`)}
+                {t(`returns.statuses.${value}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -95,55 +101,55 @@ export default function OrdersPage() {
           type="date"
           value={from}
           onChange={(e) => resetPage(setFrom)(e.target.value)}
-          aria-label={t('orders.from')}
+          aria-label={t('returns.from')}
           className="w-40"
         />
         <Input
           type="date"
           value={to}
           onChange={(e) => resetPage(setTo)(e.target.value)}
-          aria-label={t('orders.to')}
+          aria-label={t('returns.to')}
           className="w-40"
         />
       </div>
 
       {isLoading ? (
         <div className="text-sm text-zinc-500">{t('admin.loading')}</div>
-      ) : orders.length === 0 ? (
+      ) : returns.length === 0 ? (
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-8 text-center text-sm text-zinc-500">
-          {t('orders.empty')}
+          {t('returns.empty')}
         </div>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t('orders.orderRef')}</TableHead>
-              <TableHead>{t('orders.customer')}</TableHead>
-              <TableHead>{t('orders.status')}</TableHead>
-              <TableHead>{t('orders.items')}</TableHead>
-              <TableHead>{t('orders.total')}</TableHead>
-              <TableHead>{t('orders.date')}</TableHead>
+              <TableHead>{t('returns.id')}</TableHead>
+              <TableHead>{t('returns.orderRef')}</TableHead>
+              <TableHead>{t('returns.customer')}</TableHead>
+              <TableHead>{t('returns.status')}</TableHead>
+              <TableHead>{t('returns.refundAmount')}</TableHead>
+              <TableHead>{t('returns.date')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order) => (
+            {returns.map((returnRequest) => (
               <TableRow
-                key={order.id}
+                key={returnRequest.id}
                 className="cursor-pointer"
-                onClick={() => navigate(`/orders/${order.id}`)}
+                onClick={() => navigate(`/returns/${returnRequest.id}`)}
               >
-                <TableCell className="font-medium">
-                  {order.shopify_order_name ?? `#${order.id}`}
-                </TableCell>
-                <TableCell>{order.customer?.email ?? '-'}</TableCell>
+                <TableCell>#{returnRequest.id}</TableCell>
                 <TableCell>
-                  <Badge variant={orderStatusVariant(order.status)}>
-                    {t(`orders.statuses.${order.status}`)}
+                  {returnRequest.shopify_order_name ?? returnRequest.order?.shopify_order_name ?? '-'}
+                </TableCell>
+                <TableCell>{returnRequest.email}</TableCell>
+                <TableCell>
+                  <Badge variant={returnStatusVariant(returnRequest.status)}>
+                    {t(`returns.statuses.${returnRequest.status}`)}
                   </Badge>
                 </TableCell>
-                <TableCell>{order.items.length}</TableCell>
-                <TableCell>{formatPrice(order.total_amount)}</TableCell>
-                <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
+                <TableCell>{formatPrice(returnRequest.refund_amount)}</TableCell>
+                <TableCell>{new Date(returnRequest.created_at).toLocaleDateString()}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -153,16 +159,16 @@ export default function OrdersPage() {
       {meta && (
         <div className="mt-4 flex items-center gap-3">
           <Button disabled={meta.current_page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-            {t('orders.prev')}
+            {t('returns.prev')}
           </Button>
           <span className="text-sm text-zinc-500">
-            {t('orders.pageOf', { current: meta.current_page, total: meta.last_page })}
+            {t('returns.pageOf', { current: meta.current_page, total: meta.last_page })}
           </span>
           <Button
             disabled={meta.current_page >= meta.last_page}
             onClick={() => setPage((p) => p + 1)}
           >
-            {t('orders.next')}
+            {t('returns.next')}
           </Button>
         </div>
       )}

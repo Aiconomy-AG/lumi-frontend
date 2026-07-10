@@ -5,12 +5,19 @@
     "tasks": "Aufgaben",
     "stock": "Lager",
     "orders": "Bestellungen",
+    "returns": "Retouren",
     "chat": "Chat",
     "admin": "Admin",
     "collapse": "Einklappen",
     "expand": "Ausklappen",
     "projects": "Projekte",
-    "auditLogs": "Aktivitätsprotokoll"
+    "auditLogs": "Aktivitätsprotokoll",
+    "language": "Sprache",
+    "groups": {
+      "workspace": "Arbeitsbereich",
+      "sales": "Vertrieb",
+      "admin": "Admin"
+    }
   },
   "header": {
     "startTimer": "Timer starten"
@@ -215,6 +222,13 @@
     "passwordUpdated": "Passwort erfolgreich aktualisiert!",
     "passwordsDoNotMatch": "Die neuen Passwörter stimmen nicht überein!",
     "passwordUpdateFailed": "Fehler beim Aktualisieren des Passworts. Überprüfen Sie Ihr aktuelles Passwort."
+    "editData": "Daten bearbeiten",
+    "invalidPhone": "Gib eine gültige Telefonnummer ein (7-15 Ziffern, optional +).",
+    "savePhone": "Telefonnummer speichern",
+    "currentPassword": "Aktuelles Passwort",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Neues Passwort bestätigen",
+    "savePassword": "Passwort aktualisieren"
   },
   "userStatus": {
     "available": "Verfügbar",
@@ -223,13 +237,97 @@
     "away": "Abwesend"
   },
   "orders": {
+    "title": "Bestellungen",
+    "subtitle": "Kundenbestellungen anzeigen und verwalten",
     "customer": "Kunde",
     "status": "Status",
     "items": "Artikel",
     "total": "Gesamt",
     "date": "Datum",
     "prev": "Zurück",
-    "next": "Weiter"
+    "next": "Weiter",
+    "orderRef": "Bestellung",
+    "searchPlaceholder": "Nach Bestellung oder E-Mail suchen…",
+    "filterStatus": "Status",
+    "allStatuses": "Alle Status",
+    "from": "Von",
+    "to": "Bis",
+    "empty": "Keine Bestellungen gefunden",
+    "pageOf": "Seite {{current}} von {{total}}",
+    "notFound": "Bestellung nicht gefunden",
+    "orderNumber": "Bestellung #{{id}}",
+    "customerDetails": "Kunde",
+    "paymentDetails": "Zahlung",
+    "shippingAddress": "Lieferadresse",
+    "lineItems": "Positionen",
+    "product": "Produkt",
+    "sku": "SKU",
+    "quantity": "Menge",
+    "unitPrice": "Stückpreis",
+    "unknownProduct": "Unbekanntes Produkt",
+    "subtotal": "Zwischensumme",
+    "shipping": "Versand",
+    "relatedReturns": "Zugehörige Retouren",
+    "noReturns": "Keine Retouren für diese Bestellung",
+    "statuses": {
+      "pending": "Ausstehend",
+      "processing": "In Bearbeitung",
+      "shipped": "Versendet",
+      "delivered": "Zugestellt",
+      "cancelled": "Storniert"
+    },
+    "paymentStatuses": {
+      "pending": "Ausstehend",
+      "successful": "Bezahlt",
+      "failed": "Fehlgeschlagen"
+    }
+  },
+  "returns": {
+    "title": "Retouren",
+    "subtitle": "Retourenanfragen prüfen und bearbeiten",
+    "id": "ID",
+    "orderRef": "Bestellung",
+    "customer": "Kunde",
+    "status": "Status",
+    "refundAmount": "Erstattung",
+    "date": "Datum",
+    "prev": "Zurück",
+    "next": "Weiter",
+    "searchPlaceholder": "Nach E-Mail oder Bestellung suchen…",
+    "filterStatus": "Status",
+    "allStatuses": "Alle Status",
+    "from": "Von",
+    "to": "Bis",
+    "empty": "Keine Retourenanfragen gefunden",
+    "pageOf": "Seite {{current}} von {{total}}",
+    "notFound": "Retourenanfrage nicht gefunden",
+    "returnNumber": "Retoure #{{id}}",
+    "reason": "Grund",
+    "items": "Artikel",
+    "product": "Produkt",
+    "sku": "SKU",
+    "quantity": "Menge",
+    "unitPrice": "Stückpreis",
+    "unknownProduct": "Unbekanntes Produkt",
+    "receivedAt": "Eingegangen",
+    "refundedAt": "Erstattet",
+    "viewOrder": "Bestellung anzeigen",
+    "rejectTitle": "Retoure ablehnen",
+    "rejectNotesPlaceholder": "Optionale Notiz für den Kunden…",
+    "cancel": "Abbrechen",
+    "statuses": {
+      "requested": "Angefragt",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt",
+      "received": "Eingegangen",
+      "refunded": "Erstattet"
+    },
+    "actions": {
+      "approve": "Genehmigen",
+      "reject": "Ablehnen",
+      "markReceived": "Als eingegangen markieren",
+      "markRefunded": "Als erstattet markieren"
+    }
   },
   "projects": {
     "title": "Projekte",
