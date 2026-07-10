@@ -26,10 +26,10 @@ export default function TasksPage() {
 
     const today = new Date().toISOString().slice(0, 10)
     const filteredTasks = tasks.filter(task => {
+        if (task.parent_id != null) return false;
         if (filter !== "All" && task.status !== filter) return false
         if (search && !task.title.toLowerCase().includes(search.toLowerCase())) return false
         return !(showDueToday && task.due_date?.slice(0, 10) !== today);
-
     })
 
     const isLoading = isLoadingTasks || isLoadingProjects
@@ -57,8 +57,8 @@ export default function TasksPage() {
                 <p className="text-sm text-zinc-500">{t('projects.noTasks')}</p>
             ) : (
                 <div className="w-full text-sm">
-                    <div className="grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1fr] gap-4 border-b border-zinc-900 p-3 text-zinc-500 font-medium">
-                        <div>{t('tasks.columnTask')}</div>
+                    <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_100px_130px_100px] gap-4 border-b border-zinc-900 p-3 text-zinc-500 font-medium text-center">
+                        <div className="text-left">{t('tasks.columnTask')}</div>
                         <div>{t('tasks.columnProject')}</div>
                         <div>{t('tasks.columnAssigned')}</div>
                         <div>{t('tasks.columnStatus')}</div>
