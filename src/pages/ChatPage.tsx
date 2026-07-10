@@ -10,6 +10,7 @@ import {
     useCreateConversationMutation,
     useMessagesQuery,
     useSendMessageMutation,
+    useUpdateConversationMutation,
 } from '@/features/chat'
 import { ChatComposer } from '@/features/chat/components/ChatComposer'
 import { ChatHeader } from '@/features/chat/components/ChatHeader'
@@ -52,6 +53,7 @@ export default function ChatPage() {
     useConversationMessagesRealtime(activeConversationId)
 
     const createMutation = useCreateConversationMutation()
+    const updateMutation = useUpdateConversationMutation(activeConversationId)
     const sendMutation = useSendMessageMutation(activeConversationId, user?.id)
 
     const people = useMemo(
@@ -111,6 +113,37 @@ export default function ChatPage() {
         openConversation(conversation.id)
     }
 
+    async function handleUpdateGroup(payload: {
+        name: string
+        add_participants_employee_ids: number[]
+        remove_participants_employee_ids: number[]
+    }) {
+        if (!activeConversationId) return
+
+        const updates: {
+            name?: string
+            add_participants_employee_ids?: number[]
+            remove_participants_employee_ids?: number[]
+        } = {}
+        const currentName = activeConversation?.name ?? ''
+
+        if (payload.name.trim() !== currentName.trim()) {
+            updates.name = payload.name.trim()
+        }
+
+        if (payload.add_participants_employee_ids.length > 0) {
+            updates.add_participants_employee_ids = payload.add_participants_employee_ids
+        }
+
+        if (payload.remove_participants_employee_ids.length > 0) {
+            updates.remove_participants_employee_ids = payload.remove_participants_employee_ids
+        }
+
+        if (Object.keys(updates).length === 0) return
+
+        await updateMutation.mutateAsync(updates)
+    }
+
     async function handleSend() {
         const text = draft.trim()
         if (!text || activeConversationId === null) return
@@ -150,8 +183,11 @@ export default function ChatPage() {
             <ChatHeader
                 conversation={activeConversation}
                 currentUserId={user?.id}
+                users={users}
                 showBackButton={!isDesktop && !mobileShowSidebar}
+                isUpdatingGroup={updateMutation.isPending}
                 onBack={handleBackToList}
+                onUpdateGroup={activeConversation?.type === 'group' ? handleUpdateGroup : undefined}
             />
             <MessageList
                 conversation={activeConversation}

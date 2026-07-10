@@ -1,18 +1,37 @@
-import { ArrowLeft, Users } from 'lucide-react'
+import { ArrowLeft, Settings2, Users } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Conversation } from '@/types/chat'
+import type { User } from '@/types/user'
 import { getConversationTitle, getDirectParticipant, getGroupMemberPreview } from '../utils'
 import { ChatAvatar, GroupAvatar } from './ChatAvatar'
+import { EditGroupDialog } from './EditGroupDialog'
 
 interface ChatHeaderProps {
     conversation: Conversation | null
     currentUserId?: number
+    users: User[]
     showBackButton?: boolean
+    isUpdatingGroup?: boolean
     onBack?: () => void
+    onUpdateGroup?: (payload: {
+        name: string
+        add_participants_employee_ids: number[]
+        remove_participants_employee_ids: number[]
+    }) => Promise<void>
 }
 
-export function ChatHeader({ conversation, currentUserId, showBackButton, onBack }: ChatHeaderProps) {
+export function ChatHeader({
+    conversation,
+    currentUserId,
+    users,
+    showBackButton,
+    isUpdatingGroup = false,
+    onBack,
+    onUpdateGroup,
+}: ChatHeaderProps) {
     const { t } = useTranslation()
+    const [editOpen, setEditOpen] = useState(false)
 
     if (!conversation) {
         return (
@@ -38,53 +57,78 @@ export function ChatHeader({ conversation, currentUserId, showBackButton, onBack
     const memberPreview = getGroupMemberPreview(conversation.participants, currentUserId)
 
     return (
-        <div
-            className={`flex items-center gap-3 border-b px-4 py-3 ${
-                isGroup ? 'border-violet-500/20 bg-violet-500/5' : 'border-zinc-800'
-            }`}
-        >
-            {showBackButton && (
-                <button
-                    type="button"
-                    onClick={onBack}
-                    className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
-                    aria-label={t('chat.backToList')}
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                </button>
-            )}
+        <>
+            <div
+                className={`flex items-center gap-3 border-b px-4 py-3 ${
+                    isGroup ? 'border-violet-500/20 bg-violet-500/5' : 'border-zinc-800'
+                }`}
+            >
+                {showBackButton && (
+                    <button
+                        type="button"
+                        onClick={onBack}
+                        className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
+                        aria-label={t('chat.backToList')}
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                    </button>
+                )}
 
-            {isGroup ? (
-                <GroupAvatar
-                    participants={conversation.participants}
-                    groupName={conversation.name}
-                    className="h-11 w-11"
-                />
-            ) : (
-                <ChatAvatar user={directPerson} showStatus className="h-10 w-10" />
-            )}
-
-            <div className="min-w-0 flex-1">
-                <div className="flex min-w-0 items-center gap-2">
-                    <p className="truncate font-medium text-zinc-100">{title}</p>
-                    {isGroup && (
-                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-300">
-                            <Users className="h-3 w-3" />
-                            {t('chat.groupBadge')}
-                        </span>
-                    )}
-                </div>
                 {isGroup ? (
-                    <p className="truncate text-xs text-zinc-400" title={memberPreview}>
-                        {t('chat.membersCount', { count: conversation.participants.length })}
-                        {memberPreview ? ` · ${memberPreview}` : ''}
-                    </p>
-                ) : directPerson ? (
-                    <p className="text-xs text-zinc-500">
-                        {t(`userStatus.${directPerson.status}`)} · {directPerson.role}
-                    </p>
-                ) : null}
+                    <GroupAvatar
+                        participants={conversation.participants}
+                        groupName={conversation.name}
+                        className="h-11 w-11"
+                    />
+                ) : (
+                    <ChatAvatar user={directPerson} showStatus className="h-10 w-10" />
+                )}
+
+                <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <p className="truncate font-medium text-zinc-100">{title}</p>
+                        {isGroup && (
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-300">
+                                <Users className="h-3 w-3" />
+                                {t('chat.groupBadge')}
+                            </span>
+                        )}
+                    </div>
+                    {isGroup ? (
+                        <p className="truncate text-xs text-zinc-400" title={memberPreview}>
+                            {t('chat.membersCount', { count: conversation.participants.length })}
+                            {memberPreview ? ` · ${memberPreview}` : ''}
+                        </p>
+                    ) : directPerson ? (
+                        <p className="text-xs text-zinc-500">
+                            {t(`userStatus.${directPerson.status}`)} · {directPerson.role}
+                        </p>
+                    ) : null}
+                </div>
+
+                {isGroup && onUpdateGroup && (
+                    <button
+                        type="button"
+                        onClick={() => setEditOpen(true)}
+                        className="rounded-md p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
+                        aria-label={t('chat.editGroup')}
+                    >
+                        <Settings2 className="h-4 w-4" />
+                    </button>
+                )}
             </div>
-        </div>
+
+            {isGroup && onUpdateGroup && (
+                <EditGroupDialog
+                    open={editOpen}
+                    onOpenChange={setEditOpen}
+                    conversation={conversation}
+                    currentUserId={currentUserId}
+                    users={users}
+                    isSubmitting={isUpdatingGroup}
+                    onSave={onUpdateGroup}
+                />
+            )}
+        </>
     )
 }

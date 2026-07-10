@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createConversation, getConversations, getMessages, sendMessage } from '@/api/client'
+import { createConversation, getConversations, getMessages, sendMessage, updateConversation } from '@/api/client'
 import { connectEcho } from '@/lib/echo'
 import type { Message } from '@/types/chat'
 import { chatKeys } from './queryKeys'
@@ -67,6 +67,15 @@ export function useCreateConversationMutation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: createConversation,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: chatKeys.conversations }),
+  })
+}
+
+export function useUpdateConversationMutation(conversationId: number | null) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof updateConversation>[1]) =>
+      updateConversation(conversationId!, payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: chatKeys.conversations }),
   })
 }

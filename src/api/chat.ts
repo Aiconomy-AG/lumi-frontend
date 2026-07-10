@@ -22,6 +22,22 @@ export async function createConversation(payload: CreateConversationPayload): Pr
   })
 }
 
+export interface UpdateConversationPayload {
+  name?: string
+  add_participants_employee_ids?: number[]
+  remove_participants_employee_ids?: number[]
+}
+
+export async function updateConversation(
+  conversationId: number,
+  payload: UpdateConversationPayload
+): Promise<Conversation> {
+  return requestData<Conversation>(`/workspace/conversations/${conversationId}`, {
+    method: 'PUT',
+    data: payload,
+  })
+}
+
 export async function sendMessage(conversationId: number, message: string): Promise<Message> {
   return requestData<Message>(`/workspace/conversations/${conversationId}/messages`, {
     method: 'POST',
