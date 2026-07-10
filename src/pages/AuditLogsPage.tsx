@@ -35,6 +35,7 @@ export default function AuditLogsPage() {
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(20)
   const [module, setModule] = useState('')
+  const [action, setAction] = useState('')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [expandedId, setExpandedId] = useState<number | null>(null)
@@ -43,9 +44,16 @@ export default function AuditLogsPage() {
     page,
     per_page: perPage,
     module: module || undefined,
+    action: action || undefined,
     from: from || undefined,
     to: to || undefined,
   })
+
+  function formatActionLabel(actionKey: string): string {
+    const key = `auditLogs.actions.${actionKey}`
+    const translated = t(key)
+    return translated === key ? actionKey : translated
+  }
 
   const logs = data?.data ?? []
   const meta = data?.meta
@@ -64,6 +72,12 @@ export default function AuditLogsPage() {
           value={module}
           onChange={(e) => updateFilter(setModule)(e.target.value)}
           placeholder={t('auditLogs.filterModule')}
+          className="w-44"
+        />
+        <Input
+          value={action}
+          onChange={(e) => updateFilter(setAction)(e.target.value)}
+          placeholder={t('auditLogs.filterAction')}
           className="w-44"
         />
         <Input
@@ -113,7 +127,7 @@ export default function AuditLogsPage() {
                   <TableCell>{new Date(log.occurred_at).toLocaleString()}</TableCell>
                   <TableCell>{log.actor_name}</TableCell>
                   <TableCell>{log.module}</TableCell>
-                  <TableCell>{log.action}</TableCell>
+                  <TableCell>{formatActionLabel(log.action)}</TableCell>
                   <TableCell>{log.entity_label ?? `${log.entity_type} #${log.entity_id}`}</TableCell>
                   <TableCell>{log.description ?? '-'}</TableCell>
                 </TableRow>
