@@ -63,7 +63,7 @@
     "title": "Task-uri",
     "filterAll": "Toate",
     "searchPlaceholder": "Caută task-uri...",
-    "addButton": "+ Adaugă task",
+    "addButton": "Adaugă task",
     "newTaskTitle": "Task nou",
     "fieldTitle": "Titlu",
     "fieldTitlePlaceholder": "Descrie task-ul...",
@@ -329,6 +329,7 @@
   },
   "projects": {
     "title": "Proiecte",
+    "searchPlaceholder": "Caută proiecte...",
     "addButton": "Adaugă proiect",
     "newTitle": "Proiect nou",
     "editTitle": "Editează proiect",

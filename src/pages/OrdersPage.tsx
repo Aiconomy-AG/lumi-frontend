@@ -70,48 +70,45 @@ export default function OrdersPage() {
 
   return (
     <div className="p-6 h-full flex flex-col overflow-hidden">
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-white">{t('orders.title')}</h2>
-        <p className="text-sm text-zinc-500">{t('orders.subtitle')}</p>
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Input
-          value={search}
-          onChange={(e) => resetPage(setSearch)(e.target.value)}
-          placeholder={t('orders.searchPlaceholder')}
-          className="w-56"
-        />
-        <Select
-          value={status || 'all'}
-          onValueChange={(value) => resetPage(setStatus)(value === 'all' ? '' : (value as OrderStatus))}
-        >
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder={t('orders.filterStatus')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t('orders.allStatuses')}</SelectItem>
-            {ORDER_STATUSES.map((value) => (
-              <SelectItem key={value} value={value}>
-                {t(`orders.statuses.${value}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Input
-          type="date"
-          value={from}
-          onChange={(e) => resetPage(setFrom)(e.target.value)}
-          aria-label={t('orders.from')}
-          className="w-40"
-        />
-        <Input
-          type="date"
-          value={to}
-          onChange={(e) => resetPage(setTo)(e.target.value)}
-          aria-label={t('orders.to')}
-          className="w-40"
-        />
+      <div className="mb-6 flex items-start justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          <Input
+            value={search}
+            onChange={(e) => resetPage(setSearch)(e.target.value)}
+            placeholder={t('orders.searchPlaceholder')}
+            className="w-56"
+          />
+          <Select
+            value={status || 'all'}
+            onValueChange={(value) => resetPage(setStatus)(value === 'all' ? '' : (value as OrderStatus))}
+          >
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder={t('orders.filterStatus')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('orders.allStatuses')}</SelectItem>
+              {ORDER_STATUSES.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {t(`orders.statuses.${value}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Input
+            type="date"
+            value={from}
+            onChange={(e) => resetPage(setFrom)(e.target.value)}
+            aria-label={t('orders.from')}
+            className="w-40"
+          />
+          <Input
+            type="date"
+            value={to}
+            onChange={(e) => resetPage(setTo)(e.target.value)}
+            aria-label={t('orders.to')}
+            className="w-40"
+          />
+        </div>
       </div>
 
       {isLoading ? (
@@ -121,7 +118,7 @@ export default function OrdersPage() {
           {t('orders.empty')}
         </div>
       ) : (
-        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md bg-zinc-900">
           <Table>
           <TableHeader>
             <TableRow>

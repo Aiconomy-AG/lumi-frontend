@@ -11,6 +11,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export interface CreateTaskModalProps {
     children: React.ReactNode
@@ -68,35 +69,33 @@ export function CreateTaskModal({ children, defaultProjectId }: CreateTaskModalP
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger render={children as React.ReactElement} />
 
-            <DialogContent className="bg-zinc-900 border border-zinc-800 text-zinc-100 max-w-110 rounded-xl p-6 shadow-2xl">
-                <DialogHeader className="mb-4">
-                    <DialogTitle className="text-base font-bold text-white">{t('tasks.newTaskTitle')}</DialogTitle>
+            <DialogContent className="max-w-[440px]">
+                <DialogHeader>
+                    <DialogTitle>{t('tasks.newTaskTitle')}</DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleCreateTask} className="flex flex-col gap-4">
+                <form onSubmit={handleCreateTask} className="flex flex-col gap-4 mt-2">
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldTitle')}</label>
-                        <input
-                            type="text"
+                        <label className="text-xs font-medium text-muted-foreground">{t('tasks.fieldTitle')}</label>
+                        <Input
                             placeholder={t('tasks.fieldTitlePlaceholder')}
                             value={title}
                             onChange={e => setTitle(e.target.value)}
-                            className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 placeholder-zinc-700 outline-none focus:border-zinc-700 transition-colors"
                             required
                         />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.columnProject')}</label>
+                        <label className="text-xs font-medium text-muted-foreground">{t('tasks.columnProject')}</label>
                         {defaultProjectId ? (
-                            <div className="bg-zinc-950/50 border border-zinc-800/50 rounded-lg px-3 py-2 text-xs text-zinc-500">
+                            <div className="h-9 rounded-md border border-input bg-transparent px-3 flex items-center text-sm text-muted-foreground">
                                 {currentProject?.name || "Loading..."}
                             </div>
                         ) : (
                             <select
                                 value={projectId}
                                 onChange={e => setProjectId(e.target.value)}
-                                className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none cursor-pointer focus:border-zinc-700"
+                                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus:border-ring cursor-pointer"
                                 required
                             >
                                 <option value="">—</option>
@@ -108,23 +107,22 @@ export function CreateTaskModal({ children, defaultProjectId }: CreateTaskModalP
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldDescription')}</label>
+                        <label className="text-xs font-medium text-muted-foreground">{t('tasks.fieldDescription')}</label>
                         <textarea
                             placeholder={t('tasks.fieldDescriptionPlaceholder')}
-                            rows={3}
                             value={description}
                             onChange={e => setDescription(e.target.value)}
-                            className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 placeholder-zinc-700 outline-none focus:border-zinc-700 transition-colors resize-none"
+                            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground outline-none focus:border-ring resize-none h-48 overflow-y-auto"
                             required
                         />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldStatus')}</label>
+                        <label className="text-xs font-medium text-muted-foreground">{t('tasks.fieldStatus')}</label>
                         <select
                             value={status}
                             onChange={e => setStatus(e.target.value as TaskStatus)}
-                            className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none cursor-pointer focus:border-zinc-700"
+                            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus:border-ring cursor-pointer"
                         >
                             <option value="to_do">{statusLabels.to_do}</option>
                             <option value="in_progress">{statusLabels.in_progress}</option>
@@ -134,17 +132,16 @@ export function CreateTaskModal({ children, defaultProjectId }: CreateTaskModalP
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('tasks.fieldDueDate')}</label>
-                        <input
+                        <label className="text-xs font-medium text-muted-foreground">{t('tasks.fieldDueDate')}</label>
+                        <Input
                             type="date"
                             value={dueDate}
                             onChange={e => setDueDate(e.target.value)}
-                            className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 outline-none focus:border-zinc-700 transition-colors dark:scheme-dark"
                             required
                         />
                     </div>
 
-                    <div className="flex justify-end gap-2 mt-4">
+                    <div className="flex justify-end gap-2 mt-2">
                         <Button
                             type="button"
                             variant="ghost"

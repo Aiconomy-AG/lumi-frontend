@@ -63,7 +63,7 @@
     "title": "Aufgaben",
     "filterAll": "Alle",
     "searchPlaceholder": "Aufgaben suchen...",
-    "addButton": "+ Aufgabe hinzufügen",
+    "addButton": "Aufgabe hinzufügen",
     "newTaskTitle": "Neue Aufgabe",
     "fieldTitle": "Titel",
     "fieldTitlePlaceholder": "Aufgabe beschreiben...",
@@ -329,6 +329,7 @@
   },
   "projects": {
     "title": "Projekte",
+    "searchPlaceholder": "Projekte suchen...",
     "addButton": "Projekt hinzufügen",
     "newTitle": "Neues Projekt",
     "editTitle": "Projekt bearbeiten",

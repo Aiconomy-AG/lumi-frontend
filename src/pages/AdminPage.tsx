@@ -93,9 +93,8 @@ export default function AdminPage() {
     }
 
     return (
-        <div className="p-6 h-full flex flex-col overflow-hidden">
+        <div className="p-6 h-full flex flex-col overflow-hidden ">
             <div className="mb-4 flex items-center justify-between gap-4">
-                <p className="text-sm text-muted-foreground">{t('admin.usersCount', { count: users.length })}</p>
                 <div className="flex items-center gap-2">
                     <Input
                         placeholder={t('admin.searchPlaceholder')}
@@ -111,7 +110,7 @@ export default function AdminPage() {
                             <DialogTrigger
                                 render={<Button className="shrink-0">{t('admin.addButton')}</Button>}
                             />
-                            <DialogContent className="max-w-[440px]">
+                            <DialogContent className="max-w-110">
                                 <DialogHeader>
                                     <DialogTitle>{t('admin.newUserTitle')}</DialogTitle>
                                 </DialogHeader>
@@ -156,7 +155,7 @@ export default function AdminPage() {
             {isLoading ? (
                 <p className="text-muted-foreground">{t('admin.loading')}</p>
             ) : (
-                <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md">
+                <div ref={scrollRef} className="flex-1 bg-zinc-900 overflow-y-auto min-h-0 pr-2 border rounded-md ">
                     <Table>
                     <TableHeader>
                         <TableRow>

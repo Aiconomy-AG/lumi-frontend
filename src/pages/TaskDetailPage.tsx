@@ -155,7 +155,7 @@ export default function TaskDetailPage() {
     const userGroups = Object.values(groupedEntries)
 
     return (
-        <div className="p-10 max-w-250 mx-auto w-full bg-zinc-950">
+        <div className="p-10 bg-zinc-950 min-h-screen">
 
             <button
                 className="btn-sm mb-6"

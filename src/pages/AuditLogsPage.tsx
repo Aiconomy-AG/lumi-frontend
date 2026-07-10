@@ -72,39 +72,41 @@ export default function AuditLogsPage() {
 
   return (
     <div className="p-6 h-full flex flex-col overflow-hidden">
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Input
-          value={module}
-          onChange={(e) => updateFilter(setModule)(e.target.value)}
-          placeholder={t('auditLogs.filterModule')}
-          className="w-44"
-        />
-        <Input
-          value={action}
-          onChange={(e) => updateFilter(setAction)(e.target.value)}
-          placeholder={t('auditLogs.filterAction')}
-          className="w-44"
-        />
-        <Input
-          type="date"
-          value={from}
-          onChange={(e) => updateFilter(setFrom)(e.target.value)}
-          aria-label={t('auditLogs.from')}
-          className="w-40"
-        />
-        <Input
-          type="date"
-          value={to}
-          onChange={(e) => updateFilter(setTo)(e.target.value)}
-          aria-label={t('auditLogs.to')}
-          className="w-40"
-        />
+      <div className="mb-4 flex items-start justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          <Input
+            value={module}
+            onChange={(e) => updateFilter(setModule)(e.target.value)}
+            placeholder={t('auditLogs.filterModule')}
+            className="w-44"
+          />
+          <Input
+            value={action}
+            onChange={(e) => updateFilter(setAction)(e.target.value)}
+            placeholder={t('auditLogs.filterAction')}
+            className="w-44"
+          />
+          <Input
+            type="date"
+            value={from}
+            onChange={(e) => updateFilter(setFrom)(e.target.value)}
+            aria-label={t('auditLogs.from')}
+            className="w-40"
+          />
+          <Input
+            type="date"
+            value={to}
+            onChange={(e) => updateFilter(setTo)(e.target.value)}
+            aria-label={t('auditLogs.to')}
+            className="w-40"
+          />
+        </div>
       </div>
 
       {isLoading ? (
         <div className="text-sm text-zinc-500">{t('admin.loading')}</div>
       ) : (
-        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md bg-zinc-900">
           <Table>
           <TableHeader>
             <TableRow>
