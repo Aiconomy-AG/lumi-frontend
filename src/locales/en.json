@@ -347,7 +347,12 @@
     "addTask": "Add task",
     "noTasks": "No tasks yet",
     "taskTitle": "Title",
-    "dueDate": "Due date"
+    "dueDate": "Due date",
+    "searchPlaceholder": "Search projects...",
+    "filterStatus": "Filter by status",
+    "allStatuses": "All statuses",
+    "from": "From",
+    "to": "To"
   },
   "auditLogs": {
     "pageInfo": "Page {{page}} of {{pages}} · {{total}} entries",
@@ -399,5 +404,10 @@
       "time_stop": "Timer stopped",
       "conversation_create": "Conversation created"
     }
+  },
+  "table": {
+    "pageOf": "Page {{page}} of {{pages}}",
+    "perPageOption": "{{count}} / page",
+    "perPage": "Items per page"
   }
 }

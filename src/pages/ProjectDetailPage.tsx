@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { useProjectQuery } from '@/features/projects'
 import { useTasksQuery } from '@/features/tasks'
-import { TaskCard } from '@/components/ui/task-card'
+import { TaskCard, TaskTableHeadRow } from '@/components/ui/task-card'
+import { Table, TableBody, TableHeader } from '@/components/ui/table'
+import { TablePagination } from '@/components/ui/table-pagination'
 import { CreateTaskModal } from '@/components/ui/create-task-modal'
 
 export default function ProjectDetailPage() {
@@ -18,6 +21,11 @@ export default function ProjectDetailPage() {
 
     // backend intoarce toate task-urile → filtram pe proiectul curent si scoatem subtask-urile
     const tasks = allTasks.filter((task) => task.project_id === projectId && task.parent_id == null)
+
+    const [page, setPage] = useState(1)
+    const [perPage, setPerPage] = useState(25)
+    const lastPage = Math.max(1, Math.ceil(tasks.length / perPage))
+    const pagedTasks = tasks.slice((page - 1) * perPage, page * perPage)
 
     return (
         <div className="p-10 bg-zinc-950 min-h-screen">
@@ -45,21 +53,39 @@ export default function ProjectDetailPage() {
                 </CreateTaskModal>
             </div>
 
-            <div className="mt-4 grid gap-2">
-                {tasks.length === 0 && <p className="text-sm text-zinc-600">{t('projects.noTasks')}</p>}
-                {tasks.map((task) => (
-                    <TaskCard 
-                        key={task.id}
-                        taskId={task.id}
-                        title={task.title}
-                        projectName={project?.name || '—'}
-                        assignees={task.assignees || []}
-                        status={task.status}
-                        dueDate={task.due_date}
-                        statusLabel={t(`tasks.status.${task.status}`)}
-                        className="border border-zinc-800 rounded-lg px-4 bg-zinc-900 border-b-zinc-800"
+            <div className="mt-4">
+                {tasks.length === 0 ? (
+                    <p className="text-sm text-zinc-600">{t('projects.noTasks')}</p>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TaskTableHeadRow />
+                        </TableHeader>
+                        <TableBody>
+                            {pagedTasks.map((task) => (
+                                <TaskCard
+                                    key={task.id}
+                                    taskId={task.id}
+                                    title={task.title}
+                                    projectName={project?.name || '—'}
+                                    assignees={task.assignees || []}
+                                    status={task.status}
+                                    dueDate={task.due_date}
+                                    statusLabel={t(`tasks.status.${task.status}`)}
+                                />
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+                {tasks.length > 0 && (
+                    <TablePagination
+                        page={page}
+                        lastPage={lastPage}
+                        perPage={perPage}
+                        onPageChange={setPage}
+                        onPerPageChange={setPerPage}
                     />
-                ))}
+                )}
             </div>
         </div>
     )

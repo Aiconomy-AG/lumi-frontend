@@ -9,6 +9,7 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
 import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
+import { TablePagination } from '@/components/ui/table-pagination'
 import { useState } from 'react'
 import type { User } from '@/types/user'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -25,6 +26,8 @@ export default function AdminPage() {
     const { user: currentUser, isAdmin } = useAuth()
 
     const [search, setSearch] = useState('')
+    const [page, setPage] = useState(1)
+    const [perPage, setPerPage] = useState(25)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [pendingDelete, setPendingDelete] = useState<User | null>(null)
 
@@ -40,6 +43,8 @@ export default function AdminPage() {
     const filtered = users.filter((u) =>
         u.name.toLowerCase().includes(search.toLowerCase())
     )
+    const lastPage = Math.max(1, Math.ceil(filtered.length / perPage))
+    const paged = filtered.slice((page - 1) * perPage, page * perPage)
 
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
@@ -81,14 +86,14 @@ export default function AdminPage() {
     return (
         <div className="p-6">
             <div className="mb-4 flex items-center justify-between gap-4">
-                <p className="text-sm text-muted-foreground">{t('admin.usersCount', { count: users.length })}</p>
-                <div className="flex items-center gap-2">
-                    <Input
-                        placeholder={t('admin.searchPlaceholder')}
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="max-w-xs"
-                    />
+                <Input
+                    placeholder={t('admin.searchPlaceholder')}
+                    value={search}
+                    onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+                    className="max-w-xs"
+                />
+                <div className="flex items-center gap-3">
+                    <p className="text-sm text-muted-foreground">{t('admin.usersCount', { count: users.length })}</p>
                     {isAdmin && (
                         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                             <DialogTrigger
@@ -151,7 +156,7 @@ export default function AdminPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filtered.map((user) => (
+                        {paged.map((user) => (
                             <TableRow key={user.id}>
                                 <TableCell className="font-medium">{user.name}</TableCell>
                                 <TableCell className="text-muted-foreground">{user.email}</TableCell>
@@ -207,6 +212,16 @@ export default function AdminPage() {
                         ))}
                     </TableBody>
                 </Table>
+            )}
+
+            {!isLoading && (
+                <TablePagination
+                    page={page}
+                    lastPage={lastPage}
+                    perPage={perPage}
+                    onPageChange={setPage}
+                    onPerPageChange={setPerPage}
+                />
             )}
 
             <ConfirmDeleteDialog

@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
+import { TablePagination } from '@/components/ui/table-pagination'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -35,7 +36,6 @@ import {
   Trash2,
   Check,
   X,
-  ChevronLeft,
   ChevronRight,
   ChevronDown,
   CornerDownRight,
@@ -198,6 +198,7 @@ export default function StockPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [categoryId, setCategoryId] = useState<number | null>(null)
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(PER_PAGE)
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
   const [imageErrorIds, setImageErrorIds] = useState<Set<number>>(new Set())
 
@@ -230,7 +231,7 @@ export default function StockPage() {
     search: debouncedSearch || undefined,
     category_id: categoryId ?? undefined,
     page,
-    per_page: PER_PAGE,
+    per_page: perPage,
   }
 
   const { data: productPage, isLoading } = useProductsQuery(filters)
@@ -478,12 +479,6 @@ export default function StockPage() {
   return (
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-3 text-sm">
-          <span className="text-muted-foreground">{t('stock.productsCount', { count: meta?.total ?? products.length })}</span>
-          <span className="text-muted-foreground">{t('stock.variantsCount', { count: variantCount })}</span>
-          {lowStock > 0 && <span className="text-yellow-500">{t('stock.lowStock', { count: lowStock })}</span>}
-          {outOfStock > 0 && <span className="text-red-500">{t('stock.outOfStock', { count: outOfStock })}</span>}
-        </div>
         <div className="flex items-center gap-3">
           <CategorySelect
             value={categoryId}
@@ -498,6 +493,14 @@ export default function StockPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-xs"
           />
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-muted-foreground">{t('stock.productsCount', { count: meta?.total ?? products.length })}</span>
+            <span className="text-muted-foreground">{t('stock.variantsCount', { count: variantCount })}</span>
+            {lowStock > 0 && <span className="text-yellow-500">{t('stock.lowStock', { count: lowStock })}</span>}
+            {outOfStock > 0 && <span className="text-red-500">{t('stock.outOfStock', { count: outOfStock })}</span>}
+          </div>
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger
               render={
@@ -965,28 +968,14 @@ export default function StockPage() {
               })}
             </TableBody>
           </Table>
-          {meta && meta.last_page > 1 && (
-            <div className="mt-4 flex items-center justify-end gap-3 text-sm">
-              <span className="text-muted-foreground">
-                {t('stock.pageOf', { page: meta.current_page, pages: meta.last_page })}
-              </span>
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                disabled={meta.current_page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                disabled={meta.current_page >= meta.last_page}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+          {meta && (
+            <TablePagination
+              page={meta.current_page}
+              lastPage={meta.last_page}
+              perPage={perPage}
+              onPageChange={setPage}
+              onPerPageChange={setPerPage}
+            />
           )}
         </>
       )}

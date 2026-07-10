@@ -4,6 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
 import type { Project } from '@/types/project'
 import type { TaskStatus } from '@/types/task'
@@ -26,7 +33,21 @@ export default function ProjectsPage() {
     const [deadline, setDeadline] = useState('')
     const [status, setStatus] = useState<TaskStatus>('to_do')
 
+    const [search, setSearch] = useState('')
+    const [statusFilter, setStatusFilter] = useState<TaskStatus | ''>('')
+    const [from, setFrom] = useState('')
+    const [to, setTo] = useState('')
+
     const { data: projects = [], isLoading } = useProjectsQuery()
+
+    const filteredProjects = projects.filter((project) => {
+        if (search && !project.name.toLowerCase().includes(search.toLowerCase())) return false
+        if (statusFilter && project.status !== statusFilter) return false
+        const deadline = project.deadline?.slice(0, 10) ?? ''
+        if (from && (!deadline || deadline < from)) return false
+        if (to && (!deadline || deadline > to)) return false
+        return true
+    })
 
     const [saveError, setSaveError] = useState<string | null>(null)
     const saveMutation = useSaveProjectMutation()
@@ -69,7 +90,7 @@ export default function ProjectsPage() {
 
     return (
         <div className="p-10 bg-zinc-950 min-h-screen">
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <h1 className="text-xl font-bold text-white">{t('projects.title')}</h1>
                 {isAdmin && (
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -128,11 +149,50 @@ export default function ProjectsPage() {
                 )}
             </div>
 
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+                <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder={t('projects.searchPlaceholder')}
+                    className="w-56"
+                />
+                <Select
+                    value={statusFilter || 'all'}
+                    onValueChange={(value) => setStatusFilter(value === 'all' ? '' : (value as TaskStatus))}
+                >
+                    <SelectTrigger className="w-44">
+                        <SelectValue placeholder={t('projects.filterStatus')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">{t('projects.allStatuses')}</SelectItem>
+                        {STATUSES.map((value) => (
+                            <SelectItem key={value} value={value}>
+                                {t(`tasks.status.${value}`)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Input
+                    type="date"
+                    value={from}
+                    onChange={(e) => setFrom(e.target.value)}
+                    aria-label={t('projects.from')}
+                    className="w-40"
+                />
+                <Input
+                    type="date"
+                    value={to}
+                    onChange={(e) => setTo(e.target.value)}
+                    aria-label={t('projects.to')}
+                    className="w-40"
+                />
+            </div>
+
             {isLoading ? (
                 <p className="text-zinc-500">{t('projects.loading')}</p>
             ) : (
                 <div className="grid gap-3">
-                    {projects.map((project) => (
+                    {filteredProjects.map((project) => (
                         <div
                             key={project.id}
                             onClick={() => navigate(`/projects/${project.id}`)}
@@ -164,7 +224,7 @@ export default function ProjectsPage() {
                             </div>
                         </div>
                     ))}
-                    {projects.length === 0 && <p className="text-sm text-zinc-600">{t('projects.empty')}</p>}
+                    {filteredProjects.length === 0 && <p className="text-sm text-zinc-600">{t('projects.empty')}</p>}
                 </div>
             )}
 

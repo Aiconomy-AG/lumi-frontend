@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import type { TaskStatus } from '@/types/task'
 import { useProjectsQuery } from '@/features/projects'
 import { useTasksQuery } from '@/features/tasks'
-import { TaskCard } from '@/components/ui/task-card'
+import { TaskCard, TaskTableHeadRow } from '@/components/ui/task-card'
+import { Table, TableBody, TableHeader } from '@/components/ui/table'
+import { TablePagination } from '@/components/ui/table-pagination'
 import { CreateTaskModal } from '@/components/ui/create-task-modal'
 import { TaskFilters } from '@/components/ui/task-filters'
 import { Button } from '@/components/ui/button'
@@ -15,6 +17,15 @@ export default function TasksPage() {
     const { data: tasks = [], isLoading: isLoadingTasks } = useTasksQuery()
     const { data: projects = [], isLoading: isLoadingProjects } = useProjectsQuery()
     const [showDueToday, setShowDueToday] = useState(false)
+    const [page, setPage] = useState(1)
+    const [perPage, setPerPage] = useState(25)
+
+    function resetPage<T>(setter: (value: T) => void) {
+        return (value: T) => {
+            setter(value)
+            setPage(1)
+        }
+    }
 
 
     const statusLabels: Record<TaskStatus, string> = {
@@ -33,17 +44,19 @@ export default function TasksPage() {
     })
 
     const isLoading = isLoadingTasks || isLoadingProjects
+    const lastPage = Math.max(1, Math.ceil(filteredTasks.length / perPage))
+    const pagedTasks = filteredTasks.slice((page - 1) * perPage, page * perPage)
 
     return (
         <div className="p-10 flex flex-col gap-6 w-full bg-zinc-950">
             <div className="flex items-center justify-between w-full">
-                <TaskFilters 
-                    filter={filter} 
-                    setFilter={setFilter} 
-                    search={search} 
-                    setSearch={setSearch}
+                <TaskFilters
+                    filter={filter}
+                    setFilter={resetPage(setFilter)}
+                    search={search}
+                    setSearch={resetPage(setSearch)}
                     showDueToday={showDueToday}
-                    setShowDueToday={setShowDueToday}
+                    setShowDueToday={resetPage(setShowDueToday)}
                 />
 
                 <CreateTaskModal>
@@ -56,17 +69,13 @@ export default function TasksPage() {
             ) : filteredTasks.length === 0 ? (
                 <p className="text-sm text-zinc-500">{t('projects.noTasks')}</p>
             ) : (
-                <div className="w-full text-sm">
-                    <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_100px_130px_100px] gap-4 border-b border-zinc-900 p-3 text-zinc-500 font-medium text-center">
-                        <div className="text-left">{t('tasks.columnTask')}</div>
-                        <div>{t('tasks.columnProject')}</div>
-                        <div>{t('tasks.columnAssigned')}</div>
-                        <div>{t('tasks.columnStatus')}</div>
-                        <div>{t('tasks.columnDue')}</div>
-                    </div>
-                    <div className="flex flex-col">
-                        {filteredTasks.map((task) => (
-                            <TaskCard 
+                <Table>
+                    <TableHeader>
+                        <TaskTableHeadRow />
+                    </TableHeader>
+                    <TableBody>
+                        {pagedTasks.map((task) => (
+                            <TaskCard
                                 key={task.id}
                                 taskId={task.id}
                                 title={task.title}
@@ -77,8 +86,18 @@ export default function TasksPage() {
                                 statusLabel={statusLabels[task.status]}
                             />
                         ))}
-                    </div>
-                </div>
+                    </TableBody>
+                </Table>
+            )}
+
+            {!isLoading && filteredTasks.length > 0 && (
+                <TablePagination
+                    page={page}
+                    lastPage={lastPage}
+                    perPage={perPage}
+                    onPageChange={setPage}
+                    onPerPageChange={setPerPage}
+                />
             )}
         </div>
     )

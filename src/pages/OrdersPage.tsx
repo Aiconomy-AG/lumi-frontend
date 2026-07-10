@@ -5,7 +5,7 @@ import { useOrdersQuery } from '@/features/orders'
 import type { OrderStatus } from '@/types/order'
 import { formatPrice } from '@/lib/currency'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
+import { TablePagination } from '@/components/ui/table-pagination'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -36,6 +36,7 @@ export default function OrdersPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(25)
   const [status, setStatus] = useState<OrderStatus | ''>('')
   const [search, setSearch] = useState('')
   const [from, setFrom] = useState('')
@@ -43,6 +44,7 @@ export default function OrdersPage() {
 
   const filters = {
     page,
+    per_page: perPage,
     status: status || undefined,
     search: search || undefined,
     from: from || undefined,
@@ -151,20 +153,13 @@ export default function OrdersPage() {
       )}
 
       {meta && (
-        <div className="mt-4 flex items-center gap-3">
-          <Button disabled={meta.current_page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-            {t('orders.prev')}
-          </Button>
-          <span className="text-sm text-zinc-500">
-            {t('orders.pageOf', { current: meta.current_page, total: meta.last_page })}
-          </span>
-          <Button
-            disabled={meta.current_page >= meta.last_page}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            {t('orders.next')}
-          </Button>
-        </div>
+        <TablePagination
+          page={meta.current_page}
+          lastPage={meta.last_page}
+          perPage={perPage}
+          onPageChange={setPage}
+          onPerPageChange={setPerPage}
+        />
       )}
     </div>
   )

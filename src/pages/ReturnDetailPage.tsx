@@ -13,6 +13,7 @@ import { formatPrice } from '@/lib/currency'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { TablePagination } from '@/components/ui/table-pagination'
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,8 @@ export default function ReturnDetailPage() {
   const returnId = Number(id)
   const [rejectOpen, setRejectOpen] = useState(false)
   const [rejectNotes, setRejectNotes] = useState('')
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
 
   const { data: returnRequest, isLoading } = useReturnQuery(returnId)
   const approveMutation = useApproveReturnMutation(returnId)
@@ -159,7 +162,7 @@ export default function ReturnDetailPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map((item) => (
+            {items.slice((page - 1) * perPage, page * perPage).map((item) => (
               <TableRow key={item.key}>
                 <TableCell>{item.title}</TableCell>
                 <TableCell>{item.sku}</TableCell>
@@ -169,6 +172,13 @@ export default function ReturnDetailPage() {
             ))}
           </TableBody>
         </Table>
+        <TablePagination
+          page={page}
+          lastPage={Math.max(1, Math.ceil(items.length / perPage))}
+          perPage={perPage}
+          onPageChange={setPage}
+          onPerPageChange={setPerPage}
+        />
       </div>
 
       <div className="mb-8 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">

@@ -347,7 +347,12 @@
     "addTask": "Adaugă task",
     "noTasks": "Niciun task încă",
     "taskTitle": "Titlu",
-    "dueDate": "Scadență"
+    "dueDate": "Scadență",
+    "searchPlaceholder": "Caută proiecte...",
+    "filterStatus": "Filtrează după status",
+    "allStatuses": "Toate statusurile",
+    "from": "De la",
+    "to": "Până la"
   },
   "auditLogs": {
     "pageInfo": "Pagina {{page}} din {{pages}} · {{total}} înregistrări",
@@ -399,5 +404,10 @@
       "time_stop": "Cronometru oprit",
       "conversation_create": "Conversație creată"
     }
+  },
+  "table": {
+    "pageOf": "Pagina {{page}} din {{pages}}",
+    "perPageOption": "{{count}} / pagină",
+    "perPage": "Elemente pe pagină"
   }
 }

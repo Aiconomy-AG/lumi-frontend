@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { useUsersQuery } from '@/features/users'
 import { useTasksQuery } from '@/features/tasks'
 import { useAuth } from '@/features/auth/AuthContext'
-import { TaskCard } from '@/components/ui/task-card'
+import { TaskCard, TaskTableHeadRow } from '@/components/ui/task-card'
+import { Table, TableBody, TableHeader } from '@/components/ui/table'
+import { TablePagination } from '@/components/ui/table-pagination'
 import { useProjectsQuery } from '@/features/projects'
 import type { TaskStatus } from '@/types/task'
 import { TaskFilters } from '@/components/ui/task-filters'
@@ -37,6 +39,15 @@ export default function DashboardPage() {
     const [showDueToday, setShowDueToday] = useState(false)
     const [filter, setFilter] = useState<'All' | TaskStatus>("All")
     const [search, setSearch] = useState("")
+    const [page, setPage] = useState(1)
+    const [perPage, setPerPage] = useState(10)
+
+    function resetPage<T>(setter: (value: T) => void) {
+        return (value: T) => {
+            setter(value)
+            setPage(1)
+        }
+    }
 
     const formattedDate = new Date().toLocaleDateString('en-US', {
         weekday: 'long',
@@ -73,6 +84,8 @@ export default function DashboardPage() {
 
         return !(search && !task.title.toLowerCase().includes(search.toLowerCase()));
     })
+    const lastPage = Math.max(1, Math.ceil(myTasks.length / perPage))
+    const pagedTasks = myTasks.slice((page - 1) * perPage, page * perPage)
 
     return (
         <div className="p-10 flex gap-20 w-full bg-zinc-950 min-h-full">
@@ -91,39 +104,48 @@ export default function DashboardPage() {
                     <div className="mb-4">
                         <TaskFilters
                             filter={filter}
-                            setFilter={setFilter}
+                            setFilter={resetPage(setFilter)}
                             search={search}
-                            setSearch={setSearch}
+                            setSearch={resetPage(setSearch)}
                             showDueToday={showDueToday}
-                            setShowDueToday={setShowDueToday}
+                            setShowDueToday={resetPage(setShowDueToday)}
                         />
                     </div>
 
                     <div className="flex flex-col border-t border-zinc-900 pt-4">
-                        <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_100px_130px_100px] gap-4 border-b border-zinc-900 p-3 text-zinc-500 font-medium text-center">
-                            <div className="text-left">{t('tasks.columnTask')}</div>
-                            <div>{t('tasks.columnProject')}</div>
-                            <div>{t('tasks.columnAssigned')}</div>
-                            <div>{t('tasks.columnStatus')}</div>
-                            <div>{t('tasks.columnDue')}</div>
-                        </div>
                         {isTasksLoading ? (
                             <p className="text-xs text-zinc-500 py-4">{t('dashboard.loading')}</p>
                         ) : myTasks.length === 0 ? (
                             <p className="text-xs text-zinc-500 py-4">No tasks assigned to you today.</p>
                         ) : (
-                            myTasks.slice(0, 5).map(task => (
-                                <TaskCard 
-                                    key={task.id}
-                                    taskId={task.id}
-                                    title={task.title}
-                                    projectName={projectNameFor(task.project_id)}
-                                    assignees={task.assignees || []}
-                                    status={task.status}
-                                    dueDate={task.due_date}
-                                    statusLabel={t(`tasks.status.${task.status}`)}
-                                />
-                            ))
+                            <Table>
+                                <TableHeader>
+                                    <TaskTableHeadRow />
+                                </TableHeader>
+                                <TableBody>
+                                    {pagedTasks.map(task => (
+                                        <TaskCard
+                                            key={task.id}
+                                            taskId={task.id}
+                                            title={task.title}
+                                            projectName={projectNameFor(task.project_id)}
+                                            assignees={task.assignees || []}
+                                            status={task.status}
+                                            dueDate={task.due_date}
+                                            statusLabel={t(`tasks.status.${task.status}`)}
+                                        />
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                        {!isTasksLoading && myTasks.length > 0 && (
+                            <TablePagination
+                                page={page}
+                                lastPage={lastPage}
+                                perPage={perPage}
+                                onPageChange={setPage}
+                                onPerPageChange={setPerPage}
+                            />
                         )}
                     </div>
                 </div>

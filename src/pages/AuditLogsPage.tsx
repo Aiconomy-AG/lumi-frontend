@@ -4,7 +4,7 @@ import { Fragment } from 'react/jsx-runtime'
 import { useAuditLogsQuery } from '@/features/auditLogs'
 import type { AuditLog } from '@/types/auditLog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
+import { TablePagination } from '@/components/ui/table-pagination'
 import { Input } from '@/components/ui/input'
 
 function ChangesDiff({ log }: { log: AuditLog }) {
@@ -33,7 +33,7 @@ function ChangesDiff({ log }: { log: AuditLog }) {
 export default function AuditLogsPage() {
   const { t } = useTranslation()
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(20)
+  const [perPage, setPerPage] = useState(25)
   const [module, setModule] = useState('')
   const [action, setAction] = useState('')
   const [from, setFrom] = useState('')
@@ -144,37 +144,15 @@ export default function AuditLogsPage() {
         </Table>
       )}
 
-      <div className="mt-4 flex items-center gap-2">
-        <Button disabled={!meta || meta.current_page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-          {t('orders.prev')}
-        </Button>
-        <Button
-          disabled={!meta || meta.current_page >= meta.last_page}
-          onClick={() => setPage((p) => p + 1)}
-        >
-          {t('orders.next')}
-        </Button>
-        {meta && (
-          <span className="ml-2 text-xs text-zinc-500">
-            {t('auditLogs.pageInfo', { page: meta.current_page, pages: meta.last_page, total: meta.total ?? 0 })}
-          </span>
-        )}
-        <select
-          value={perPage}
-          onChange={(e) => {
-            setPerPage(Number(e.target.value))
-            setPage(1)
-          }}
-          className="ml-auto h-8 rounded-md border border-zinc-800 bg-zinc-900 px-2 text-xs text-zinc-200 outline-none focus:border-purple-500 cursor-pointer"
-          aria-label={t('auditLogs.perPage')}
-        >
-          {[20, 50, 100].map((size) => (
-            <option key={size} value={size}>
-              {t('auditLogs.perPageOption', { count: size })}
-            </option>
-          ))}
-        </select>
-      </div>
+      {meta && (
+        <TablePagination
+          page={meta.current_page}
+          lastPage={meta.last_page}
+          perPage={perPage}
+          onPageChange={setPage}
+          onPerPageChange={setPerPage}
+        />
+      )}
     </div>
   )
 }

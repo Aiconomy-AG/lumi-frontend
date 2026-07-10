@@ -347,7 +347,12 @@
     "addTask": "Aufgabe hinzufügen",
     "noTasks": "Noch keine Aufgaben",
     "taskTitle": "Titel",
-    "dueDate": "Fällig am"
+    "dueDate": "Fällig am",
+    "searchPlaceholder": "Projekte suchen...",
+    "filterStatus": "Nach Status filtern",
+    "allStatuses": "Alle Status",
+    "from": "Von",
+    "to": "Bis"
   },
   "auditLogs": {
     "pageInfo": "Seite {{page}} von {{pages}} · {{total}} Einträge",
@@ -399,5 +404,10 @@
       "time_stop": "Timer gestoppt",
       "conversation_create": "Unterhaltung erstellt"
     }
+  },
+  "table": {
+    "pageOf": "Seite {{page}} von {{pages}}",
+    "perPageOption": "{{count}} / Seite",
+    "perPage": "Einträge pro Seite"
   }
 }
