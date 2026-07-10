@@ -123,7 +123,8 @@ function sanitizeHtml(value: string): string {
       const attrValue = attribute.value.trim().toLowerCase()
       const isEventHandler = name.startsWith('on')
       const isUnsafeUrl = (name === 'href' || name === 'src') && attrValue.startsWith('javascript:')
-      if (isEventHandler || isUnsafeUrl) {
+      const isStyleAttr = name === 'style' || name === 'color' || name === 'bgcolor' || name === 'class'
+      if (isEventHandler || isUnsafeUrl || isStyleAttr) {
         node.removeAttribute(attribute.name)
       }
     })
@@ -441,7 +442,7 @@ export default function StockPage() {
   function renderStockEditor(product: Product, variant: ProductVariant) {
     if (editingId === variant.id) {
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <Input
             type="number"
             value={editValue}
@@ -455,10 +456,10 @@ export default function StockPage() {
             placeholder={t('stock.reasonPlaceholder')}
             className="h-7 w-36"
           />
-          <Button size="icon-sm" variant="ghost" onClick={() => saveStockEdit(product.id, variant.id)}>
+          <Button size="icon-sm" variant="ghost" onClick={() => saveStockEdit(product.id, variant.id)} className="cursor-pointer">
             <Check className="h-4 w-4" />
           </Button>
-          <Button size="icon-sm" variant="ghost" onClick={() => setEditingId(null)}>
+          <Button size="icon-sm" variant="ghost" onClick={() => setEditingId(null)} className="cursor-pointer">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -467,7 +468,7 @@ export default function StockPage() {
     return (
       <div className="flex items-center gap-2">
         {renderStock(variant.stock_quantity, t)}
-        <Button size="icon-sm" variant="ghost" onClick={() => startStockEdit(variant)}>
+        <Button size="icon-sm" variant="ghost" onClick={(e) => { e.stopPropagation(); startStockEdit(variant); }} className="cursor-pointer">
           <Pencil className="h-3.5 w-3.5" />
         </Button>
       </div>
@@ -823,7 +824,6 @@ export default function StockPage() {
                 const productRow = (
                   <TableRow
                     key={`p-${product.id}`}
-                    className="cursor-pointer"
                     onClick={() => openProductDetails(product.id)}
                   >
                     <TableCell className="font-medium">
@@ -835,6 +835,7 @@ export default function StockPage() {
                             event.stopPropagation()
                             toggleExpanded(product.id)
                           }}
+                          className="cursor-pointer"
                         >
                           {isExpanded
                             ? <ChevronDown className="h-4 w-4" />
@@ -890,6 +891,7 @@ export default function StockPage() {
                           event.stopPropagation()
                           openEditProduct(product)
                         }}
+                        className="cursor-pointer"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -897,7 +899,8 @@ export default function StockPage() {
                         <Button
                           size="icon-sm"
                           variant="ghost"
-                          onClick={() => setPendingDelete({ type: 'product', id: product.id })}
+                          onClick={(e) => { e.stopPropagation(); setPendingDelete({ type: 'product', id: product.id }) }}
+                          className="cursor-pointer"
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
@@ -926,18 +929,22 @@ export default function StockPage() {
                       <TableCell>{renderStockEditor(product, variant)}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{formatPrice(variant.price)}</TableCell>
                       <TableCell className="text-right">
-                        <Button size="icon-sm" variant="ghost" onClick={() => openEditVariant(product, variant)}>
+                        <Button size="icon-sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditVariant(product, variant) }} className="cursor-pointer">
                           <Pencil className="h-4 w-4" />
                         </Button>
                         {isAdmin && (
                           <Button
                             size="icon-sm"
                             variant="ghost"
-                            onClick={() => setPendingDelete({
-                              type: 'variant',
-                              productId: product.id,
-                              variantId: variant.id,
-                            })}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPendingDelete({
+                                type: 'variant',
+                                productId: product.id,
+                                variantId: variant.id,
+                              });
+                            }}
+                            className="cursor-pointer"
                           >
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>

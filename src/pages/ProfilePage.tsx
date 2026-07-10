@@ -58,7 +58,7 @@ export default function ProfilePage() {
             alert("Password updated successfully!")
         },
         onError: (err: any) => {
-            alert(err?.response?.data?.message || "Failed to update password. Check your current password.")
+            alert(err?.response?.data?.message || t('profile.passwordUpdateFailed'))
         }
     })
 
@@ -78,7 +78,7 @@ export default function ProfilePage() {
     const handleSavePassword = (e: React.FormEvent) => {
         e.preventDefault()
         if (newPassword !== confirmPassword) {
-            alert("New passwords do not match!")
+            alert(t('profile.passwordsDoNotMatch'))
             return
         }
         passwordMutation.mutate({
@@ -95,7 +95,7 @@ export default function ProfilePage() {
     const initials = user.name.split(' ').map((w) => w[0]).join('').toUpperCase()
 
     return (
-        <div className="p-10 max-w-[480px] mx-auto w-full">
+        <div className="p-10 max-w-120 mx-auto w-full">
             <Button
                 variant="ghost"
                 size="sm"

@@ -9,6 +9,7 @@ export interface OrderItem {
   product_variant_id: number
   quantity: number
   unit_price: number
+  product_name?: string | null
   variant?: ProductVariant
 }
 

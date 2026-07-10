@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Conversation } from '@/types/chat'
 import type { User, UserStatus } from '@/types/user'
@@ -81,6 +81,12 @@ export default function ChatPage() {
     const sendMutation = useSendMessageMutation(activeId, user?.id)
     const createMutation = useCreateConversationMutation()
 
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView()
+    }, [activeId, messages.length])
+
     async function openConversationWith(person: User) {
         const existing = conversations.find(
             (c) => c.type === 'direct' && c.participants.some((p) => p.id === person.id)
@@ -161,6 +167,7 @@ export default function ChatPage() {
                             </div>
                         )
                     })}
+                    <div ref={messagesEndRef} />
                 </div>
 
                 <div className="border-t border-zinc-800 p-3">
