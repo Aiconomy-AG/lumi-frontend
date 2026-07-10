@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { PaginationFooter } from '@/components/ui/pagination-footer'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
 import type { Project } from '@/types/project'
@@ -19,10 +20,17 @@ export default function ProjectsPage() {
     const { isAdmin } = useAuth()
 
     const [isOpen, setIsOpen] = useState(false)
+    const [page, setPage] = useState(1)
+    const [perPage, setPerPage] = useState(10)
     const [editing, setEditing] = useState<Project | null>(null)
     const [pendingDelete, setPendingDelete] = useState<Project | null>(null)
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
+    const scrollRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        scrollRef.current?.scrollTo(0, 0)
+    }, [page, perPage])
     const [deadline, setDeadline] = useState('')
     const [status, setStatus] = useState<TaskStatus>('to_do')
 
@@ -31,6 +39,11 @@ export default function ProjectsPage() {
     const [saveError, setSaveError] = useState<string | null>(null)
     const saveMutation = useSaveProjectMutation()
     const deleteMutation = useDeleteProjectMutation()
+
+    const total = projects.length
+    const last_page = Math.ceil(total / perPage) || 1
+    const meta = { current_page: page, last_page, total }
+    const paginatedProjects = projects.slice((page - 1) * perPage, page * perPage)
 
     function openAdd() {
         setEditing(null)
@@ -68,7 +81,7 @@ export default function ProjectsPage() {
     }
 
     return (
-        <div className="p-10 bg-zinc-950 min-h-screen">
+        <div className="p-10 bg-zinc-950 h-full flex flex-col overflow-hidden">
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-xl font-bold text-white">{t('projects.title')}</h1>
                 {isAdmin && (
@@ -131,8 +144,9 @@ export default function ProjectsPage() {
             {isLoading ? (
                 <p className="text-zinc-500">{t('projects.loading')}</p>
             ) : (
-                <div className="grid gap-3">
-                    {projects.map((project) => (
+                <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2">
+                    <div className="grid gap-3">
+                    {paginatedProjects.map((project) => (
                         <div
                             key={project.id}
                             onClick={() => navigate(`/projects/${project.id}`)}
@@ -165,7 +179,19 @@ export default function ProjectsPage() {
                         </div>
                     ))}
                     {projects.length === 0 && <p className="text-sm text-zinc-600">{t('projects.empty')}</p>}
+                    </div>
                 </div>
+            )}
+
+            {projects.length > 0 && (
+                <PaginationFooter 
+                    page={page} 
+                    setPage={setPage} 
+                    perPage={perPage} 
+                    setPerPage={setPerPage} 
+                    lastPage={meta.last_page} 
+                    total={meta.total ?? 0} 
+                />
             )}
 
             <ConfirmDeleteDialog

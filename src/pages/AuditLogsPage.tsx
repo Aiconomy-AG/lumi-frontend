@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'
 import { useAuditLogsQuery } from '@/features/auditLogs'
 import type { AuditLog } from '@/types/auditLog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PaginationFooter } from '@/components/ui/pagination-footer'
 
 function ChangesDiff({ log }: { log: AuditLog }) {
   const { t } = useTranslation()
@@ -39,6 +39,11 @@ export default function AuditLogsPage() {
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, 0)
+  }, [page, perPage])
 
   const { data, isLoading } = useAuditLogsQuery({
     page,
@@ -66,7 +71,7 @@ export default function AuditLogsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 h-full flex flex-col overflow-hidden">
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Input
           value={module}
@@ -99,7 +104,8 @@ export default function AuditLogsPage() {
       {isLoading ? (
         <div className="text-sm text-zinc-500">{t('admin.loading')}</div>
       ) : (
-        <Table>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t('auditLogs.date')}</TableHead>
@@ -142,39 +148,17 @@ export default function AuditLogsPage() {
             ))}
           </TableBody>
         </Table>
+        </div>
       )}
 
-      <div className="mt-4 flex items-center gap-2">
-        <Button disabled={!meta || meta.current_page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-          {t('orders.prev')}
-        </Button>
-        <Button
-          disabled={!meta || meta.current_page >= meta.last_page}
-          onClick={() => setPage((p) => p + 1)}
-        >
-          {t('orders.next')}
-        </Button>
-        {meta && (
-          <span className="ml-2 text-xs text-zinc-500">
-            {t('auditLogs.pageInfo', { page: meta.current_page, pages: meta.last_page, total: meta.total ?? 0 })}
-          </span>
-        )}
-        <select
-          value={perPage}
-          onChange={(e) => {
-            setPerPage(Number(e.target.value))
-            setPage(1)
-          }}
-          className="ml-auto h-8 rounded-md border border-zinc-800 bg-zinc-900 px-2 text-xs text-zinc-200 outline-none focus:border-purple-500 cursor-pointer"
-          aria-label={t('auditLogs.perPage')}
-        >
-          {[20, 50, 100].map((size) => (
-            <option key={size} value={size}>
-              {t('auditLogs.perPageOption', { count: size })}
-            </option>
-          ))}
-        </select>
-      </div>
+      <PaginationFooter 
+          page={page} 
+          setPage={setPage} 
+          perPage={perPage} 
+          setPerPage={setPerPage} 
+          lastPage={meta?.last_page ?? 1} 
+          total={meta?.total ?? 0} 
+      />
     </div>
   )
 }

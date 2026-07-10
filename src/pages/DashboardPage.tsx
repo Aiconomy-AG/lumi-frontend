@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUsersQuery } from '@/features/users'
 import { useTasksQuery } from '@/features/tasks'
 import { useAuth } from '@/features/auth/AuthContext'
-import { TaskCard } from '@/components/ui/task-card'
+import { TaskCard, avatarColorFor, initialsOf } from '@/components/ui/task-card'
+import { PaginationFooter } from '@/components/ui/pagination-footer'
 import { useProjectsQuery } from '@/features/projects'
 import type { TaskStatus } from '@/types/task'
 import { TaskFilters } from '@/components/ui/task-filters'
@@ -37,6 +38,13 @@ export default function DashboardPage() {
     const [showDueToday, setShowDueToday] = useState(false)
     const [filter, setFilter] = useState<'All' | TaskStatus>("All")
     const [search, setSearch] = useState("")
+    const [page, setPage] = useState(1)
+    const [perPage, setPerPage] = useState(10)
+    const scrollRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        scrollRef.current?.scrollTo(0, 0)
+    }, [page, perPage])
 
     const formattedDate = new Date().toLocaleDateString('en-US', {
         weekday: 'long',
@@ -74,13 +82,17 @@ export default function DashboardPage() {
         return !(search && !task.title.toLowerCase().includes(search.toLowerCase()));
     })
 
-    return (
-        <div className="p-10 flex gap-20 w-full bg-zinc-950 min-h-full">
-            <div className="flex-[1.8] min-w-0">
-                <p className="text-xs text-zinc-500 mb-2">{formattedDate}</p>
-                <h2 className="text-3xl font-bold text-white mb-8">{t(greetingKey, { name: firstName })}</h2>
+    const totalTasks = myTasks.length
+    const lastPage = Math.ceil(totalTasks / perPage) || 1
+    const paginatedTasks = myTasks.slice((page - 1) * perPage, page * perPage)
 
-                <div className="flex flex-col">
+    return (
+        <div className="p-10 flex gap-20 w-full bg-zinc-950 h-full overflow-hidden">
+            <div className="flex-[1.8] min-w-0 flex flex-col h-full">
+                <p className="text-xs text-zinc-500 mb-2 shrink-0">{formattedDate}</p>
+                <h2 className="text-3xl font-bold text-white mb-8 shrink-0">{t(greetingKey, { name: firstName })}</h2>
+
+                <div className="flex flex-col flex-1 min-h-0">
                     <div className="flex items-center gap-4 mb-4">
                         <h3 className="text-sm font-medium text-white flex items-center gap-3">
                             {t('dashboard.myTasks', 'My Tasks')}
@@ -91,16 +103,16 @@ export default function DashboardPage() {
                     <div className="mb-4">
                         <TaskFilters
                             filter={filter}
-                            setFilter={setFilter}
+                            setFilter={(val) => { setFilter(val); setPage(1); }}
                             search={search}
-                            setSearch={setSearch}
+                            setSearch={(val) => { setSearch(val); setPage(1); }}
                             showDueToday={showDueToday}
-                            setShowDueToday={setShowDueToday}
+                            setShowDueToday={(val) => { setShowDueToday(val); setPage(1); }}
                         />
                     </div>
 
-                    <div className="flex flex-col border-t border-zinc-900 pt-4">
-                        <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_100px_130px_100px] gap-4 border-b border-zinc-900 p-3 text-zinc-500 font-medium text-center">
+                    <div className="flex flex-col border-t border-zinc-900 pt-4 flex-1 min-h-0">
+                        <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_100px_130px_100px] gap-4 border-b border-zinc-900 p-3 text-zinc-500 font-medium text-center shrink-0">
                             <div className="text-left">{t('tasks.columnTask')}</div>
                             <div>{t('tasks.columnProject')}</div>
                             <div>{t('tasks.columnAssigned')}</div>
@@ -112,7 +124,8 @@ export default function DashboardPage() {
                         ) : myTasks.length === 0 ? (
                             <p className="text-xs text-zinc-500 py-4">No tasks assigned to you today.</p>
                         ) : (
-                            myTasks.slice(0, 5).map(task => (
+                            <div ref={scrollRef} className="flex flex-col flex-1 overflow-y-auto pr-2">
+                                {paginatedTasks.map(task => (
                                 <TaskCard 
                                     key={task.id}
                                     taskId={task.id}
@@ -123,13 +136,25 @@ export default function DashboardPage() {
                                     dueDate={task.due_date}
                                     statusLabel={t(`tasks.status.${task.status}`)}
                                 />
-                            ))
+                            ))}
+                            </div>
                         )}
                     </div>
                 </div>
+
+                {myTasks.length > 0 && (
+                    <PaginationFooter 
+                        page={page} 
+                        setPage={setPage} 
+                        perPage={perPage} 
+                        setPerPage={setPerPage} 
+                        lastPage={lastPage} 
+                        total={totalTasks} 
+                    />
+                )}
             </div>
 
-            <div className="hidden xl:block flex-1 max-w-70">
+            <div className="hidden xl:block flex-1 max-w-70 h-full overflow-y-auto pr-2">
                 <h3 className="text-sm font-medium text-zinc-400 mb-5">
                     {t('dashboard.onlineNow')} <span className="text-zinc-500 ml-1">{t('dashboard.peopleCount', { count: onlineUsersCount })}</span>
                 </h3>
@@ -146,8 +171,8 @@ export default function DashboardPage() {
                             : 'bg-zinc-600'
                         return (
                             <li key={user.id} className="flex items-center gap-3">
-                                <div className="relative w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-white">
-                                    {user.name.substring(0, 2).toUpperCase()}
+                                <div className={`relative w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${avatarColorFor(user.id)}`}>
+                                    {initialsOf(user.name)}
                                     <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-zinc-950 ${dotColor}`}></div>
                                 </div>
                                 <div className="flex flex-col">

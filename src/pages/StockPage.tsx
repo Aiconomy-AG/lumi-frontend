@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { PaginationFooter } from '@/components/ui/pagination-footer'
 import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -35,19 +36,18 @@ import {
   Trash2,
   Check,
   X,
-  ChevronLeft,
   ChevronRight,
   ChevronDown,
   CornerDownRight,
   ImageIcon,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useAuth } from '@/features/auth/AuthContext'
 
 
 const emptyProduct = { name: '', description: '', image_url: '', sku: '', categoryId: null as number | null, stock: '', price: '' }
 const STOCK_CURRENCY = import.meta.env.VITE_CURRENCY ?? 'RON'
-const PER_PAGE = 25
+
 
 interface ProductForm {
   id: number
@@ -198,8 +198,14 @@ export default function StockPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [categoryId, setCategoryId] = useState<number | null>(null)
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
   const [imageErrorIds, setImageErrorIds] = useState<Set<number>>(new Set())
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, 0)
+  }, [page, perPage])
 
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [newProduct, setNewProduct] = useState(emptyProduct)
@@ -230,7 +236,7 @@ export default function StockPage() {
     search: debouncedSearch || undefined,
     category_id: categoryId ?? undefined,
     page,
-    per_page: PER_PAGE,
+    per_page: perPage,
   }
 
   const { data: productPage, isLoading } = useProductsQuery(filters)
@@ -476,7 +482,7 @@ export default function StockPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 h-full flex flex-col overflow-hidden">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3 text-sm">
           <span className="text-muted-foreground">{t('stock.productsCount', { count: meta?.total ?? products.length })}</span>
@@ -800,7 +806,7 @@ export default function StockPage() {
       {isLoading ? (
         <p className="text-muted-foreground">{t('admin.loading')}</p>
       ) : (
-        <>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md">
           <Table>
             <TableHeader>
               <TableRow>
@@ -965,31 +971,18 @@ export default function StockPage() {
               })}
             </TableBody>
           </Table>
-          {meta && meta.last_page > 1 && (
-            <div className="mt-4 flex items-center justify-end gap-3 text-sm">
-              <span className="text-muted-foreground">
-                {t('stock.pageOf', { page: meta.current_page, pages: meta.last_page })}
-              </span>
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                disabled={meta.current_page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                disabled={meta.current_page >= meta.last_page}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </>
+        </div>
       )}
+          {meta && (
+            <PaginationFooter 
+                page={page} 
+                setPage={setPage} 
+                perPage={perPage} 
+                setPerPage={setPerPage} 
+                lastPage={meta.last_page} 
+                total={meta.total ?? 0} 
+            />
+          )}
 
       <ConfirmDeleteDialog
         open={pendingDelete !== null}

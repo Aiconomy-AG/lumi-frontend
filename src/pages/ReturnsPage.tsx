@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useReturnsQuery } from '@/features/returns'
 import type { ReturnStatus } from '@/types/return'
 import { formatPrice } from '@/lib/currency'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PaginationFooter } from '@/components/ui/pagination-footer'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,
@@ -42,13 +42,20 @@ export default function ReturnsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
   const [status, setStatus] = useState<ReturnStatus | ''>('')
   const [search, setSearch] = useState('')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, 0)
+  }, [page, perPage])
 
   const filters = {
     page,
+    per_page: perPage,
     status: status || undefined,
     search: search || undefined,
     from: from || undefined,
@@ -68,7 +75,7 @@ export default function ReturnsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 h-full flex flex-col overflow-hidden">
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-white">{t('returns.title')}</h2>
         <p className="text-sm text-zinc-500">{t('returns.subtitle')}</p>
@@ -120,7 +127,8 @@ export default function ReturnsPage() {
           {t('returns.empty')}
         </div>
       ) : (
-        <Table>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t('returns.id')}</TableHead>
@@ -154,23 +162,18 @@ export default function ReturnsPage() {
             ))}
           </TableBody>
         </Table>
+        </div>
       )}
 
       {meta && (
-        <div className="mt-4 flex items-center gap-3">
-          <Button disabled={meta.current_page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-            {t('returns.prev')}
-          </Button>
-          <span className="text-sm text-zinc-500">
-            {t('returns.pageOf', { current: meta.current_page, total: meta.last_page })}
-          </span>
-          <Button
-            disabled={meta.current_page >= meta.last_page}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            {t('returns.next')}
-          </Button>
-        </div>
+        <PaginationFooter 
+            page={page} 
+            setPage={setPage} 
+            perPage={perPage} 
+            setPerPage={setPerPage} 
+            lastPage={meta.last_page} 
+            total={meta.total ?? 0} 
+        />
       )}
     </div>
   )

@@ -6,6 +6,7 @@ import { useTimeEntriesQuery } from '@/features/timeTracking'
 import { useTasksQuery, useUpdateTaskMutation, useAssignTaskMutation, useUnassignTaskMutation, useCreateTaskMutation } from '@/features/tasks'
 import { useProjectsQuery } from '@/features/projects'
 import { useUsersQuery } from '@/features/users'
+import { avatarColorFor, initialsOf } from '@/components/ui/task-card'
 import { useAuth } from '@/features/auth/AuthContext'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import type { TaskStatus } from '@/types/task'
@@ -44,6 +45,9 @@ export default function TaskDetailPage() {
 
     const [isAssignOpen, setIsAssignOpen] = useState(false)
     const [userSearch, setUserSearch] = useState("")
+    const [subtaskSearch, setSubtaskSearch] = useState('')
+    const [timeEntrySearch, setTimeEntrySearch] = useState('')
+
     const [expandedUsers, setExpandedUsers] = useState<number[]>([])
 
     const [isAddSubtaskOpen, setIsAddSubtaskOpen] = useState(false)
@@ -194,29 +198,33 @@ export default function TaskDetailPage() {
                             <button 
                                 onClick={() => handleStatusChange('to_do')}
                                 disabled={updateTaskMutation.isPending}
-                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'to_do' ? 'bg-purple-600 text-white font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                className={`px-4 py-1.5 text-xs rounded-full cursor-pointer transition-colors disabled:opacity-50 flex items-center gap-2 border ${task.status === 'to_do' ? 'bg-zinc-500/20 border-zinc-500/50 text-zinc-300 font-medium' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300'}`}
                             >
+                                <span className={`w-1.5 h-1.5 rounded-full ${task.status === 'to_do' ? 'bg-zinc-400' : 'bg-zinc-600'}`}></span>
                                 {t('tasks.status.to_do')}
                             </button>
                             <button 
                                 onClick={() => handleStatusChange('in_progress')}
                                 disabled={updateTaskMutation.isPending}
-                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'in_progress' ? 'bg-purple-600 text-white font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                className={`px-4 py-1.5 text-xs rounded-full cursor-pointer transition-colors disabled:opacity-50 flex items-center gap-2 border ${task.status === 'in_progress' ? 'bg-amber-500/20 border-amber-500/50 text-amber-500 font-medium' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300'}`}
                             >
+                                <span className={`w-1.5 h-1.5 rounded-full ${task.status === 'in_progress' ? 'bg-amber-500' : 'bg-zinc-600'}`}></span>
                                 {t('tasks.status.in_progress')}
                             </button>
                             <button 
                                 onClick={() => handleStatusChange('blocked')}
                                 disabled={updateTaskMutation.isPending}
-                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'blocked' ? 'bg-purple-600 text-white font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                className={`px-4 py-1.5 text-xs rounded-full cursor-pointer transition-colors disabled:opacity-50 flex items-center gap-2 border ${task.status === 'blocked' ? 'bg-rose-500/20 border-rose-500/50 text-rose-500 font-medium' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300'}`}
                             >
+                                <span className={`w-1.5 h-1.5 rounded-full ${task.status === 'blocked' ? 'bg-rose-500' : 'bg-zinc-600'}`}></span>
                                 {t('tasks.status.blocked')}
                             </button>
                             <button 
                                 onClick={() => handleStatusChange('complete')}
                                 disabled={updateTaskMutation.isPending}
-                                className={`px-4 py-1.5 text-xs rounded-md cursor-pointer transition-colors disabled:opacity-50 ${task.status === 'complete' ? 'bg-purple-600 text-white font-medium' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                className={`px-4 py-1.5 text-xs rounded-full cursor-pointer transition-colors disabled:opacity-50 flex items-center gap-2 border ${task.status === 'complete' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-500 font-medium' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300'}`}
                             >
+                                <span className={`w-1.5 h-1.5 rounded-full ${task.status === 'complete' ? 'bg-emerald-500' : 'bg-zinc-600'}`}></span>
                                 {t('tasks.status.complete')}
                             </button>
                         </div>
@@ -255,22 +263,18 @@ export default function TaskDetailPage() {
                 <div className="mb-8 relative group">
                     <div className="flex items-center justify-between mb-2">
                         <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t('taskDetail.description')}</h4>
-                        {!isEditingDesc && (
-                            <button
-                                onClick={() => setIsEditingDesc(true)}
-                                className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded hover:text-zinc-200 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-none"
-                            >
-                                Edit
-                            </button>
-                        )}
                     </div>
                     {isEditingDesc ? (
                         <div className="flex flex-col gap-2">
                             <textarea
                                 autoFocus
+                                onFocus={(e) => {
+                                    const val = e.target.value;
+                                    e.target.setSelectionRange(val.length, val.length);
+                                }}
                                 value={editDesc}
                                 onChange={e => setEditDesc(e.target.value)}
-                                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-sm text-zinc-200 outline-none resize-y min-h-25"
+                                className="w-full bg-zinc-900 border border-zinc-700  rounded-lg p-3 text-sm text-zinc-200 outline-none resize-none h-48 overflow-y-auto"
                             />
                             <div className="flex justify-end gap-2">
                                 <button onClick={() => { setIsEditingDesc(false); setEditDesc(task.description || "") }} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 cursor-pointer border-none bg-transparent">{t('taskDetail.cancel')}</button>
@@ -279,10 +283,10 @@ export default function TaskDetailPage() {
                         </div>
                     ) : (
                         <p
-                            className="text-sm text-zinc-300 leading-relaxed m-0 whitespace-pre-wrap cursor-text hover:bg-zinc-900/50 p-2 -mx-2 rounded transition-colors"
+                            className="text-sm text-zinc-300 leading-relaxed m-0 whitespace-pre-wrap cursor-text bg-zinc-900/30 hover:bg-zinc-900/50 p-3 rounded-lg transition-colors h-48 overflow-y-auto border border-transparent hover:border-zinc-800"
                             onClick={() => setIsEditingDesc(true)}
                         >
-                            {task.description || <span className="text-zinc-600 italic">{t('taskDetail.emptyDescription')}</span>}
+                            {task.description || <span className="text-zinc-500 italic">{t('taskDetail.emptyDescription')}</span>}
                         </p>
                     )}
                 </div>
@@ -293,8 +297,8 @@ export default function TaskDetailPage() {
                     <div className="flex items-center gap-3 flex-wrap">
                         {task.assignees?.map(user => (
                             <div key={user.id} className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300">
-                                <span className="text-[10px] font-bold bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded">
-                                    {user.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+                                <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-bold text-white ${avatarColorFor(user.id)}`}>
+                                    {initialsOf(user.name)}
                                 </span>
                                 {user.name}
                                 <button
@@ -343,8 +347,8 @@ export default function TaskDetailPage() {
                                                 onClick={() => handleToggleAssignee(u.id)}
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400">
-                                                        {u.name.substring(0, 2).toUpperCase()}
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${avatarColorFor(u.id)}`}>
+                                                        {initialsOf(u.name)}
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span className="text-sm font-medium">{u.name}</span>
@@ -420,46 +424,68 @@ export default function TaskDetailPage() {
                         </div>
                         
                         {isSubtasksExpanded && (
-                            <div className="flex flex-col gap-2">
-                                {subtasks.length === 0 ? (
-                                    <div className="bg-zinc-900/50 border border-zinc-800/50 border-dashed rounded-xl p-6 text-sm text-zinc-500 italic text-center">
-                                        No subtasks yet.
-                                    </div>
-                                ) : (
-                                    subtasks.map(subtask => (
-                                        <div 
-                                            key={subtask.id} 
-                                            onClick={() => navigate(`/tasks/${subtask.id}`)}
-                                            className="flex items-center justify-between bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl cursor-pointer transition-colors group"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-2 h-2 rounded-full ${
-                                                    subtask.status === 'to_do' ? 'bg-zinc-500' :
-                                                    subtask.status === 'in_progress' ? 'bg-amber-500' :
-                                                    subtask.status === 'blocked' ? 'bg-rose-500' :
-                                                    'bg-emerald-500'
-                                                }`} />
-                                                <span className="text-sm font-medium text-zinc-200 group-hover:text-white transition-colors">{subtask.title}</span>
-                                            </div>
-                                            <span className="text-xs text-zinc-500 uppercase tracking-wider bg-zinc-950 px-2 py-1 rounded">
-                                                {t(`tasks.status.${subtask.status}`)}
-                                            </span>
+                            <div className="flex flex-col gap-2 mt-2">
+                                <input
+                                    type="text"
+                                    placeholder={t('admin.searchPlaceholder')}
+                                    value={subtaskSearch}
+                                    onChange={(e) => setSubtaskSearch(e.target.value)}
+                                    className="bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 rounded-lg px-3 py-2 outline-none focus:border-purple-500 transition-colors"
+                                />
+                                <div className="flex flex-col gap-2 h-28 overflow-y-auto pr-2">
+                                    {subtasks.filter(st => st.title.toLowerCase().includes(subtaskSearch.toLowerCase())).length === 0 ? (
+                                        <div className="bg-zinc-900/50 border border-zinc-800/50 border-dashed rounded-xl p-6 text-sm text-zinc-500 italic text-center">
+                                            No subtasks yet.
                                         </div>
-                                    ))
-                                )}
+                                    ) : (
+                                        subtasks.filter(st => st.title.toLowerCase().includes(subtaskSearch.toLowerCase())).map(subtask => (
+                                            <div 
+                                                key={subtask.id} 
+                                                onClick={() => navigate(`/tasks/${subtask.id}`)}
+                                                className="flex items-center justify-between bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl cursor-pointer transition-colors group shrink-0"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-2 h-2 rounded-full ${
+                                                        subtask.status === 'to_do' ? 'bg-zinc-500' :
+                                                        subtask.status === 'in_progress' ? 'bg-amber-500' :
+                                                        subtask.status === 'blocked' ? 'bg-rose-500' :
+                                                        'bg-emerald-500'
+                                                    }`} />
+                                                    <span className="text-sm font-medium text-zinc-200 group-hover:text-white transition-colors">{subtask.title}</span>
+                                                </div>
+                                                <span className="text-xs text-zinc-500 uppercase tracking-wider bg-zinc-950 px-2 py-1 rounded">
+                                                    {t(`tasks.status.${subtask.status}`)}
+                                                </span>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>
                 )}
 
 
-                <div className="mb-8">
-                    <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">{t('taskDetail.timeEntries')}</h4>
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl flex flex-col overflow-hidden">
-                        {userGroups.length === 0 ? (
+                <div className="mb-8 flex flex-col gap-2">
+                    <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">{t('taskDetail.timeEntries')}</h4>
+                    <input
+                        type="text"
+                        placeholder={t('admin.searchPlaceholder')}
+                        value={timeEntrySearch}
+                        onChange={(e) => setTimeEntrySearch(e.target.value)}
+                        className="bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 rounded-lg px-3 py-2 outline-none focus:border-purple-500 transition-colors"
+                    />
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl flex flex-col h-48 overflow-y-auto">
+                        {userGroups.filter(group => {
+                            const user = users.find(u => u.id === group.employee_id)
+                            return user?.name.toLowerCase().includes(timeEntrySearch.toLowerCase())
+                        }).length === 0 ? (
                             <div className="p-6 text-sm text-zinc-500 italic text-center">{t('taskDetail.noTimeLogged')}</div>
                         ) : (
-                            userGroups.map((group) => {
+                            userGroups.filter(group => {
+                                const user = users.find(u => u.id === group.employee_id)
+                                return user?.name.toLowerCase().includes(timeEntrySearch.toLowerCase())
+                            }).map((group) => {
                                 const user = users.find(u => u.id === group.employee_id)
                                 const isExpanded = expandedUsers.includes(group.employee_id)
 
@@ -472,8 +498,8 @@ export default function TaskDetailPage() {
                                             )}
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400">
-                                                    {user ? user.name.substring(0, 2).toUpperCase() : '?'}
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${user ? avatarColorFor(user.id) : 'bg-zinc-800'}`}>
+                                                    {user ? initialsOf(user.name) : '?'}
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-medium text-zinc-200">{user?.name || 'Unknown User'}</span>
