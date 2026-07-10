@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Conversation } from '@/types/chat'
-import type { User } from '@/types/user'
+import type { User, UserStatus } from '@/types/user'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,6 +32,13 @@ function avatarColorFor(id: number) {
     return avatarColors[id % avatarColors.length]
 }
 
+const statusDotColors: Record<UserStatus, string> = {
+    available: 'bg-green-500',
+    busy: 'bg-red-500',
+    away: 'bg-amber-400',
+    offline: 'bg-zinc-500',
+}
+
 export default function ChatPage() {
     const { user } = useAuth();
 
@@ -42,7 +49,26 @@ export default function ChatPage() {
     const { data: conversations = [] } = useConversationsQuery()
     const { data: users = [] } = useUsersQuery()
 
-    const people = users.filter((u) => u.is_active && u.id !== user?.id)
+    const lastTalkedByUserId = new Map<number, string>()
+    for (const conversation of conversations) {
+        if (conversation.type !== 'direct' || !conversation.last_message_at) continue
+        const other = otherParticipant(conversation, user?.id)
+        const current = lastTalkedByUserId.get(other.id)
+        if (!current || conversation.last_message_at > current) {
+            lastTalkedByUserId.set(other.id, conversation.last_message_at)
+        }
+    }
+
+    const people = users
+        .filter((u) => u.is_active && u.id !== user?.id)
+        .sort((a, b) => {
+            const lastA = lastTalkedByUserId.get(a.id)
+            const lastB = lastTalkedByUserId.get(b.id)
+            if (lastA && lastB) return lastB.localeCompare(lastA)
+            if (lastA) return -1
+            if (lastB) return 1
+            return a.name.localeCompare(b.name)
+        })
 
     const activeId = selectedId ?? conversations[0]?.id ?? null
 
@@ -94,9 +120,8 @@ export default function ChatPage() {
                             >
                                 <div className={`relative flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold text-white ${avatarColorFor(person.id)}`}>
                                     {person.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-                                    {person.status === 'available' && (
-                                        <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-zinc-950 bg-green-500" />
-                                    )}
+                                    <span className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-zinc-950 ${statusDotColors[person.status]}`} />
+
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-zinc-100">{person.name}</p>

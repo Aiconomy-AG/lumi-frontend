@@ -6,6 +6,7 @@ export interface Conversation {
     name?: string
     created_by: number
     participants: User[]
+    last_message_at?: string | null
 }
 
 export interface Message {
