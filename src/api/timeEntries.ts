@@ -5,6 +5,10 @@ export async function getTimeEntries(taskId: number): Promise<TaskTimeEntry[]> {
   return requestData<TaskTimeEntry[]>(`/workspace/tasks/${taskId}/time-entries`)
 }
 
+export async function getActiveTimeEntry(): Promise<TaskTimeEntry | null> {
+  return requestData<TaskTimeEntry | null>(`/workspace/me/active-time-entry`)
+}
+
 export async function startTimeEntry(taskId: number): Promise<TaskTimeEntry> {
   return requestData<TaskTimeEntry>(`/workspace/tasks/${taskId}/time-entries/start`, {
     method: 'POST',
