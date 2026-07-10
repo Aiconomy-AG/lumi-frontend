@@ -90,7 +90,7 @@ export default function OrderDetailPage() {
           <TableBody>
             {order.items.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{item.variant?.name ?? t('orders.unknownProduct')}</TableCell>
+                <TableCell>{item.product_name ?? item.variant?.name ?? t('orders.unknownProduct')}</TableCell>
                 <TableCell>{item.variant?.sku ?? '-'}</TableCell>
                 <TableCell>{item.quantity}</TableCell>
                 <TableCell className="text-right">{formatPrice(item.unit_price)}</TableCell>

@@ -1,5 +1,8 @@
-export function formatPrice(value: number, currency = 'GBP'): string {
-  return new Intl.NumberFormat('en-GB', {
+// Store currency (Shopify shop currency is USD). Override with VITE_CURRENCY.
+const DEFAULT_CURRENCY = import.meta.env.VITE_CURRENCY ?? 'USD'
+
+export function formatPrice(value: number, currency = DEFAULT_CURRENCY): string {
+  return new Intl.NumberFormat(undefined, {
     style: 'currency',
     currency,
   }).format(value)
