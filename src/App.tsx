@@ -12,8 +12,12 @@ import AppLayout from "@/components/AppLayout"
 import { TimeTrackingProvider } from "@/hooks/useTimeTracking"
 import ProtectedRoute from '@/features/auth/ProtectedRoute'
 import RequireAdmin from '@/features/auth/RequireAdmin'
+import RequireStaff from '@/features/auth/RequireStaff'
 import { useAuth } from '@/features/auth/AuthContext'
 import OrdersPage from '@/pages/OrdersPage'
+import OrderDetailPage from '@/pages/OrderDetailPage'
+import ReturnsPage from '@/pages/ReturnsPage'
+import ReturnDetailPage from '@/pages/ReturnDetailPage'
 import ProjectsPage from "./pages/ProjectsPage"
 import ProjectDetailPage from "./pages/ProjectDetailPage"
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
@@ -36,9 +40,14 @@ export default function App() {
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/projects/:id" element={<ProjectDetailPage />} />
                     <Route path="/stock" element={<StockPage />} />
-                    <Route path="/orders" element={<OrdersPage />} />
                     <Route path="/chat" element={<ChatPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route element={<RequireStaff />}>
+                        <Route path="/orders" element={<OrdersPage />} />
+                        <Route path="/orders/:id" element={<OrderDetailPage />} />
+                        <Route path="/returns" element={<ReturnsPage />} />
+                        <Route path="/returns/:id" element={<ReturnDetailPage />} />
+                    </Route>
                     <Route element={<RequireAdmin />}>
                         <Route path="/admin" element={<AdminPage />} />
                         <Route path="/admin/audit-logs" element={<AuditLogsPage />} />

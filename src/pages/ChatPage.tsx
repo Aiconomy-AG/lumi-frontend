@@ -104,7 +104,7 @@ export default function ChatPage() {
     }
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-full">
             <div className="w-72 border-r p-3">
                 <Input placeholder={t('chat.searchPlaceholder')} className="mb-3" />
                 <div className="space-y-1">
