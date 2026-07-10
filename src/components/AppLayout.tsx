@@ -7,6 +7,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useTimeTracking } from "@/hooks/useTimeTracking"
 import { useDailyTotalTimeQuery } from "@/features/timeTracking"
 import { useAuth } from "@/features/auth/AuthContext"
+import { RealtimeNotificationPopup } from "@/features/notifications"
 
 function formatTime(totalSeconds: number) {
     const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0')
@@ -101,6 +102,8 @@ export default function AppLayout() {
                     </main>
 
                 </SidebarInset>
+
+                <RealtimeNotificationPopup />
             </div>
         </SidebarProvider>
     )
