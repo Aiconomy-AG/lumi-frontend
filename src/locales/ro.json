@@ -186,6 +186,8 @@
     "membersCount": "{{count}} membri",
     "groupBadge": "Grup",
     "you": "Tu",
+    "aiBadge": "AI",
+    "aiMentionHint": "Menționează @lumi sau @ai pentru a întreba asistentul",
     "noConversationSelected": "Selectează o conversație pentru a trimite mesaje",
     "noMessages": "Niciun mesaj încă — spune salut",
     "noPeople": "Niciun coleg disponibil",

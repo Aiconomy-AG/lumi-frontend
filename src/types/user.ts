@@ -18,6 +18,7 @@ export interface User {
   language_flag?: string
   is_active: boolean
   must_change_password?: boolean
+  is_bot?: boolean
 }
 
 export interface LoginCredentials {

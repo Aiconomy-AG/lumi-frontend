@@ -186,6 +186,8 @@
     "membersCount": "{{count}} members",
     "groupBadge": "Group",
     "you": "You",
+    "aiBadge": "AI",
+    "aiMentionHint": "Mention @lumi or @ai to ask the assistant",
     "noConversationSelected": "Select a conversation to start messaging",
     "noMessages": "No messages yet — say hello",
     "noPeople": "No teammates available",

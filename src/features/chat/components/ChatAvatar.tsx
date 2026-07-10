@@ -1,9 +1,9 @@
-import { Users } from 'lucide-react'
+import { Bot, Users } from 'lucide-react'
 import type { User } from '@/types/user'
 import { avatarColorFor, initialsFor, statusDotColors } from '../utils'
 
 interface AvatarProps {
-    user?: Pick<User, 'id' | 'name' | 'status'> | Pick<User, 'id' | 'name'> | null
+    user?: (Pick<User, 'id' | 'name' | 'status'> | Pick<User, 'id' | 'name'>) & { is_bot?: boolean } | null
     label?: string
     showStatus?: boolean
     className?: string
@@ -12,6 +12,17 @@ interface AvatarProps {
 export function ChatAvatar({ user, label, showStatus = false, className = 'h-9 w-9' }: AvatarProps) {
     const displayName = user?.name ?? label ?? '?'
     const colorId = user?.id ?? displayName.length
+    const isBot = user?.is_bot === true
+
+    if (isBot) {
+        return (
+            <div
+                className={`relative flex shrink-0 items-center justify-center rounded-full border border-cyan-500/40 bg-cyan-500/20 text-cyan-300 ${className}`}
+            >
+                <Bot className="h-4 w-4" />
+            </div>
+        )
+    }
 
     return (
         <div

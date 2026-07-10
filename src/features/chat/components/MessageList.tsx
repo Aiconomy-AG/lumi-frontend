@@ -78,8 +78,9 @@ export function MessageList({
 
     if (messages.length === 0) {
         return (
-            <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-zinc-500">
-                {t('chat.noMessages')}
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center text-sm text-zinc-500">
+                <p>{t('chat.noMessages')}</p>
+                <p className="text-xs text-zinc-600">{t('chat.aiMentionHint')}</p>
             </div>
         )
     }

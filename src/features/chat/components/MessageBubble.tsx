@@ -34,12 +34,13 @@ export function MessageBubble({
     showSenderName = false,
     showAvatar = false,
 }: MessageBubbleProps) {
-    const { i18n } = useTranslation()
+    const { i18n, t } = useTranslation()
+    const isBot = sender?.is_bot === true
 
     return (
         <div className={`flex gap-2 ${fromMe ? 'justify-end' : 'justify-start'}`}>
-            {!fromMe && isGroup ? (
-                showAvatar ? (
+            {!fromMe && (isGroup || isBot) ? (
+                showAvatar || isBot ? (
                     <ChatAvatar user={sender} className="mt-5 h-7 w-7" />
                 ) : (
                     <div className="w-7 shrink-0" />
@@ -47,18 +48,29 @@ export function MessageBubble({
             ) : null}
 
             <div className={`max-w-[min(20rem,85%)] ${fromMe ? 'items-end' : 'items-start'} flex flex-col`}>
-                {showSenderName && sender && !fromMe && (
-                    <span className={`mb-1 px-1 text-xs font-semibold ${senderTextColorFor(sender.id)}`}>
+                {(showSenderName || isBot) && sender && !fromMe && (
+                    <span
+                        className={`mb-1 flex items-center gap-1.5 px-1 text-xs font-semibold ${
+                            isBot ? 'text-cyan-400' : senderTextColorFor(sender.id)
+                        }`}
+                    >
                         {sender.name}
+                        {isBot && (
+                            <span className="rounded-full bg-cyan-500/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-cyan-300">
+                                {t('chat.aiBadge')}
+                            </span>
+                        )}
                     </span>
                 )}
                 <div
                     className={`rounded-2xl px-3 py-2 text-sm ${
                         fromMe
                             ? 'rounded-br-md bg-purple-500 text-white'
-                            : isGroup
-                              ? 'rounded-bl-md border border-zinc-700/80 bg-zinc-800/90 text-zinc-100'
-                              : 'rounded-bl-md bg-zinc-800 text-zinc-100'
+                            : isBot
+                              ? 'rounded-bl-md border border-cyan-500/30 bg-cyan-500/10 text-zinc-100'
+                              : isGroup
+                                ? 'rounded-bl-md border border-zinc-700/80 bg-zinc-800/90 text-zinc-100'
+                                : 'rounded-bl-md bg-zinc-800 text-zinc-100'
                     }`}
                 >
                     <p className="whitespace-pre-wrap break-words">{message.message}</p>
