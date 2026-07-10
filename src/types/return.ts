@@ -18,6 +18,7 @@ export interface ReturnItem {
     product_variant_id: number
     quantity: number
     unit_price: number
+    product_name?: string | null
     variant?: {
       id: number
       sku: string

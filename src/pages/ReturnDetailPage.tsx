@@ -76,7 +76,7 @@ export default function ReturnDetailPage() {
     returnRequest.return_items && returnRequest.return_items.length > 0
       ? returnRequest.return_items.map((item) => ({
           key: String(item.id),
-          title: item.order_item?.variant?.name ?? t('returns.unknownProduct'),
+          title: item.order_item?.product_name ?? item.order_item?.variant?.name ?? t('returns.unknownProduct'),
           sku: item.order_item?.variant?.sku ?? '-',
           quantity: item.quantity,
           unitPrice: item.order_item?.unit_price ?? 0,
