@@ -44,6 +44,8 @@ export function initialsOf(name: string) {
     return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
 }
 
+import { TableRow, TableCell } from '@/components/ui/table'
+
 export function TaskCard({
     taskId,
     title,
@@ -53,59 +55,58 @@ export function TaskCard({
     dueDate,
     statusLabel,
     className,
-    onClick,
-    ...props
+    onClick
 }: TaskCardProps) {
     const navigate = useNavigate()
 
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (onClick) onClick(e)
+    const handleClick = (e: React.MouseEvent<HTMLTableRowElement>) => {
+        if (onClick) onClick(e as any)
         if (taskId) navigate(`/tasks/${taskId}`)
     }
 
     return (
-        <div
+        <TableRow
             onClick={handleClick}
-            className={cn(
-                "grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_100px_130px_100px] items-center gap-4 p-3 cursor-pointer transition-colors border-b border-zinc-900 hover:bg-zinc-900/30 text-sm",
-                className
-            )}
-            {...props}
+            className={cn("cursor-pointer text-sm", className)}
         >
-            <div className="min-w-0 flex items-center justify-start gap-3 text-zinc-200 font-medium text-left">
-                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusDotClass[status])}></span>
-                <span className={cn("truncate min-w-0", status === "complete" && "line-through text-zinc-500")} title={title}>{title}</span>
-            </div>
+            <TableCell>
+                <div className="flex items-center gap-3 text-zinc-200 font-medium">
+                    <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusDotClass[status])}></span>
+                    <span className={cn("truncate", status === "complete" && "line-through text-zinc-500")} title={title}>{title}</span>
+                </div>
+            </TableCell>
 
-            <div className="min-w-0 text-zinc-300 truncate text-center">
+            <TableCell className="text-zinc-300 text-center">
                 {projectName}
-            </div>
+            </TableCell>
 
-            <div className="flex items-center justify-center">
-                {assignees.map((user) => (
-                    <span
-                        key={user.id}
-                        title={user.name}
-                        className={cn(
-                            "flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-semibold text-white ring-2 ring-zinc-950 -ml-2 first:ml-0",
-                            avatarColorFor(user.id)
-                        )}
-                    >
-                        {initialsOf(user.name)}
-                    </span>
-                ))}
-            </div>
+            <TableCell>
+                <div className="flex items-center justify-center">
+                    {assignees.map((user) => (
+                        <span
+                            key={user.id}
+                            title={user.name}
+                            className={cn(
+                                "flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-semibold text-white ring-2 ring-zinc-950 -ml-2 first:ml-0",
+                                avatarColorFor(user.id)
+                            )}
+                        >
+                            {initialsOf(user.name)}
+                        </span>
+                    ))}
+                </div>
+            </TableCell>
 
-            <div className="flex justify-center">
+            <TableCell className="text-center">
                 <span className={cn("inline-flex items-center justify-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium", statusBadgeClass[status])}>
                     <span className={cn("w-1.5 h-1.5 rounded-full", statusDotClass[status])}></span>
                     {statusLabel}
                 </span>
-            </div>
+            </TableCell>
 
-            <div className="text-zinc-400 whitespace-nowrap text-center">
+            <TableCell className="text-zinc-400 text-center">
                 {dueDate?.slice(0, 10)}
-            </div>
-        </div>
+            </TableCell>
+        </TableRow>
     )
 }

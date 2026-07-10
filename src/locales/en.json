@@ -63,7 +63,7 @@
     "title": "Tasks",
     "filterAll": "All",
     "searchPlaceholder": "Search tasks...",
-    "addButton": "+ Add task",
+    "addButton": "Add task",
     "newTaskTitle": "New task",
     "fieldTitle": "Title",
     "fieldTitlePlaceholder": "Describe the task..",
@@ -358,6 +358,7 @@
   },
   "projects": {
     "title": "Projects",
+    "searchPlaceholder": "Search projects...",
     "addButton": "Add project",
     "newTitle": "New project",
     "editTitle": "Edit project",

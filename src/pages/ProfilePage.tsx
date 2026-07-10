@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { avatarColorFor } from "@/components/ui/task-card"
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -106,7 +107,7 @@ export default function ProfilePage() {
             </Button>
 
             <div className="flex items-center gap-4 mb-8">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-purple-400 text-lg font-bold text-black select-none">
+                <div className={`flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold text-white select-none ${user ? avatarColorFor(user.id) : 'bg-purple-400'}`}>
                     {initials}
                 </div>
                 <div>

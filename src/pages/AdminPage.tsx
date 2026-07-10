@@ -9,7 +9,8 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
 import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
-import { useState } from 'react'
+import { PaginationFooter } from '@/components/ui/pagination-footer'
+import { useState, useRef, useEffect } from 'react'
 import type { User } from '@/types/user'
 import { useAuth } from '@/features/auth/AuthContext'
 import {
@@ -27,6 +28,14 @@ export default function AdminPage() {
     const [search, setSearch] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [pendingDelete, setPendingDelete] = useState<User | null>(null)
+    
+    const [page, setPage] = useState(1)
+    const [perPage, setPerPage] = useState(10)
+    const scrollRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        scrollRef.current?.scrollTo(0, 0)
+    }, [page, perPage])
 
     const [email, setEmail] = useState('')
     const [role, setRole] = useState<User['role']>('employee')
@@ -40,6 +49,11 @@ export default function AdminPage() {
     const filtered = users.filter((u) =>
         u.name.toLowerCase().includes(search.toLowerCase())
     )
+
+    const total = filtered.length
+    const last_page = Math.ceil(total / perPage) || 1
+    const meta = { current_page: page, last_page, total }
+    const paginatedUsers = filtered.slice((page - 1) * perPage, page * perPage)
 
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
@@ -79,14 +93,16 @@ export default function AdminPage() {
     }
 
     return (
-        <div className="p-6">
+        <div className="p-6 h-full flex flex-col overflow-hidden ">
             <div className="mb-4 flex items-center justify-between gap-4">
-                <p className="text-sm text-muted-foreground">{t('admin.usersCount', { count: users.length })}</p>
                 <div className="flex items-center gap-2">
                     <Input
                         placeholder={t('admin.searchPlaceholder')}
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => {
+                            setSearch(e.target.value)
+                            setPage(1)
+                        }}
                         className="max-w-xs"
                     />
                     {isAdmin && (
@@ -94,7 +110,7 @@ export default function AdminPage() {
                             <DialogTrigger
                                 render={<Button className="shrink-0">{t('admin.addButton')}</Button>}
                             />
-                            <DialogContent className="max-w-[440px]">
+                            <DialogContent className="max-w-110">
                                 <DialogHeader>
                                     <DialogTitle>{t('admin.newUserTitle')}</DialogTitle>
                                 </DialogHeader>
@@ -139,7 +155,8 @@ export default function AdminPage() {
             {isLoading ? (
                 <p className="text-muted-foreground">{t('admin.loading')}</p>
             ) : (
-                <Table>
+                <div ref={scrollRef} className="flex-1 bg-zinc-900 overflow-y-auto min-h-0 pr-2 border rounded-md ">
+                    <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>{t('admin.columnUser')}</TableHead>
@@ -151,7 +168,7 @@ export default function AdminPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filtered.map((user) => (
+                        {paginatedUsers.map((user) => (
                             <TableRow key={user.id}>
                                 <TableCell className="font-medium">{user.name}</TableCell>
                                 <TableCell className="text-muted-foreground">{user.email}</TableCell>
@@ -207,6 +224,18 @@ export default function AdminPage() {
                         ))}
                     </TableBody>
                 </Table>
+                </div>
+            )}
+
+            {filtered.length > 0 && (
+                <PaginationFooter 
+                    page={page} 
+                    setPage={setPage} 
+                    perPage={perPage} 
+                    setPerPage={setPerPage} 
+                    lastPage={meta.last_page} 
+                    total={meta.total} 
+                />
             )}
 
             <ConfirmDeleteDialog

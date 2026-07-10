@@ -7,6 +7,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useTimeTracking } from "@/hooks/useTimeTracking"
 import { useDailyTotalTimeQuery } from "@/features/timeTracking"
 import { useAuth } from "@/features/auth/AuthContext"
+import { avatarColorFor } from "@/components/ui/task-card"
 import {
     NotificationCenter,
     RealtimeNotificationPopup,
@@ -138,7 +139,7 @@ export default function AppLayout() {
 
                             <button
                                 onClick={() => navigate("/profile")}
-                                className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-400 text-[10px] font-bold text-black select-none cursor-pointer border-none"
+                                className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-white select-none cursor-pointer border-none ${currentUser ? avatarColorFor(currentUser.id) : 'bg-purple-400'}`}
                             >
                                 {initials}
                             </button>
