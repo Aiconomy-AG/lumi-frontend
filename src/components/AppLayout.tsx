@@ -20,7 +20,7 @@ export default function AppLayout() {
     const navigate = useNavigate()
     const { t } = useTranslation()
     const { elapsedSeconds, isRunning, activeTaskId } = useTimeTracking()
-    const { user, logout } = useAuth()
+    const { user } = useAuth()
     const currentUser = user
     const initials = currentUser?.name.split(" ").map((w) => w[0]).join("").toUpperCase() ?? ""
 
@@ -87,13 +87,7 @@ export default function AppLayout() {
                             >
                                 {initials}
                             </button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => void logout()}
-                            >
-                                {t('auth.logout')}
-                            </Button>
+
                         </div>
                     </header>
 

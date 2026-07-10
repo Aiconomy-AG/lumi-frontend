@@ -1,6 +1,13 @@
 export type UserRole = 'admin' | 'employee' | 'client'
 export type UserStatus = 'available' | 'busy' | 'offline' | 'away'
 
+export const STATUS_TEXT_COLOR: Record<UserStatus, string> = {
+  available: 'text-green-400',
+  busy: 'text-red-400',
+  away: 'text-yellow-400',
+  offline: 'text-zinc-400',
+}
+
 export interface User {
   id: number
   role: UserRole
