@@ -80,6 +80,7 @@ export default function AppLayout() {
     }
 
     const title = getPageTitle()
+    const isChatRoute = location.pathname.startsWith('/chat')
 
     return (
         <SidebarProvider>
@@ -145,7 +146,7 @@ export default function AppLayout() {
                         </div>
                     </header>
 
-                    <main className="flex-1 overflow-y-auto bg-zinc-950">
+                    <main className={`flex-1 bg-zinc-950 ${isChatRoute ? 'min-h-0 overflow-hidden' : 'overflow-y-auto'}`}>
                         <Outlet />
                     </main>
 

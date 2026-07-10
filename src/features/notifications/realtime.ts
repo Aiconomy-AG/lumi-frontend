@@ -117,7 +117,9 @@ export function getNotificationDisplay(notification: NotificationDelivery) {
 export function getNotificationTarget(notification: NotificationDelivery) {
   const { event } = notification
 
-  if (event.type.startsWith('chat_')) return '/chat'
+  if (event.type.startsWith('chat_')) {
+    return event.conversation_id ? `/chat/${event.conversation_id}` : '/chat'
+  }
   if (event.task_id) return `/tasks/${event.task_id}`
   if (event.project_id) return `/projects/${event.project_id}`
   if (event.type.startsWith('project_')) return '/projects'

@@ -41,6 +41,7 @@ export default function App() {
                     <Route path="/projects/:id" element={<ProjectDetailPage />} />
                     <Route path="/stock" element={<StockPage />} />
                     <Route path="/chat" element={<ChatPage />} />
+                    <Route path="/chat/:conversationId" element={<ChatPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route element={<RequireStaff />}>
                         <Route path="/orders" element={<OrdersPage />} />
