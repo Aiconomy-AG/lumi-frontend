@@ -11,9 +11,16 @@ export interface NotificationEventPayload {
   [key: string]: unknown
 }
 
+export interface NotificationActor {
+  id: number
+  name: string
+  email?: string | null
+}
+
 export interface NotificationEvent {
   id: number
   actor_user_id: number | null
+  actor?: NotificationActor | null
   type: string
   source: string
   task_id?: number | null
@@ -33,6 +40,7 @@ export interface NotificationDelivery {
   body?: string | null
   read_at?: string | null
   seen_at?: string | null
+  dismissed_at?: string | null
   created_at?: string | null
   updated_at?: string | null
   event: NotificationEvent

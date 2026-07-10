@@ -15,8 +15,8 @@ const POPUP_TYPES = new Set([
 ])
 
 export function shouldShowRealtimeNotification(
-  notification: NotificationDelivery,
-  currentPathname: string
+    notification: NotificationDelivery,
+    currentPathname: string
 ) {
   const type = notification.event.type
 
@@ -27,12 +27,41 @@ export function shouldShowRealtimeNotification(
   return !(type === 'chat_message_received' && currentPathname.startsWith('/chat'))
 }
 
+export function upsertRealtimeNotification(
+    queryClient: QueryClient,
+    notification: NotificationDelivery
+) {
+  queryClient.setQueriesData<NotificationDelivery[]>(
+      { queryKey: notificationKeys.lists() },
+      (currentNotifications) => {
+        if (!currentNotifications) return currentNotifications
+
+        return [
+          notification,
+          ...currentNotifications.filter((item) => item.id !== notification.id),
+        ]
+      }
+  )
+}
+
+export function removeRealtimeNotification(
+    queryClient: QueryClient,
+    notificationId: number
+) {
+  queryClient.setQueriesData<NotificationDelivery[]>(
+      { queryKey: notificationKeys.lists() },
+      (currentNotifications) =>
+          currentNotifications?.filter((notification) => notification.id !== notificationId)
+  )
+}
+
 export function invalidateNotificationTargets(
-  queryClient: QueryClient,
-  notification: NotificationDelivery
+    queryClient: QueryClient,
+    notification: NotificationDelivery
 ) {
   const type = notification.event.type
 
+  upsertRealtimeNotification(queryClient, notification)
   void queryClient.invalidateQueries({ queryKey: notificationKeys.all })
 
   if (type.startsWith('chat_')) {
@@ -50,6 +79,34 @@ export function invalidateNotificationTargets(
   }
 }
 
+export function handleRealtimeNotificationDismissed(
+    queryClient: QueryClient,
+    notificationId: number
+) {
+  removeRealtimeNotification(queryClient, notificationId)
+  void queryClient.invalidateQueries({ queryKey: notificationKeys.all })
+}
+
+export function getNotificationCategory(notification: NotificationDelivery): 'chat' | 'work' {
+  return notification.event.type.startsWith('chat_') ? 'chat' : 'work'
+}
+
+export function getChatSenderName(notification: NotificationDelivery) {
+  if (!notification.event.type.startsWith('chat_')) {
+    return null
+  }
+
+  const actorName = notification.event.actor?.name
+  if (actorName?.trim()) {
+    return actorName
+  }
+
+  const titlePrefix = 'New message from '
+  const title = notification.title?.trim()
+
+  return title?.startsWith(titlePrefix) ? title.slice(titlePrefix.length).trim() : null
+}
+
 export function getNotificationDisplay(notification: NotificationDelivery) {
   return {
     title: notification.title?.trim() || fallbackTitle(notification),
@@ -60,25 +117,11 @@ export function getNotificationDisplay(notification: NotificationDelivery) {
 export function getNotificationTarget(notification: NotificationDelivery) {
   const { event } = notification
 
-  if (event.type.startsWith('chat_')) {
-    return '/chat'
-  }
-
-  if (event.task_id) {
-    return `/tasks/${event.task_id}`
-  }
-
-  if (event.project_id) {
-    return `/projects/${event.project_id}`
-  }
-
-  if (event.type.startsWith('project_')) {
-    return '/projects'
-  }
-
-  if (event.type.startsWith('task_')) {
-    return '/tasks'
-  }
+  if (event.type.startsWith('chat_')) return '/chat'
+  if (event.task_id) return `/tasks/${event.task_id}`
+  if (event.project_id) return `/projects/${event.project_id}`
+  if (event.type.startsWith('project_')) return '/projects'
+  if (event.type.startsWith('task_')) return '/tasks'
 
   return null
 }

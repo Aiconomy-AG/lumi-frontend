@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react"
 import { Clock, Bell } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
@@ -7,7 +8,11 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useTimeTracking } from "@/hooks/useTimeTracking"
 import { useDailyTotalTimeQuery } from "@/features/timeTracking"
 import { useAuth } from "@/features/auth/AuthContext"
-import { RealtimeNotificationPopup } from "@/features/notifications"
+import {
+    NotificationCenter,
+    RealtimeNotificationPopup,
+    useNotificationsQuery,
+} from "@/features/notifications"
 
 function formatTime(totalSeconds: number) {
     const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0')
@@ -22,12 +27,44 @@ export default function AppLayout() {
     const { t } = useTranslation()
     const { elapsedSeconds, isRunning, activeTaskId } = useTimeTracking()
     const { user, logout } = useAuth()
+    const [notificationsOpen, setNotificationsOpen] = useState(false)
+    const notificationsRef = useRef<HTMLDivElement>(null)
     const currentUser = user
     const initials = currentUser?.name.split(" ").map((w) => w[0]).join("").toUpperCase() ?? ""
 
     const { data: dailyTotalData, isFetching } = useDailyTotalTimeQuery(currentUser?.id)
+    const { data: unreadNotifications = [] } = useNotificationsQuery(true)
+    const unreadCount = unreadNotifications.length
+
     const baseTotalSeconds = typeof dailyTotalData === 'number' ? dailyTotalData : 0
     const displayTotalSeconds = baseTotalSeconds + (isRunning ? elapsedSeconds : 0)
+
+    useEffect(() => {
+        if (!notificationsOpen) return
+
+        const handlePointerDown = (event: MouseEvent) => {
+            if (
+                notificationsRef.current &&
+                !notificationsRef.current.contains(event.target as Node)
+            ) {
+                setNotificationsOpen(false)
+            }
+        }
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setNotificationsOpen(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handlePointerDown)
+        document.addEventListener('keydown', handleKeyDown)
+
+        return () => {
+            document.removeEventListener('mousedown', handlePointerDown)
+            document.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [notificationsOpen])
 
     const getPageTitle = () => {
         const path = location.pathname
@@ -56,10 +93,10 @@ export default function AppLayout() {
                         <h1 className="text-sm font-semibold text-white capitalize">{title}</h1>
 
                         <div className="flex items-center gap-3">
-                            <div 
+                            <div
                                 className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
-                                    isRunning 
-                                        ? "border-purple-500/30 bg-purple-500/10 text-purple-400 cursor-pointer hover:bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]" 
+                                    isRunning
+                                        ? "border-purple-500/30 bg-purple-500/10 text-purple-400 cursor-pointer hover:bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
                                         : "border-zinc-800 bg-transparent text-zinc-400"
                                 }`}
                                 onClick={() => {
@@ -68,9 +105,7 @@ export default function AppLayout() {
                                 title={isRunning ? "Click to view active task" : "No active session"}
                             >
                                 {isFetching && !isRunning ? (
-                                    <>
-                                        <div className="h-4 w-4 rounded-full border-2 border-zinc-700 border-t-zinc-400 animate-spin" />
-                                    </>
+                                    <div className="h-4 w-4 rounded-full border-2 border-zinc-700 border-t-zinc-400 animate-spin" />
                                 ) : (
                                     <>
                                         <Clock className={`h-4 w-4 ${isRunning ? "text-purple-400" : "text-zinc-500"}`} />
@@ -78,9 +113,28 @@ export default function AppLayout() {
                                     </>
                                 )}
                             </div>
-                            <button className="rounded-full p-2 text-zinc-400 hover:bg-zinc-900 transition-colors cursor-pointer bg-transparent border-none">
-                                <Bell className="h-4 w-4" />
-                            </button>
+
+                            <div className="relative" ref={notificationsRef}>
+                                <button
+                                    className="relative rounded-full border-none bg-transparent p-2 text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-white cursor-pointer"
+                                    type="button"
+                                    aria-label="Open notifications"
+                                    onClick={() => setNotificationsOpen((open) => !open)}
+                                >
+                                    <Bell className="h-4 w-4" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-purple-400 px-1 text-[10px] font-bold leading-none text-black">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+
+                                <NotificationCenter
+                                    open={notificationsOpen}
+                                    onClose={() => setNotificationsOpen(false)}
+                                />
+                            </div>
+
                             <button
                                 onClick={() => navigate("/profile")}
                                 className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-400 text-[10px] font-bold text-black select-none cursor-pointer border-none"
