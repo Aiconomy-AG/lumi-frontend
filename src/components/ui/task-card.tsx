@@ -67,23 +67,21 @@ export function TaskCard({
         <div
             onClick={handleClick}
             className={cn(
-                "grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1fr] items-center gap-4 p-3 cursor-pointer transition-colors border-b border-zinc-900 hover:bg-zinc-900/30 text-sm",
+                "grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_100px_130px_100px] items-center gap-4 p-3 cursor-pointer transition-colors border-b border-zinc-900 hover:bg-zinc-900/30 text-sm",
                 className
             )}
             {...props}
         >
-            <div className="text-zinc-200 font-medium overflow-hidden text-ellipsis whitespace-nowrap">
-                <div className="flex items-center gap-3">
-                    <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusDotClass[status])}></span>
-                    <span className={cn("truncate", status === "complete" && "line-through text-zinc-500")}>{title}</span>
-                </div>
+            <div className="min-w-0 flex items-center justify-start gap-3 text-zinc-200 font-medium text-left">
+                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusDotClass[status])}></span>
+                <span className={cn("truncate min-w-0", status === "complete" && "line-through text-zinc-500")} title={title}>{title}</span>
             </div>
 
-            <div className="text-zinc-300 truncate">
+            <div className="min-w-0 text-zinc-300 truncate text-center">
                 {projectName}
             </div>
 
-            <div className="flex items-center">
+            <div className="flex items-center justify-center">
                 {assignees.map((user) => (
                     <span
                         key={user.id}
@@ -98,14 +96,14 @@ export function TaskCard({
                 ))}
             </div>
 
-            <div>
-                <span className={cn("inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium", statusBadgeClass[status])}>
+            <div className="flex justify-center">
+                <span className={cn("inline-flex items-center justify-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium", statusBadgeClass[status])}>
                     <span className={cn("w-1.5 h-1.5 rounded-full", statusDotClass[status])}></span>
                     {statusLabel}
                 </span>
             </div>
 
-            <div className="text-zinc-400  whitespace-nowrap">
+            <div className="text-zinc-400 whitespace-nowrap text-center">
                 {dueDate?.slice(0, 10)}
             </div>
         </div>

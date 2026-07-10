@@ -72,13 +72,11 @@ export default function DashboardPage() {
         }
 
         return !(search && !task.title.toLowerCase().includes(search.toLowerCase()));
-
-
     })
 
     return (
         <div className="p-10 flex gap-20 w-full bg-zinc-950 min-h-full">
-            <div className="flex-[1.8]">
+            <div className="flex-[1.8] min-w-0">
                 <p className="text-xs text-zinc-500 mb-2">{formattedDate}</p>
                 <h2 className="text-3xl font-bold text-white mb-8">{t(greetingKey, { name: firstName })}</h2>
 
@@ -102,8 +100,8 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex flex-col border-t border-zinc-900 pt-4">
-                        <div className="grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1fr] gap-4 border-b border-zinc-900 p-3 text-zinc-500 font-medium">
-                            <div>{t('tasks.columnTask')}</div>
+                        <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_100px_130px_100px] gap-4 border-b border-zinc-900 p-3 text-zinc-500 font-medium text-center">
+                            <div className="text-left">{t('tasks.columnTask')}</div>
                             <div>{t('tasks.columnProject')}</div>
                             <div>{t('tasks.columnAssigned')}</div>
                             <div>{t('tasks.columnStatus')}</div>
@@ -131,7 +129,7 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <div className="flex-1 max-w-70">
+            <div className="hidden xl:block flex-1 max-w-70">
                 <h3 className="text-sm font-medium text-zinc-400 mb-5">
                     {t('dashboard.onlineNow')} <span className="text-zinc-500 ml-1">{t('dashboard.peopleCount', { count: onlineUsersCount })}</span>
                 </h3>

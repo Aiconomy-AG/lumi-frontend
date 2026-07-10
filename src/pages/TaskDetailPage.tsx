@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useTimeTracking } from '@/hooks/useTimeTracking'
 import { useTimeEntriesQuery } from '@/features/timeTracking'
-import { useTasksQuery, useUpdateTaskMutation, useAssignTaskMutation, useUnassignTaskMutation } from '@/features/tasks'
+import { useTasksQuery, useUpdateTaskMutation, useAssignTaskMutation, useUnassignTaskMutation, useCreateTaskMutation } from '@/features/tasks'
 import { useProjectsQuery } from '@/features/projects'
 import { useUsersQuery } from '@/features/users'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -32,6 +32,9 @@ export default function TaskDetailPage() {
     const updateTaskMutation = useUpdateTaskMutation()
     const assignTaskMutation = useAssignTaskMutation()
     const unassignTaskMutation = useUnassignTaskMutation()
+    const createTaskMutation = useCreateTaskMutation()
+
+    const subtasks = tasks.filter(t => t.parent_id === taskId)
 
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [editTitle, setEditTitle] = useState("")
@@ -40,7 +43,13 @@ export default function TaskDetailPage() {
     const [editDesc, setEditDesc] = useState("")
 
     const [isAssignOpen, setIsAssignOpen] = useState(false)
+    const [userSearch, setUserSearch] = useState("")
     const [expandedUsers, setExpandedUsers] = useState<number[]>([])
+
+    const [isAddSubtaskOpen, setIsAddSubtaskOpen] = useState(false)
+    const [newSubtaskTitle, setNewSubtaskTitle] = useState("")
+    const [newSubtaskDesc, setNewSubtaskDesc] = useState("")
+    const [isSubtasksExpanded, setIsSubtasksExpanded] = useState(false)
 
     useEffect(() => {
         if (task) {
@@ -87,6 +96,24 @@ export default function TaskDetailPage() {
         } else {
             await start(taskId)
         }
+    }
+
+    async function handleAddSubtask() {
+        if (!task || !newSubtaskTitle.trim()) return
+        
+        const formattedDueDate = task.due_date ? task.due_date.slice(0, 10) : new Date().toISOString().slice(0, 10)
+        
+        await createTaskMutation.mutateAsync({
+            title: newSubtaskTitle,
+            description: newSubtaskDesc.trim() || t('taskDetail.subtaskOf', { title: task.title }),
+            status: "to_do",
+            due_date: formattedDueDate,
+            project_id: task.project_id!,
+            parent_id: task.id
+        })
+        setNewSubtaskTitle("")
+        setNewSubtaskDesc("")
+        setIsAddSubtaskOpen(false)
     }
 
     const loggedSeconds = entries.reduce((sum, e) => sum + (e.duration_seconds ?? 0), 0)
@@ -138,7 +165,7 @@ export default function TaskDetailPage() {
                 {isTasksLoading ? (
                     <p className="text-zinc-500">{t('dashboard.loading')}</p>
                 ) : !task ? (
-                    <p className="text-rose-400">Task not found</p>
+                    <p className="text-rose-400">{t('taskDetail.notFound')}</p>
                 ) : (
                     <>
                         {isEditingTitle ? (
@@ -197,7 +224,7 @@ export default function TaskDetailPage() {
 
                 <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-8">
                     <div className="flex flex-col">
-                        <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1">Current Session</div>
+                        <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1">{t('taskDetail.currentSession')}</div>
                         <div className="text-3xl font-bold text-white font-mono tracking-wide">
                             {formatTime(isRunning ? elapsedSeconds : 0)}
                         </div>
@@ -246,8 +273,8 @@ export default function TaskDetailPage() {
                                 className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-sm text-zinc-200 outline-none resize-y min-h-25"
                             />
                             <div className="flex justify-end gap-2">
-                                <button onClick={() => { setIsEditingDesc(false); setEditDesc(task.description || "") }} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 cursor-pointer border-none bg-transparent">Cancel</button>
-                                <button onClick={handleSaveDesc} className="px-3 py-1.5 text-xs bg-purple-600 hover:bg-purple-500 text-white rounded-md cursor-pointer border-none">Save</button>
+                                <button onClick={() => { setIsEditingDesc(false); setEditDesc(task.description || "") }} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 cursor-pointer border-none bg-transparent">{t('taskDetail.cancel')}</button>
+                                <button onClick={handleSaveDesc} className="px-3 py-1.5 text-xs bg-purple-600 hover:bg-purple-500 text-white rounded-md cursor-pointer border-none">{t('taskDetail.save')}</button>
                             </div>
                         </div>
                     ) : (
@@ -255,18 +282,11 @@ export default function TaskDetailPage() {
                             className="text-sm text-zinc-300 leading-relaxed m-0 whitespace-pre-wrap cursor-text hover:bg-zinc-900/50 p-2 -mx-2 rounded transition-colors"
                             onClick={() => setIsEditingDesc(true)}
                         >
-                            {task.description || <span className="text-zinc-600 italic">Click to add a description...</span>}
+                            {task.description || <span className="text-zinc-600 italic">{t('taskDetail.emptyDescription')}</span>}
                         </p>
                     )}
                 </div>
 
-
-                <div className="mb-8">
-                    <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{t('taskDetail.description')}</h4>
-                    <p className="text-sm text-zinc-300 leading-relaxed m-0 whitespace-pre-wrap">
-                        {task.description || "No description provided."}
-                    </p>
-                </div>
 
                 <div className="mb-8">
                     <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">{t('taskDetail.assignedTo')}</h4>
@@ -287,10 +307,10 @@ export default function TaskDetailPage() {
                             </div>
                         ))}
                         {(!task.assignees || task.assignees.length === 0) && (
-                            <div className="text-xs text-zinc-500 italic">Unassigned</div>
+                            <div className="text-xs text-zinc-500 italic">{t('taskDetail.unassigned')}</div>
                         )}
 
-                        <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
+                        <Dialog open={isAssignOpen} onOpenChange={(open) => { setIsAssignOpen(open); if (!open) setUserSearch(''); }}>
                             <DialogTrigger render={
                                 <button className="bg-transparent border border-dashed border-zinc-800 text-zinc-500 hover:text-zinc-300 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors">
                                     {t('taskDetail.assign')}
@@ -298,10 +318,23 @@ export default function TaskDetailPage() {
                             } />
                             <DialogContent className="bg-zinc-950 border border-zinc-800 text-zinc-100 max-w-100">
                                 <DialogHeader>
-                                    <DialogTitle>Assign Users</DialogTitle>
+                                    <DialogTitle>{t('taskDetail.assignUsersTitle')}</DialogTitle>
                                 </DialogHeader>
-                                <div className="flex flex-col gap-2 mt-4 max-h-75 overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-zinc-900/40 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400 transition-colors">
-                                    {users.map(u => {
+                                <div className="mt-4">
+                                    <input
+                                        type="text"
+                                        placeholder={t('admin.searchPlaceholder')}
+                                        value={userSearch}
+                                        onChange={(e) => setUserSearch(e.target.value)}
+                                        className="w-full bg-zinc-900 border border-zinc-700 text-sm text-zinc-100 rounded-lg px-3 py-2 outline-none focus:border-purple-500 transition-colors"
+                                        autoFocus
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2 mt-2 max-h-60 overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-zinc-900/40 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400 transition-colors">
+                                    {users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase())).length === 0 ? (
+                                        <p className="text-xs text-zinc-500 text-center py-4">{t('taskDetail.noUsersFound')}</p>
+                                    ) : (
+                                        users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase())).map(u => {
                                         const isAssigned = task.assignees?.some(a => a.id === u.id)
                                         return (
                                             <div
@@ -321,7 +354,8 @@ export default function TaskDetailPage() {
                                                 {isAssigned && <span className="text-purple-400 text-sm font-bold">✓</span>}
                                             </div>
                                         )
-                                    })}
+                                    })
+                                )}
                                 </div>
                             </DialogContent>
                         </Dialog>
@@ -329,11 +363,101 @@ export default function TaskDetailPage() {
                 </div>
 
 
+                {task.parent_id == null && (
+                    <div className="mb-8">
+                        <div 
+                            className="flex items-center justify-between mb-3 cursor-pointer group"
+                            onClick={() => setIsSubtasksExpanded(!isSubtasksExpanded)}
+                        >
+                            <div className="flex items-center gap-2">
+                                <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider group-hover:text-zinc-300 transition-colors">{t('taskDetail.subtasks')}</h4>
+                                <span className={`text-zinc-500 text-[10px] transition-transform duration-200 ${isSubtasksExpanded ? 'rotate-180' : ''}`}>▼</span>
+                                <span className="bg-zinc-800 text-zinc-400 text-[10px] px-1.5 py-0.5 rounded-full ml-1 font-mono">{subtasks.length}</span>
+                            </div>
+                            
+                            <Dialog open={isAddSubtaskOpen} onOpenChange={setIsAddSubtaskOpen}>
+                                <DialogTrigger render={
+                                    <button 
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="bg-zinc-900 border border-zinc-800 text-zinc-300 hover:bg-zinc-800 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors"
+                                    >
+                                        {t('taskDetail.addSubtaskTrigger')}
+                                    </button>
+                                } />
+                                <DialogContent className="bg-zinc-950 border border-zinc-800 text-zinc-100">
+                                    <DialogHeader>
+                                        <DialogTitle>{t('taskDetail.addSubtaskTitle')}</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="flex flex-col gap-4 mt-4">
+                                        <input
+                                            type="text"
+                                            autoFocus
+                                            placeholder={t('taskDetail.subtaskTitlePlaceholder')}
+                                            value={newSubtaskTitle}
+                                            onChange={e => setNewSubtaskTitle(e.target.value)}
+                                            className="bg-zinc-900 border border-zinc-700 text-sm text-zinc-100 rounded-lg px-3 py-2 outline-none focus:border-purple-500 transition-colors"
+                                        />
+                                        <textarea
+                                            placeholder={t('taskDetail.subtaskDescPlaceholder')}
+                                            value={newSubtaskDesc}
+                                            onChange={e => setNewSubtaskDesc(e.target.value)}
+                                            rows={3}
+                                            className="bg-zinc-900 border border-zinc-700 text-sm text-zinc-100 rounded-lg px-3 py-2 outline-none focus:border-purple-500 transition-colors resize-none"
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                            <button onClick={() => setIsAddSubtaskOpen(false)} className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 cursor-pointer border-none bg-transparent">{t('taskDetail.cancel')}</button>
+                                            <button 
+                                                onClick={handleAddSubtask} 
+                                                disabled={createTaskMutation.isPending || !newSubtaskTitle.trim()}
+                                                className="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg cursor-pointer border-none transition-colors"
+                                            >
+                                                {createTaskMutation.isPending ? t('taskDetail.addingSubtask') : t('taskDetail.addSubtaskButton')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
+                        
+                        {isSubtasksExpanded && (
+                            <div className="flex flex-col gap-2">
+                                {subtasks.length === 0 ? (
+                                    <div className="bg-zinc-900/50 border border-zinc-800/50 border-dashed rounded-xl p-6 text-sm text-zinc-500 italic text-center">
+                                        No subtasks yet.
+                                    </div>
+                                ) : (
+                                    subtasks.map(subtask => (
+                                        <div 
+                                            key={subtask.id} 
+                                            onClick={() => navigate(`/tasks/${subtask.id}`)}
+                                            className="flex items-center justify-between bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl cursor-pointer transition-colors group"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-2 h-2 rounded-full ${
+                                                    subtask.status === 'to_do' ? 'bg-zinc-500' :
+                                                    subtask.status === 'in_progress' ? 'bg-amber-500' :
+                                                    subtask.status === 'blocked' ? 'bg-rose-500' :
+                                                    'bg-emerald-500'
+                                                }`} />
+                                                <span className="text-sm font-medium text-zinc-200 group-hover:text-white transition-colors">{subtask.title}</span>
+                                            </div>
+                                            <span className="text-xs text-zinc-500 uppercase tracking-wider bg-zinc-950 px-2 py-1 rounded">
+                                                {t(`tasks.status.${subtask.status}`)}
+                                            </span>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+
                 <div className="mb-8">
                     <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">{t('taskDetail.timeEntries')}</h4>
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl flex flex-col overflow-hidden">
                         {userGroups.length === 0 ? (
-                            <div className="p-6 text-sm text-zinc-500 italic text-center">No time logged yet.</div>
+                            <div className="p-6 text-sm text-zinc-500 italic text-center">{t('taskDetail.noTimeLogged')}</div>
                         ) : (
                             userGroups.map((group) => {
                                 const user = users.find(u => u.id === group.employee_id)
@@ -389,9 +513,9 @@ export default function TaskDetailPage() {
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 {entry.isActive ? (
-                                                                    <span className="text-[10px] text-amber-500">Active</span>
+                                                                    <span className="text-[10px] text-amber-500">{t('taskDetail.statusActive')}</span>
                                                                 ) : (
-                                                                    <span className="text-[10px] text-zinc-600">Done</span>
+                                                                    <span className="text-[10px] text-zinc-600">{t('taskDetail.statusDone')}</span>
                                                                 )}
                                                                 <span className="text-xs font-mono text-zinc-300 w-16 text-right">
                                                                     {formatTime(entry.computedDuration)}

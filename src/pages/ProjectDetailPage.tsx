@@ -16,8 +16,8 @@ export default function ProjectDetailPage() {
 
     const { data: allTasks = [] } = useTasksQuery()
 
-    // backend intoarce toate task-urile → filtram pe proiectul curent
-    const tasks = allTasks.filter((task) => task.project_id === projectId)
+    // backend intoarce toate task-urile → filtram pe proiectul curent si scoatem subtask-urile
+    const tasks = allTasks.filter((task) => task.project_id === projectId && task.parent_id == null)
 
     return (
         <div className="p-10 bg-zinc-950 min-h-screen">
