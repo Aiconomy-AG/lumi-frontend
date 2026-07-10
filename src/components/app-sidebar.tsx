@@ -15,7 +15,7 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/features/auth/AuthContext"
-import type { UserStatus } from "@/types/user"
+import { STATUS_TEXT_COLOR, type UserStatus } from "@/types/user"
 
 export const items = [
     { titleKey: "sidebar.dashboard", path: "/dashboard", icon: Home },
@@ -90,16 +90,19 @@ export function AppSidebar() {
 
             <SidebarFooter>
                 <div className="px-2 pb-2">
-                    <select
-                        value={user?.status === 'offline' ? 'available' : (user?.status ?? 'available')}
-                        onChange={(e) => handleStatusChange(e.target.value as UserStatus)}
-                        className="w-full h-8 rounded-md border border-zinc-800 bg-zinc-900 px-2 text-xs text-zinc-200 outline-none focus:border-purple-500 cursor-pointer"
-                        aria-label={t('profile.status')}
-                    >
-                        <option value="available">{t('userStatus.available')}</option>
-                        <option value="busy">{t('userStatus.busy')}</option>
-                        <option value="away">{t('userStatus.away')}</option>
-                    </select>
+                    <div className="flex items-center gap-2 h-8 rounded-md border border-zinc-800 bg-zinc-900 px-2 focus-within:border-purple-500 transition-colors">
+                        <span className={`h-2 w-2 shrink-0 rounded-full bg-current ${STATUS_TEXT_COLOR[user?.status ?? 'offline']}`} />
+                        <select
+                            value={user?.status === 'offline' ? 'available' : (user?.status ?? 'available')}
+                            onChange={(e) => handleStatusChange(e.target.value as UserStatus)}
+                            className={`w-full h-full bg-transparent text-xs font-medium capitalize outline-none cursor-pointer ${STATUS_TEXT_COLOR[user?.status ?? 'offline']}`}
+                            aria-label={t('profile.status')}
+                        >
+                            <option value="available" className="bg-zinc-900 text-zinc-200">{t('userStatus.available')}</option>
+                            <option value="busy" className="bg-zinc-900 text-zinc-200">{t('userStatus.busy')}</option>
+                            <option value="away" className="bg-zinc-900 text-zinc-200">{t('userStatus.away')}</option>
+                        </select>
+                    </div>
                 </div>
                 <div className="flex group-data-[collapsible=icon]:flex-col justify-center items-center gap-1.5 px-2 pb-2">
                     {languages.map((lang) => (

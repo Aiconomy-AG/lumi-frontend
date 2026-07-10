@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useMutation } from '@tanstack/react-query'
 import { updatePassword } from '@/api/users'
+import { STATUS_TEXT_COLOR, type UserStatus } from '@/types/user'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
 function Field({ label, value }: { label: string; value: string }) {
@@ -19,7 +20,7 @@ function Field({ label, value }: { label: string; value: string }) {
 export default function ProfilePage() {
     const { t } = useTranslation()
     const navigate = useNavigate()
-    const { user, logout } = useAuth()
+    const { user, logout, updateStatus } = useAuth()
 
     const [isPasswordOpen, setIsPasswordOpen] = useState(false)
     const [currentPassword, setCurrentPassword] = useState('')
@@ -37,6 +38,13 @@ export default function ProfilePage() {
         },
         onError: (err: any) => {
             alert(err?.response?.data?.message || "Failed to update password. Check your current password.")
+        }
+    })
+
+    const statusMutation = useMutation({
+        mutationFn: (status: UserStatus) => updateStatus(status),
+        onError: (err: any) => {
+            alert(err?.response?.data?.message || "Failed to update status.")
         }
     })
 
@@ -84,7 +92,23 @@ export default function ProfilePage() {
                 <Field label={t('profile.email')} value={user.email} />
                 <Field label={t('profile.phone')} value={user.phone_number ?? "-"} />
                 <Field label={t('profile.role')} value={user.role} />
-                <Field label={t('profile.status')} value={user.status} />
+                <div className="flex items-center justify-between border-b border-zinc-800/50 pb-3 last:border-0 last:pb-0">
+                    <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{t('profile.status')}</span>
+                    <div className="flex items-center gap-2">
+                        <span className={`h-2 w-2 rounded-full bg-current ${STATUS_TEXT_COLOR[user.status]}`} />
+                        <select
+                            value={user.status === 'offline' ? 'available' : user.status}
+                            disabled={statusMutation.isPending}
+                            onChange={(e) => statusMutation.mutate(e.target.value as UserStatus)}
+                            className={`bg-transparent text-sm font-medium capitalize outline-none cursor-pointer disabled:opacity-50 ${STATUS_TEXT_COLOR[user.status]}`}
+                            aria-label={t('profile.status')}
+                        >
+                            <option value="available" className="bg-zinc-900 text-zinc-200">{t('userStatus.available')}</option>
+                            <option value="busy" className="bg-zinc-900 text-zinc-200">{t('userStatus.busy')}</option>
+                            <option value="away" className="bg-zinc-900 text-zinc-200">{t('userStatus.away')}</option>
+                        </select>
+                    </div>
+                </div>
             </div>
                 <div className="flex flex-col gap-4">
                     <Dialog open={isPasswordOpen} onOpenChange={setIsPasswordOpen}>
