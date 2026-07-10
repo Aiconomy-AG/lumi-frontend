@@ -193,7 +193,14 @@
     "email": "E-Mail",
     "phone": "Telefon",
     "role": "Rolle",
-    "status": "Status"
+    "status": "Status",
+    "editData": "Daten bearbeiten",
+    "invalidPhone": "Gib eine gültige Telefonnummer ein (7-15 Ziffern, optional +).",
+    "savePhone": "Telefonnummer speichern",
+    "currentPassword": "Aktuelles Passwort",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Neues Passwort bestätigen",
+    "savePassword": "Passwort aktualisieren"
   },
   "userStatus": {
     "available": "Verfügbar",

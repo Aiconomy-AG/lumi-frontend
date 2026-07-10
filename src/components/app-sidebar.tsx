@@ -37,7 +37,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useAuth } from "@/features/auth/AuthContext"
-import type { UserStatus } from "@/types/user"
+import { STATUS_TEXT_COLOR, type UserStatus } from "@/types/user"
 
 type NavItem = {
     titleKey: string
@@ -170,9 +170,17 @@ export function AppSidebar() {
                         value={displayStatus}
                         onValueChange={(value) => value && handleStatusChange(value as UserStatus)}
                     >
-                        <SelectTrigger className="h-8 w-full bg-sidebar text-xs" aria-label={t("profile.status")}>
+                        <SelectTrigger
+                            className={`h-8 w-full bg-sidebar text-xs font-medium ${STATUS_TEXT_COLOR[user?.status ?? "offline"]}`}
+                            aria-label={t("profile.status")}
+                        >
                             <SelectValue>
-                                {(value: UserStatus) => t(`userStatus.${value}`)}
+                                {(value: UserStatus) => (
+                                    <span className="flex items-center gap-2">
+                                        <span className="h-2 w-2 rounded-full bg-current" />
+                                        {t(`userStatus.${value}`)}
+                                    </span>
+                                )}
                             </SelectValue>
                         </SelectTrigger>
                         <SelectContent>

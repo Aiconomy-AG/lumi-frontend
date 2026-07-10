@@ -33,6 +33,13 @@ export async function updateMyStatus(status: UserStatus): Promise<User> {
   })
 }
 
+export async function updateMyPhone(phoneNumber: string): Promise<void> {
+  await request('/auth/phone', {
+    method: 'PUT',
+    data: { phone_number: phoneNumber },
+  })
+}
+
 export async function sendPresencePing(): Promise<void> {
   await request('/auth/me/presence/ping', { method: 'POST' })
 }

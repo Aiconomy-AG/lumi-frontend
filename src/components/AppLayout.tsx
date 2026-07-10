@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react"
 import { Clock, Bell } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
 import { AppSidebar } from "./app-sidebar"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useTimeTracking } from "@/hooks/useTimeTracking"
@@ -26,7 +25,7 @@ export default function AppLayout() {
     const navigate = useNavigate()
     const { t } = useTranslation()
     const { elapsedSeconds, isRunning, activeTaskId } = useTimeTracking()
-    const { user, logout } = useAuth()
+    const { user } = useAuth()
     const [notificationsOpen, setNotificationsOpen] = useState(false)
     const notificationsRef = useRef<HTMLDivElement>(null)
     const currentUser = user
@@ -142,13 +141,7 @@ export default function AppLayout() {
                             >
                                 {initials}
                             </button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => void logout()}
-                            >
-                                {t('auth.logout')}
-                            </Button>
+
                         </div>
                     </header>
 
