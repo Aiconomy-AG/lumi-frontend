@@ -165,55 +165,62 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <div className="space-y-2 px-2 pb-2">
-                    <Select
-                        value={displayStatus}
-                        onValueChange={(value) => value && handleStatusChange(value as UserStatus)}
-                    >
-                        <SelectTrigger
-                            className={`h-8 w-full bg-sidebar text-xs font-medium ${STATUS_TEXT_COLOR[user?.status ?? "offline"]}`}
-                            aria-label={t("profile.status")}
+                <SidebarMenu className="gap-1.5">
+                    <SidebarMenuItem>
+                        <Select
+                            value={displayStatus}
+                            onValueChange={(value) => value && handleStatusChange(value as UserStatus)}
                         >
-                            <SelectValue>
-                                {(value: UserStatus) => (
-                                    <span className="flex items-center gap-2">
-                                        <span className="h-2 w-2 rounded-full bg-current" />
-                                        {t(`userStatus.${value}`)}
-                                    </span>
-                                )}
-                            </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="available">{t("userStatus.available")}</SelectItem>
-                            <SelectItem value="busy">{t("userStatus.busy")}</SelectItem>
-                            <SelectItem value="away">{t("userStatus.away")}</SelectItem>
-                        </SelectContent>
-                    </Select>
+                            <SelectTrigger
+                                className={`h-8 w-full cursor-pointer group-data-[collapsible=icon]:w-8! group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center [&>span:last-child]:group-data-[collapsible=icon]:hidden bg-sidebar text-xs font-medium ${STATUS_TEXT_COLOR[user?.status ?? "offline"]}`}
+                                aria-label={t("profile.status")}
+                            >
+                                <SelectValue>
+                                    {(value: UserStatus) => (
+                                        <span className="flex items-center gap-2 group-data-[collapsible=icon]:gap-0">
+                                            <span className="h-2 w-2 rounded-full bg-current" />
+                                            <span className="group-data-[collapsible=icon]:hidden">
+                                                {t(`userStatus.${value}`)}
+                                            </span>
+                                        </span>
+                                    )}
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="available">{t("userStatus.available")}</SelectItem>
+                                <SelectItem value="busy">{t("userStatus.busy")}</SelectItem>
+                                <SelectItem value="away">{t("userStatus.away")}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </SidebarMenuItem>
 
-                    <Select
-                        value={i18n.resolvedLanguage ?? "en"}
-                        onValueChange={(value) => value && changeLanguage(value)}
-                    >
-                        <SelectTrigger className="h-8 w-full bg-sidebar text-xs" aria-label={t("sidebar.language")}>
-                            <SelectValue>
-                                {(value: string) => value.toUpperCase()}
-                            </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                            {languages.map((lang) => (
-                                <SelectItem key={lang} value={lang}>
-                                    {lang.toUpperCase()}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                    <SidebarMenuItem>
+                        <Select
+                            value={i18n.resolvedLanguage ?? "en"}
+                            onValueChange={(value) => value && changeLanguage(value)}
+                        >
+                            <SelectTrigger 
+                                className="h-8 w-full cursor-pointer group-data-[collapsible=icon]:w-8! group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center [&>span:last-child]:group-data-[collapsible=icon]:hidden bg-sidebar text-xs" 
+                                aria-label={t("sidebar.language")}
+                            >
+                                <SelectValue>
+                                    {(value: string) => value.toUpperCase()}
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {languages.map((lang) => (
+                                    <SelectItem key={lang} value={lang}>
+                                        {lang.toUpperCase()}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </SidebarMenuItem>
 
-                <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton onClick={toggleSidebar} tooltip={t("sidebar.expand")}>
                             {open ? <ChevronLeft /> : <ChevronRight />}
-                            <span>{t("sidebar.collapse")}</span>
+                            <span className="group-data-[collapsible=icon]:hidden">{t("sidebar.collapse")}</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
