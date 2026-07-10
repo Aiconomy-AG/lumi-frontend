@@ -19,7 +19,7 @@ function Field({ label, value }: { label: string; value: string }) {
 export default function ProfilePage() {
     const { t } = useTranslation()
     const navigate = useNavigate()
-    const { user } = useAuth()
+    const { user, logout } = useAuth()
 
     const [isPasswordOpen, setIsPasswordOpen] = useState(false)
     const [currentPassword, setCurrentPassword] = useState('')
@@ -81,66 +81,81 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex flex-col gap-4 bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-6">
-                <Field label={t('profile.id')} value={String(user.id)} />
                 <Field label={t('profile.email')} value={user.email} />
                 <Field label={t('profile.phone')} value={user.phone_number ?? "-"} />
                 <Field label={t('profile.role')} value={user.role} />
                 <Field label={t('profile.status')} value={user.status} />
             </div>
-
-            <div className="flex items-center gap-4">
-                <Dialog open={isPasswordOpen} onOpenChange={setIsPasswordOpen}>
-                    <DialogTrigger render={
-                        <button className="flex-1 w-full bg-purple-600/10 border border-purple-500/30 text-purple-400 hover:bg-purple-600/20 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer">
-                            Change Password
-                        </button>
-                    } />
-                    <DialogContent className="bg-zinc-950 border border-zinc-800 text-zinc-100">
-                        <DialogHeader>
-                            <DialogTitle>Change Password</DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleSavePassword} className="flex flex-col gap-4 mt-4">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs text-zinc-400">Current Password</label>
-                                <input
-                                    type="password"
-                                    value={currentPassword}
-                                    onChange={e => setCurrentPassword(e.target.value)}
-                                    className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white outline-none focus:border-purple-500 transition-colors"
-                                    required
-                                />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs text-zinc-400">New Password</label>
-                                <input
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={e => setNewPassword(e.target.value)}
-                                    className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white outline-none focus:border-purple-500 transition-colors"
-                                    required
-                                />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs text-zinc-400">Confirm New Password</label>
-                                <input
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={e => setConfirmPassword(e.target.value)}
-                                    className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white outline-none focus:border-purple-500 transition-colors"
-                                    required
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={passwordMutation.isPending}
-                                className="mt-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white py-2 rounded-md font-medium text-sm border-none cursor-pointer transition-colors"
-                            >
-                                {passwordMutation.isPending ? 'Updating...' : 'Update Password'}
+                <div className="flex flex-col gap-4">
+                    <Dialog open={isPasswordOpen} onOpenChange={setIsPasswordOpen}>
+                        <DialogTrigger render={
+                            <button className="flex-1 w-full bg-purple-600/10 border border-purple-500/30 text-purple-400 hover:bg-purple-600/20 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer">
+                                Change Password
                             </button>
-                        </form>
-                    </DialogContent>
-                </Dialog>
+
+                        } />
+
+                        <DialogContent className="bg-zinc-950 border border-zinc-800 text-zinc-100">
+                            <DialogHeader>
+                                <DialogTitle>Change Password</DialogTitle>
+                            </DialogHeader>
+                            <form onSubmit={handleSavePassword} className="flex flex-col gap-4 mt-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs text-zinc-400">Current Password</label>
+                                    <input
+                                        type="password"
+                                        value={currentPassword}
+                                        onChange={e => setCurrentPassword(e.target.value)}
+                                        className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white outline-none focus:border-purple-500 transition-colors"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs text-zinc-400">New Password</label>
+                                    <input
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={e => setNewPassword(e.target.value)}
+                                        className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white outline-none focus:border-purple-500 transition-colors"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs text-zinc-400">Confirm New Password</label>
+                                    <input
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={e => setConfirmPassword(e.target.value)}
+                                        className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white outline-none focus:border-purple-500 transition-colors"
+                                        required
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={passwordMutation.isPending}
+                                    className="mt-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white py-2 rounded-md font-medium text-sm border-none cursor-pointer transition-colors"
+                                >
+                                    {passwordMutation.isPending ? 'Updating...' : 'Update Password'}
+                                </button>
+
+                            </form>
+                        </DialogContent>
+
+                    </Dialog>
+                    <button
+                        type="button"
+                        disabled={passwordMutation.isPending}
+                        onClick={() => void logout()}
+                        className="flex-1 w-full flex items-center justify-center gap-2 bg-red-600/10 border border-red-500/30 text-red-400 hover:bg-red-600/20 hover:border-red-500/50 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        {t('auth.logout')}
+                    </button>
+                </div>
             </div>
-        </div>
     )
 }
