@@ -18,6 +18,7 @@ import { ChatLayout } from '@/features/chat/components/ChatLayout'
 import { ChatSidebar } from '@/features/chat/components/ChatSidebar'
 import { MessageList } from '@/features/chat/components/MessageList'
 import { useMediaQuery } from '@/features/chat/hooks/useMediaQuery'
+import { MESSAGE_MAX_LENGTH } from '@/features/chat/utils'
 
 function parseConversationId(value?: string) {
     if (!value) return null
@@ -146,7 +147,7 @@ export default function ChatPage() {
 
     async function handleSend() {
         const text = draft.trim()
-        if (!text || activeConversationId === null) return
+        if (!text || activeConversationId === null || text.length > MESSAGE_MAX_LENGTH) return
         setDraft('')
         try {
             await sendMutation.mutateAsync(text)

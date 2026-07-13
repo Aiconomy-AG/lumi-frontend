@@ -199,6 +199,7 @@
     "messagePlaceholder": "Mesaj către {{name}}...",
     "messagePlaceholderDefault": "Mesaj...",
     "send": "Trimite",
+    "messageMaxLength": "{{current}} / {{max}} caractere",
     "cancel": "Anulează",
     "retry": "Reîncearcă"
   },

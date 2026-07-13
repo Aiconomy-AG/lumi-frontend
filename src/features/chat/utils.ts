@@ -1,6 +1,8 @@
 import type { Conversation } from '@/types/chat'
 import type { User, UserStatus } from '@/types/user'
 
+export const MESSAGE_MAX_LENGTH = 5000
+
 export const avatarColors = [
     'bg-sky-500',
     'bg-violet-500',

@@ -199,6 +199,7 @@
     "messagePlaceholder": "Nachricht an {{name}}...",
     "messagePlaceholderDefault": "Nachricht...",
     "send": "Senden",
+    "messageMaxLength": "{{current}} / {{max}} Zeichen",
     "cancel": "Abbrechen",
     "retry": "Erneut versuchen"
   },

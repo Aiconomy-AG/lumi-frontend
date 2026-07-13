@@ -199,6 +199,7 @@
     "messagePlaceholder": "Message {{name}}...",
     "messagePlaceholderDefault": "Message...",
     "send": "Send",
+    "messageMaxLength": "{{current}} / {{max}} characters",
     "cancel": "Cancel",
     "retry": "Retry"
   },
