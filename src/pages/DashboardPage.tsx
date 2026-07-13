@@ -70,7 +70,6 @@ export default function DashboardPage() {
     const greetingKey = getDashboardGreetingKey(new Date())
     const projectNameFor = (id?: number) => projects.find((p) => p.id === id)?.name ?? '—'
 
-    // Filter tasks for current user, and optionally by due date, search, and status
     const today = new Date().toISOString().slice(0, 10)
     const myTasks = listTasks.filter(task => {
         const isMine = task.assignees?.some(assignee => assignee.id === user?.id)

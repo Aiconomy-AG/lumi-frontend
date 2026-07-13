@@ -81,8 +81,6 @@ function renderStock(stock: number, t: TFunction) {
   return <span className="font-medium text-green-600">{stock}</span>
 }
 
-// diferenta lizibila dintre variante: optiuni ("120 g" / "Blue / M"), altfel
-// culoare + greutate, altfel numele variantei; niciodata SKU
 function variantLabel(product: Product, variant: ProductVariant, t: TFunction): string {
   if (variant.options && Object.keys(variant.options).length > 0) {
     return Object.values(variant.options).join(' / ')
@@ -133,7 +131,6 @@ function sanitizeHtml(value: string): string {
   return doc.body.innerHTML
 }
 
-// pretul pe randul produsului: pretul variantei unice sau intervalul min-max
 function productPrice(product: Product): string {
   if (!product.variants.length) {
     return formatPrice(product.price)
@@ -396,8 +393,6 @@ export default function StockPage() {
       },
     })
 
-    // pretul afisat in tabel vine din variante; la produsele cu o singura
-    // varianta tinem pretul variantei sincron cu cel al produsului
     const product = products.find((p) => p.id === productForm.id)
     if (product && product.variants.length === 1 && product.variants[0].price !== price) {
       await updateVariant.mutateAsync({

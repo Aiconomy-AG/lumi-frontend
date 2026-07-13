@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   server: {
-    host: true, // needed so Docker port mapping works
+    host: true,
     port: 5173,
   },
 })

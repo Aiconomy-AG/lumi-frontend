@@ -110,9 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let heartbeatTimer: number | null = null
 
     const pingPresence = () => {
-      void sendPresencePing().catch(() => {
-        // tolerate transient ping failures; scheduler handles stale cleanup
-      })
+      void sendPresencePing().catch(() => {})
     }
 
     pingPresence()

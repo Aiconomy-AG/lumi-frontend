@@ -69,7 +69,6 @@ export function sendPresenceDisconnectBeacon(): void {
       })
     }
   } catch {
-    // ignore best-effort disconnect failures
   }
 }
 

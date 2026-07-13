@@ -8,7 +8,6 @@ export const http = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// adauga token-ul la fiecare request
 http.interceptors.request.use((config) => {
   const token = getAuthToken()
   if (token) {
@@ -17,7 +16,6 @@ http.interceptors.request.use((config) => {
   return config
 })
 
-// la 401 sterge token-ul si trimite la login
 http.interceptors.response.use(
   (response) => response,
   (error) => {

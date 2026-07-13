@@ -1,4 +1,3 @@
-// Store currency (Shopify shop currency is USD). Override with VITE_CURRENCY.
 const DEFAULT_CURRENCY = import.meta.env.VITE_CURRENCY ?? 'USD'
 
 export function formatPrice(value: number, currency = DEFAULT_CURRENCY): string {

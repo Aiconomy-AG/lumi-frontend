@@ -98,7 +98,6 @@ export default function ProjectDetailPage() {
         })
     }
 
-    // backend intoarce toate task-urile → filtram pe proiectul curent si scoatem subtask-urile
     const tasks = allTasks.filter((task) => task.project_id === projectId && task.parent_id == null)
 
     const filteredTasks = tasks.filter(task => {

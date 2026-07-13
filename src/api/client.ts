@@ -1,5 +1,3 @@
-// aduna toate modulele ca sa mearga importurile din '@/api/client'
-
 export * from './http'
 export * from './token'
 export * from './auth'

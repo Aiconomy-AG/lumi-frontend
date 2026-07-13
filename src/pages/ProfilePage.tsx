@@ -162,7 +162,6 @@ export default function ProfilePage() {
                             <DialogTitle>{t('profile.editData')}</DialogTitle>
                         </DialogHeader>
 
-                        {/* Phone number */}
                         <form onSubmit={handleSavePhone} className="flex flex-col gap-4 mt-4">
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-xs text-zinc-400">{t('profile.phone')}</label>
@@ -191,7 +190,6 @@ export default function ProfilePage() {
 
                         <div className="h-px bg-zinc-800 my-5" />
 
-                        {/* Password */}
                         <form onSubmit={handleSavePassword} className="flex flex-col gap-4">
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-xs text-zinc-400">{t('profile.currentPassword')}</label>
