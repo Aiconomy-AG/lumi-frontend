@@ -105,7 +105,7 @@ export default function DashboardPage() {
                         </h3>
                     </div>
 
-                    <div className="mb-4">
+                    <div>
                         <TaskFilters
                             filter={filter}
                             setFilter={(val) => { setFilter(val); setPage(1); }}

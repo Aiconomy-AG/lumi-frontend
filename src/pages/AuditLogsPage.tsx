@@ -72,7 +72,7 @@ export default function AuditLogsPage() {
 
   return (
     <div className="p-6 h-full flex flex-col overflow-hidden">
-      <div className="mb-4 flex items-start justify-between">
+      <div className="mb-6 flex items-start justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <Input
             value={module}

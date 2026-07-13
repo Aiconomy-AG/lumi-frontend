@@ -82,13 +82,13 @@ export default function ReturnsPage() {
             value={search}
             onChange={(e) => resetPage(setSearch)(e.target.value)}
             placeholder={t('returns.searchPlaceholder')}
-            className="w-56"
+            className="w-56 h-9 rounded-md bg-zinc-900 border-zinc-800"
           />
           <Select
             value={status || 'all'}
             onValueChange={(value) => resetPage(setStatus)(value === 'all' ? '' : (value as ReturnStatus))}
           >
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-44 bg-zinc-900 border-zinc-800">
               <SelectValue placeholder={t('returns.filterStatus')} />
             </SelectTrigger>
             <SelectContent>
@@ -105,14 +105,14 @@ export default function ReturnsPage() {
             value={from}
             onChange={(e) => resetPage(setFrom)(e.target.value)}
             aria-label={t('returns.from')}
-            className="w-40"
+            className="w-40 h-9 rounded-md bg-zinc-900 border-zinc-800"
           />
           <Input
             type="date"
             value={to}
             onChange={(e) => resetPage(setTo)(e.target.value)}
             aria-label={t('returns.to')}
-            className="w-40"
+            className="w-40 h-9 rounded-md bg-zinc-900 border-zinc-800"
           />
         </div>
       </div>
