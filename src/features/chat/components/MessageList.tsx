@@ -42,8 +42,9 @@ export function MessageList({
     }, [messages.length, conversation?.id])
 
     useEffect(() => {
+        if (isLoading) return
         messagesEndRef.current?.scrollIntoView()
-    }, [conversation?.id])
+    }, [conversation?.id, isLoading])
 
     if (!conversation) {
         return (
