@@ -124,8 +124,7 @@ export default function ReturnsPage() {
           {t('returns.empty')}
         </div>
       ) : (
-        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md bg-zinc-900">
-          <Table>
+          <Table ref={scrollRef} containerClassName="flex-1 min-h-0 pr-2 border rounded-md">
           <TableHeader>
             <TableRow>
               <TableHead>{t('returns.id')}</TableHead>
@@ -159,7 +158,6 @@ export default function ReturnsPage() {
             ))}
           </TableBody>
         </Table>
-        </div>
       )}
 
       {meta && (

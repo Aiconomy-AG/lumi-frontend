@@ -153,8 +153,7 @@ export default function AdminPage() {
             {isLoading ? (
                 <p className="text-muted-foreground">{t('admin.loading')}</p>
             ) : (
-                <div ref={scrollRef} className="flex-1 bg-zinc-900 overflow-y-auto min-h-0 pr-2 border rounded-md ">
-                    <Table>
+                    <Table ref={scrollRef} containerClassName="flex-1 min-h-0 pr-2 border rounded-md">
                     <TableHeader>
                         <TableRow>
                             <TableHead>{t('admin.columnUser')}</TableHead>
@@ -222,7 +221,6 @@ export default function AdminPage() {
                         ))}
                     </TableBody>
                 </Table>
-                </div>
             )}
 
             {filtered.length > 0 && (

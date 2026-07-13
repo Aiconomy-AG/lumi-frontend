@@ -69,33 +69,31 @@ export default function TasksPage() {
             ) : filteredTasks.length === 0 ? (
                 <p className="text-sm text-zinc-500">{t('projects.noTasks')}</p>
             ) : (
-                <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border border-zinc-900 rounded-md bg-zinc-900">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="text-left">{t('tasks.columnTask')}</TableHead>
-                                <TableHead className="text-center">{t('tasks.columnProject')}</TableHead>
-                                <TableHead className="text-center">{t('tasks.columnAssigned')}</TableHead>
-                                <TableHead className="text-center">{t('tasks.columnStatus')}</TableHead>
-                                <TableHead className="text-center">{t('tasks.columnDue')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {paginatedTasks.map((task) => (
-                                <TaskCard
-                                    key={task.id}
-                                    taskId={task.id}
-                                    title={task.title}
-                                    projectName={projects.find((p) => p.id === task.project_id)?.name ?? '—'}
-                                    assignees={task.assignees}
-                                    status={task.status}
-                                    dueDate={task.due_date}
-                                    statusLabel={statusLabels[task.status]}
-                                />
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
+                <Table ref={scrollRef} containerClassName="flex-1 min-h-0 pr-2 border rounded-md">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="text-left">{t('tasks.columnTask')}</TableHead>
+                            <TableHead className="text-center">{t('tasks.columnProject')}</TableHead>
+                            <TableHead className="text-center">{t('tasks.columnAssigned')}</TableHead>
+                            <TableHead className="text-center">{t('tasks.columnStatus')}</TableHead>
+                            <TableHead className="text-center">{t('tasks.columnDue')}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {paginatedTasks.map((task) => (
+                            <TaskCard
+                                key={task.id}
+                                taskId={task.id}
+                                title={task.title}
+                                projectName={projects.find((p) => p.id === task.project_id)?.name ?? '—'}
+                                assignees={task.assignees}
+                                status={task.status}
+                                dueDate={task.due_date}
+                                statusLabel={statusLabels[task.status]}
+                            />
+                        ))}
+                    </TableBody>
+                </Table>
             )}
 
             {filteredTasks.length > 0 && (

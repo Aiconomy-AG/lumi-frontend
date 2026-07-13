@@ -169,8 +169,7 @@ export default function ProjectsPage() {
             {isLoading ? (
                 <p className="text-zinc-500">{t('projects.loading')}</p>
             ) : (
-                <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border border-zinc-900 rounded-md">
-                    <Table>
+                    <Table ref={scrollRef} containerClassName="flex-1 min-h-0 pr-2 border rounded-md">
                         <TableHeader>
                             <TableRow>
                                 <TableHead>{t('projects.fieldName')}</TableHead>
@@ -222,7 +221,6 @@ export default function ProjectsPage() {
                             )}
                         </TableBody>
                     </Table>
-                </div>
             )}
 
             {projects.length > 0 && (
