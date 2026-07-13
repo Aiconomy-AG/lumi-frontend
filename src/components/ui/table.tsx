@@ -2,11 +2,15 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+const Table = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"table"> & { containerClassName?: string }
+>(({ className, containerClassName, ...props }, ref) => {
   return (
     <div
+      ref={ref}
       data-slot="table-container"
-      className="relative w-full overflow-x-auto bg-zinc-900"
+      className={cn("relative w-full overflow-auto bg-zinc-900", containerClassName)}
     >
       <table
         data-slot="table"
@@ -15,13 +19,14 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
       />
     </div>
   )
-}
+})
+Table.displayName = "Table"
 
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b", className)}
+      className={cn("sticky top-0 z-10 bg-zinc-900 [&_tr]:border-b", className)}
       {...props}
     />
   )

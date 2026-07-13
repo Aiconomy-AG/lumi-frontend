@@ -817,8 +817,7 @@ export default function StockPage() {
       {isLoading ? (
         <p className="text-muted-foreground">{t('admin.loading')}</p>
       ) : (
-        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md bg-zinc-900">
-          <Table>
+          <Table ref={scrollRef} containerClassName="flex-1 min-h-0 pr-2 border rounded-md">
             <TableHeader>
               <TableRow>
                 <TableHead>{t('stock.columnProduct')}</TableHead>
@@ -982,7 +981,6 @@ export default function StockPage() {
               })}
             </TableBody>
           </Table>
-        </div>
       )}
           {meta && (
             <PaginationFooter 
