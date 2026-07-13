@@ -51,19 +51,17 @@ export default function TasksPage() {
     return (
         <div className="p-10 flex flex-col gap-6 w-full bg-zinc-950 h-full overflow-hidden">
             <div className="flex items-start justify-between w-full">
-                <div className="flex items-center gap-3">
-                    <TaskFilters 
-                        filter={filter} 
-                        setFilter={(val) => { setFilter(val); setPage(1); }} 
-                        search={search} 
-                        setSearch={(val) => { setSearch(val); setPage(1); }}
-                        showDueToday={showDueToday}
-                        setShowDueToday={(val) => { setShowDueToday(val); setPage(1); }}
-                    />
-                    <CreateTaskModal>
-                        <Button>{t('tasks.addButton')}</Button>
-                    </CreateTaskModal>
-                </div>
+                <TaskFilters
+                    filter={filter}
+                    setFilter={(val) => { setFilter(val); setPage(1); }}
+                    search={search}
+                    setSearch={(val) => { setSearch(val); setPage(1); }}
+                    showDueToday={showDueToday}
+                    setShowDueToday={(val) => { setShowDueToday(val); setPage(1); }}
+                />
+                <CreateTaskModal>
+                    <Button className="h-9">{t('tasks.addButton')}</Button>
+                </CreateTaskModal>
             </div>
 
             {isLoading ? (
@@ -84,7 +82,7 @@ export default function TasksPage() {
                         </TableHeader>
                         <TableBody>
                             {paginatedTasks.map((task) => (
-                                <TaskCard 
+                                <TaskCard
                                     key={task.id}
                                     taskId={task.id}
                                     title={task.title}
@@ -101,13 +99,13 @@ export default function TasksPage() {
             )}
 
             {filteredTasks.length > 0 && (
-                <PaginationFooter 
-                    page={page} 
-                    setPage={setPage} 
-                    perPage={perPage} 
-                    setPerPage={setPerPage} 
-                    lastPage={meta.last_page} 
-                    total={meta.total ?? 0} 
+                <PaginationFooter
+                    page={page}
+                    setPage={setPage}
+                    perPage={perPage}
+                    setPerPage={setPerPage}
+                    lastPage={meta.last_page}
+                    total={meta.total ?? 0}
                 />
             )}
         </div>

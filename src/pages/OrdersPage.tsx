@@ -76,13 +76,13 @@ export default function OrdersPage() {
             value={search}
             onChange={(e) => resetPage(setSearch)(e.target.value)}
             placeholder={t('orders.searchPlaceholder')}
-            className="w-56"
+            className="w-56 h-9 rounded-md bg-zinc-900 border-zinc-800"
           />
           <Select
             value={status || 'all'}
             onValueChange={(value) => resetPage(setStatus)(value === 'all' ? '' : (value as OrderStatus))}
           >
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-44 bg-zinc-900 border-zinc-800">
               <SelectValue placeholder={t('orders.filterStatus')} />
             </SelectTrigger>
             <SelectContent>
@@ -99,14 +99,14 @@ export default function OrdersPage() {
             value={from}
             onChange={(e) => resetPage(setFrom)(e.target.value)}
             aria-label={t('orders.from')}
-            className="w-40"
+            className="w-40 h-9 rounded-md bg-zinc-900 border-zinc-800"
           />
           <Input
             type="date"
             value={to}
             onChange={(e) => resetPage(setTo)(e.target.value)}
             aria-label={t('orders.to')}
-            className="w-40"
+            className="w-40 h-9 rounded-md bg-zinc-900 border-zinc-800"
           />
         </div>
       </div>

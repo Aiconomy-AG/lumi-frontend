@@ -94,8 +94,7 @@ export default function AdminPage() {
 
     return (
         <div className="p-6 h-full flex flex-col overflow-hidden ">
-            <div className="mb-4 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
+            <div className="mb-6 flex items-center justify-between gap-4">
                     <Input
                         placeholder={t('admin.searchPlaceholder')}
                         value={search}
@@ -149,7 +148,6 @@ export default function AdminPage() {
                             </DialogContent>
                         </Dialog>
                     )}
-                </div>
             </div>
 
             {isLoading ? (

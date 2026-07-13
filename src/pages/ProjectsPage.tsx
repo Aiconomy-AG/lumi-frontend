@@ -46,8 +46,8 @@ export default function ProjectsPage() {
     const deleteMutation = useDeleteProjectMutation()
 
     const filteredProjects = projects.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
-                              (p.description && p.description.toLowerCase().includes(search.toLowerCase()))
+        const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
+            (p.description && p.description.toLowerCase().includes(search.toLowerCase()))
         const matchesStatus = statusFilter === 'All' || p.status === statusFilter
         return matchesSearch && matchesStatus
     })
@@ -85,7 +85,7 @@ export default function ProjectsPage() {
     return (
         <div className="p-10 bg-zinc-950 h-full flex flex-col overflow-hidden">
             <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     <Input
                         placeholder={t("projects.searchPlaceholder")}
                         value={search}
@@ -102,68 +102,68 @@ export default function ProjectsPage() {
                             <option key={s} value={s}>{t(`tasks.status.${s}`)}</option>
                         ))}
                     </select>
+                </div>
 
-                    {isAdmin && (
+                {isAdmin && (
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
                         <DialogTrigger
                             onClick={openAdd}
                             render={<Button className="h-9">{t('projects.addButton')}</Button>}
                         />
-                    <DialogContent className="max-w-110">
-                        <DialogHeader>
-                            <DialogTitle>{t('projects.newTitle')}</DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">{t('projects.fieldName')}</label>
-                                <Input value={name} onChange={(e) => setName(e.target.value)} required />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">{t('projects.fieldDescription')}</label>
-                                <textarea
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground outline-none focus:border-ring resize-none h-48 overflow-y-auto"
-                                    required
-                                />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">{t('projects.fieldDeadline')}</label>
-                                <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} required />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">{t('projects.fieldStatus')}</label>
-                                <select
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus:border-ring cursor-pointer"
-                                >
-                                    {STATUSES.map((s) => (
-                                        <option key={s} value={s}>{t(`tasks.status.${s}`)}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            {saveError && <p className="text-xs text-red-400">{saveError}</p>}
-                            <div className="flex justify-end gap-2 mt-2">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    {t('projects.cancel')}
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={saveMutation.isPending}
-                                >
-                                    {t('projects.save')}
-                                </Button>
-                            </div>
-                        </form>
-                    </DialogContent>
-                </Dialog>
+                        <DialogContent className="max-w-110">
+                            <DialogHeader>
+                                <DialogTitle>{t('projects.newTitle')}</DialogTitle>
+                            </DialogHeader>
+                            <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-medium text-muted-foreground">{t('projects.fieldName')}</label>
+                                    <Input value={name} onChange={(e) => setName(e.target.value)} required />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-medium text-muted-foreground">{t('projects.fieldDescription')}</label>
+                                    <textarea
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground outline-none focus:border-ring resize-none h-48 overflow-y-auto"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-medium text-muted-foreground">{t('projects.fieldDeadline')}</label>
+                                    <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} required />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-medium text-muted-foreground">{t('projects.fieldStatus')}</label>
+                                    <select
+                                        value={status}
+                                        onChange={(e) => setStatus(e.target.value as TaskStatus)}
+                                        className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus:border-ring cursor-pointer"
+                                    >
+                                        {STATUSES.map((s) => (
+                                            <option key={s} value={s}>{t(`tasks.status.${s}`)}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                {saveError && <p className="text-xs text-red-400">{saveError}</p>}
+                                <div className="flex justify-end gap-2 mt-2">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        {t('projects.cancel')}
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={saveMutation.isPending}
+                                    >
+                                        {t('projects.save')}
+                                    </Button>
+                                </div>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
                 )}
-                </div>
             </div>
 
             {isLoading ? (
@@ -226,13 +226,13 @@ export default function ProjectsPage() {
             )}
 
             {projects.length > 0 && (
-                <PaginationFooter 
-                    page={page} 
-                    setPage={setPage} 
-                    perPage={perPage} 
-                    setPerPage={setPerPage} 
-                    lastPage={meta.last_page} 
-                    total={meta.total ?? 0} 
+                <PaginationFooter
+                    page={page}
+                    setPage={setPage}
+                    perPage={perPage}
+                    setPerPage={setPerPage}
+                    lastPage={meta.last_page}
+                    total={meta.total ?? 0}
                 />
             )}
 

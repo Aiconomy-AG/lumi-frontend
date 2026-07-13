@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { TaskStatus } from '@/types/task'
+import { Input } from '@/components/ui/input'
 
 export interface TaskFiltersProps {
     filter: 'All' | TaskStatus
@@ -21,45 +22,41 @@ export function TaskFilters({ filter, setFilter, search, setSearch, showDueToday
     }
 
     return (
-        <div className="flex items-center gap-6">
-            <div className="flex gap-1 bg-zinc-900/50 p-1 rounded-lg border border-zinc-850">
-                {(["All", "to_do", "in_progress", "blocked", "complete"] as const).map((btn) => (
-                    <button
-                        key={btn}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer border-none ${
-                            filter === btn
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-transparent text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
-                        }`}
-                        onClick={() => setFilter(btn)}
-                    >
-                        {btn === "All" ? t('tasks.filterAll') : statusLabels[btn]}
-                    </button>
-                ))}
-            </div>
+        <div className="flex items-center gap-6 ">
 
-            {setShowDueToday !== undefined && (
-                <button
-                    onClick={() => setShowDueToday(!showDueToday)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer border ${
-                        showDueToday 
-                            ? 'bg-primary text-primary-foreground border-primary' 
-                            : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-300'
-                    }`}
+            <Input
+                placeholder={t('tasks.searchPlaceholder')}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="max-w-xs h-9 shrink-0"
+            />
+
+            <div className="flex items-center gap-2">
+
+                <select
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value as 'All' | TaskStatus)}
+                    className="h-9 rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-200 outline-none focus:border-purple-500 cursor-pointer"
                 >
-                    {t('dashboard.dueToday')}
-                </button>
-            )}
+                    <option value="All">{t('tasks.filterAll')}</option>
+                    {(["to_do", "in_progress", "blocked", "complete"] as const).map((s) => (
+                        <option key={s} value={s}>{statusLabels[s]}</option>
+                    ))}
+                </select>
+                                {setShowDueToday !== undefined && (
+                    <button
+                        onClick={() => setShowDueToday(!showDueToday)}
+                        className={`h-9 shrink-0 whitespace-nowrap rounded-md border px-3 text-sm font-medium transition-colors cursor-pointer ${showDueToday
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-zinc-900 text-zinc-200 border-zinc-800 hover:bg-zinc-800'
+                            }`}
+                    >
+                        {t('dashboard.dueToday')}
+                    </button>
+                )}
 
-            <div className="bg-transparent">
-                <input
-                    type="text"
-                    placeholder={t('tasks.searchPlaceholder')}
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    className="bg-zinc-900 border border-zinc-850 rounded-lg px-4 py-1.5 text-zinc-300 placeholder-zinc-600 text-xs outline-none w-[240px] focus:border-purple-500/50 transition-colors"
-                />
             </div>
+
         </div>
     )
 }

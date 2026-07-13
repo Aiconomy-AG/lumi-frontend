@@ -480,23 +480,25 @@ export default function StockPage() {
 
   return (
     <div className="p-6 h-full flex flex-col overflow-hidden">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
+          <Input
+            placeholder={t('stock.searchPlaceholder')}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-xs h-9 rounded-md bg-zinc-900 border-zinc-800"
+          />
           <CategorySelect
             value={categoryId}
             onChange={selectCategory}
             categories={categories}
             nullLabel={t('stock.allCategories')}
-            className="w-100"
-          />
-          <Input
-            placeholder={t('stock.searchPlaceholder')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs"
+            className="w-100 bg-zinc-900 border-zinc-800"
           />
           <Button
-            variant={showOutOfStockOnly ? "secondary" : "outline"}
+            size="lg"
+            variant={showOutOfStockOnly ? "default" : "outline"}
+            className={showOutOfStockOnly ? "rounded-md" : "rounded-md bg-zinc-900 border-zinc-800 text-zinc-200 hover:bg-zinc-800"}
             onClick={() => {
               setShowOutOfStockOnly(!showOutOfStockOnly)
               setPage(1)
@@ -507,7 +509,7 @@ export default function StockPage() {
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger
               render={
-                <Button>
+                <Button className="h-9">
                   {t('stock.addButton')}
                 </Button>
               }
@@ -581,7 +583,7 @@ export default function StockPage() {
             </DialogContent>
           </Dialog>
         </div>
-        
+
         <div className="flex items-center gap-3 text-sm">
           <span className="text-muted-foreground">{t('stock.productsCount', { count: meta?.total ?? products.length })}</span>
           <span className="text-muted-foreground">{t('stock.variantsCount', { count: variantCount })}</span>
@@ -812,106 +814,149 @@ export default function StockPage() {
       {isLoading ? (
         <p className="text-muted-foreground">{t('admin.loading')}</p>
       ) : (
-        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 pr-2 border rounded-md bg-zinc-900">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('stock.columnProduct')}</TableHead>
-                <TableHead>{t('stock.columnVariant')}</TableHead>
-                <TableHead>{t('stock.columnSku')}</TableHead>
-                <TableHead>{t('stock.columnCategory')}</TableHead>
-                <TableHead>{t('stock.columnStock')}</TableHead>
-                <TableHead className="text-right">{t('stock.columnPrice')}</TableHead>
-                <TableHead className="text-right">{t('stock.columnActions')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.flatMap((product) => {
-                const multiVariant = product.variants.length > 1
-                const single = product.variants.length === 1 ? product.variants[0] : null
-                const totalStock = product.variants.reduce((sum, v) => sum + v.stock_quantity, 0)
-                const isExpanded = expanded.has(product.id)
-                const showImagePreview = isExpanded && !!product.image_url && !imageErrorIds.has(product.id)
+        <Table ref={scrollRef} containerClassName="flex-1 min-h-0 pr-2 border rounded-md">
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t('stock.columnProduct')}</TableHead>
+              <TableHead>{t('stock.columnVariant')}</TableHead>
+              <TableHead>{t('stock.columnSku')}</TableHead>
+              <TableHead>{t('stock.columnCategory')}</TableHead>
+              <TableHead>{t('stock.columnStock')}</TableHead>
+              <TableHead className="text-right">{t('stock.columnPrice')}</TableHead>
+              <TableHead className="text-right">{t('stock.columnActions')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {products.flatMap((product) => {
+              const multiVariant = product.variants.length > 1
+              const single = product.variants.length === 1 ? product.variants[0] : null
+              const totalStock = product.variants.reduce((sum, v) => sum + v.stock_quantity, 0)
+              const isExpanded = expanded.has(product.id)
+              const showImagePreview = isExpanded && !!product.image_url && !imageErrorIds.has(product.id)
 
-                const productRow = (
-                  <TableRow
-                    key={`p-${product.id}`}
-                    onClick={() => openProductDetails(product.id)}
-                  >
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-1">
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            toggleExpanded(product.id)
-                          }}
-                          className="cursor-pointer"
-                        >
-                          {isExpanded
-                            ? <ChevronDown className="h-4 w-4" />
-                            : <ChevronRight className="h-4 w-4" />}
-                        </Button>
-                        {showImagePreview && (
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
-                            <img
-                              src={product.image_url ?? ''}
-                              alt={product.name}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                              onError={() => markImageError(product.id)}
-                            />
-                          </div>
-                        )}
-                        <span>{product.name || '-'}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {multiVariant ? (
-                        <button
-                          type="button"
-                          className="cursor-pointer underline-offset-2 hover:underline"
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            toggleExpanded(product.id)
-                          }}
-                        >
-                          {t('stock.variantsCount', { count: product.variants.length })}
-                        </button>
-                      ) : (
-                        single ? variantLabel(product, single, t) : '-'
-                      )}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{product.sku ?? single?.sku ?? '-'}</TableCell>
-                    <TableCell>{product.category_name ?? product.category?.name ?? '-'}</TableCell>
-                    <TableCell>
-                      {single ? (
-                        renderStockEditor(product, single)
-                      ) : multiVariant ? (
-                        renderStock(totalStock, t)
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">{productPrice(product)}</TableCell>
-                    <TableCell className="text-right">
+              const productRow = (
+                <TableRow
+                  key={`p-${product.id}`}
+                  onClick={() => openProductDetails(product.id)}
+                >
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-1">
                       <Button
                         size="icon-sm"
                         variant="ghost"
                         onClick={(event) => {
                           event.stopPropagation()
-                          openEditProduct(product)
+                          toggleExpanded(product.id)
                         }}
                         className="cursor-pointer"
                       >
+                        {isExpanded
+                          ? <ChevronDown className="h-4 w-4" />
+                          : <ChevronRight className="h-4 w-4" />}
+                      </Button>
+                      {showImagePreview && (
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
+                          <img
+                            src={product.image_url ?? ''}
+                            alt={product.name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            onError={() => markImageError(product.id)}
+                          />
+                        </div>
+                      )}
+                      <span>{product.name || '-'}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {multiVariant ? (
+                      <button
+                        type="button"
+                        className="cursor-pointer underline-offset-2 hover:underline"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          toggleExpanded(product.id)
+                        }}
+                      >
+                        {t('stock.variantsCount', { count: product.variants.length })}
+                      </button>
+                    ) : (
+                      single ? variantLabel(product, single, t) : '-'
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{product.sku ?? single?.sku ?? '-'}</TableCell>
+                  <TableCell>{product.category_name ?? product.category?.name ?? '-'}</TableCell>
+                  <TableCell>
+                    {single ? (
+                      renderStockEditor(product, single)
+                    ) : multiVariant ? (
+                      renderStock(totalStock, t)
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">{productPrice(product)}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        openEditProduct(product)
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    {isAdmin && (
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        onClick={(e) => { e.stopPropagation(); setPendingDelete({ type: 'product', id: product.id }) }}
+                        className="cursor-pointer"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              )
+
+              if (!isExpanded) {
+                return [productRow]
+              }
+
+              return [
+                productRow,
+                ...product.variants.map((variant) => (
+                  <TableRow key={`v-${variant.id}`} className="bg-muted/30">
+                    <TableCell />
+                    <TableCell className="text-muted-foreground">
+                      <div className="flex items-center gap-2 pl-2">
+                        <CornerDownRight className="h-3.5 w-3.5" />
+                        {variantLabel(product, variant, t)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{variant.sku}</TableCell>
+                    <TableCell />
+                    <TableCell>{renderStockEditor(product, variant)}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">{formatPrice(variant.price)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button size="icon-sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditVariant(product, variant) }} className="cursor-pointer">
                         <Pencil className="h-4 w-4" />
                       </Button>
                       {isAdmin && (
                         <Button
                           size="icon-sm"
                           variant="ghost"
-                          onClick={(e) => { e.stopPropagation(); setPendingDelete({ type: 'product', id: product.id }) }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPendingDelete({
+                              type: 'variant',
+                              productId: product.id,
+                              variantId: variant.id,
+                            });
+                          }}
                           className="cursor-pointer"
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
@@ -919,76 +964,31 @@ export default function StockPage() {
                       )}
                     </TableCell>
                   </TableRow>
-                )
-
-                if (!isExpanded) {
-                  return [productRow]
-                }
-
-                return [
-                  productRow,
-                  ...product.variants.map((variant) => (
-                    <TableRow key={`v-${variant.id}`} className="bg-muted/30">
-                      <TableCell />
-                      <TableCell className="text-muted-foreground">
-                        <div className="flex items-center gap-2 pl-2">
-                          <CornerDownRight className="h-3.5 w-3.5" />
-                          {variantLabel(product, variant, t)}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{variant.sku}</TableCell>
-                      <TableCell />
-                      <TableCell>{renderStockEditor(product, variant)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{formatPrice(variant.price)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button size="icon-sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditVariant(product, variant) }} className="cursor-pointer">
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        {isAdmin && (
-                          <Button
-                            size="icon-sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setPendingDelete({
-                                type: 'variant',
-                                productId: product.id,
-                                variantId: variant.id,
-                              });
-                            }}
-                            className="cursor-pointer"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-500" />
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )),
-                  <TableRow key={`add-v-${product.id}`} className="bg-muted/30">
-                    <TableCell />
-                    <TableCell colSpan={6}>
-                      <Button size="sm" variant="ghost" onClick={() => openCreateVariant(product)}>
-                        <Plus className="mr-1 h-3.5 w-3.5" />
-                        {t('stock.addVariant')}
-                      </Button>
-                    </TableCell>
-                  </TableRow>,
-                ]
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                )),
+                <TableRow key={`add-v-${product.id}`} className="bg-muted/30">
+                  <TableCell />
+                  <TableCell colSpan={6}>
+                    <Button size="sm" variant="ghost" onClick={() => openCreateVariant(product)}>
+                      <Plus className="mr-1 h-3.5 w-3.5" />
+                      {t('stock.addVariant')}
+                    </Button>
+                  </TableCell>
+                </TableRow>,
+              ]
+            })}
+          </TableBody>
+        </Table>
       )}
-          {meta && (
-            <PaginationFooter 
-                page={page} 
-                setPage={setPage} 
-                perPage={perPage} 
-                setPerPage={setPerPage} 
-                lastPage={meta.last_page} 
-                total={meta.total ?? 0} 
-            />
-          )}
+      {meta && (
+        <PaginationFooter
+          page={page}
+          setPage={setPage}
+          perPage={perPage}
+          setPerPage={setPerPage}
+          lastPage={meta.last_page}
+          total={meta.total ?? 0}
+        />
+      )}
 
       <ConfirmDeleteDialog
         open={pendingDelete !== null}
