@@ -117,6 +117,7 @@ export function MessageList({
                             isGroup={isGroup}
                             showSenderName={groupMeta?.showSenderName ?? false}
                             showAvatar={groupMeta?.showAvatar ?? false}
+                            currentUserId={currentUserId}
                         />
                     </div>
                 )

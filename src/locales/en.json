@@ -201,7 +201,22 @@
     "send": "Send",
     "messageMaxLength": "{{current}} / {{max}} characters",
     "cancel": "Cancel",
-    "retry": "Retry"
+    "retry": "Retry",
+    "aiAction": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "stockChange": "Stock",
+      "someone": "someone",
+      "waitingForConfirmation": "Waiting for {{name}} to confirm",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "executed": "Done",
+        "failed": "Failed",
+        "rejected": "Rejected",
+        "expired": "Expired"
+      }
+    }
   },
   "admin": {
     "usersCount": "{{count}} users",

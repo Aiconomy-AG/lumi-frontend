@@ -44,3 +44,15 @@ export async function sendMessage(conversationId: number, message: string): Prom
     data: { message },
   })
 }
+
+export async function approveAiAction(conversationId: number, actionId: number): Promise<void> {
+  await requestData(`/workspace/conversations/${conversationId}/ai-actions/${actionId}/approve`, {
+    method: 'POST',
+  })
+}
+
+export async function rejectAiAction(conversationId: number, actionId: number): Promise<void> {
+  await requestData(`/workspace/conversations/${conversationId}/ai-actions/${actionId}/reject`, {
+    method: 'POST',
+  })
+}

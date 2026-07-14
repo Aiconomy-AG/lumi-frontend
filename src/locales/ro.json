@@ -201,7 +201,22 @@
     "send": "Trimite",
     "messageMaxLength": "{{current}} / {{max}} caractere",
     "cancel": "Anulează",
-    "retry": "Reîncearcă"
+    "retry": "Reîncearcă",
+    "aiAction": {
+      "approve": "Aprobă",
+      "reject": "Respinge",
+      "stockChange": "Stoc",
+      "someone": "cineva",
+      "waitingForConfirmation": "Se așteaptă confirmarea lui {{name}}",
+      "status": {
+        "pending": "În așteptare",
+        "approved": "Aprobat",
+        "executed": "Finalizat",
+        "failed": "Eșuat",
+        "rejected": "Respins",
+        "expired": "Expirat"
+      }
+    }
   },
   "admin": {
     "usersCount": "{{count}} utilizatori",
