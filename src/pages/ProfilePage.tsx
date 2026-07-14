@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { avatarColorFor } from "@/components/ui/task-card"
 import { Button } from '@/components/ui/button'
@@ -23,6 +23,7 @@ function Field({ label, value }: { label: string; value: string }) {
 export default function ProfilePage() {
     const { t } = useTranslation()
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
     const queryClient = useQueryClient()
     const { user, logout, updateStatus } = useAuth()
 
@@ -40,16 +41,34 @@ export default function ProfilePage() {
 
     const phoneMutation = useMutation({
         mutationFn: (phoneNumber: string) => updateMyPhone(phoneNumber),
-        onSuccess: (_data, phoneNumber) => {
+        onSuccess: (data) => {
             queryClient.setQueryData<User>(authKeys.me(), (prev) =>
-                prev ? { ...prev, phone_number: phoneNumber } : prev
+                prev ? { ...prev, phone_number: data.phone_number } : prev
             )
-            alert("Phone number updated successfully!")
+            setIsEditOpen(false)
+            const returnPath = searchParams.get('return')
+            const pendingCall = Number(searchParams.get('call'))
+            if (returnPath?.startsWith('/')) {
+                navigate(returnPath, {
+                    replace: true,
+                    state: Number.isFinite(pendingCall) && pendingCall > 0
+                        ? { resumeCallConversationId: pendingCall }
+                        : null,
+                })
+            } else {
+                alert("Phone number updated successfully!")
+            }
         },
         onError: (err: any) => {
             alert(err?.response?.data?.message || "Failed to update phone number.")
         }
     })
+
+    useEffect(() => {
+        if (searchParams.get('edit') !== 'phone' || !user) return
+        setPhone(user.phone_number ?? '')
+        setIsEditOpen(true)
+    }, [searchParams, user])
 
     const passwordMutation = useMutation({
         mutationFn: (payload: { current_password: string; password: string; password_confirmation: string }) =>
@@ -171,8 +190,8 @@ export default function ProfilePage() {
                                     value={phone}
                                     onChange={e => setPhone(e.target.value.replace(/[^\d+]/g, ''))}
                                     placeholder={t('admin.phonePlaceholder')}
-                                    pattern="\+?\d{7,15}"
-                                    minLength={7}
+                                    pattern="\+[1-9]\d{7,14}"
+                                    minLength={9}
                                     maxLength={16}
                                     title={t('profile.invalidPhone')}
                                     className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white outline-none focus:border-purple-500 transition-colors"

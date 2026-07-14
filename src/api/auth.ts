@@ -33,8 +33,8 @@ export async function updateMyStatus(status: UserStatus): Promise<User> {
   })
 }
 
-export async function updateMyPhone(phoneNumber: string): Promise<void> {
-  await request('/auth/phone', {
+export async function updateMyPhone(phoneNumber: string): Promise<{ phone_number: string }> {
+  return request('/auth/phone', {
     method: 'PUT',
     data: { phone_number: phoneNumber },
   })

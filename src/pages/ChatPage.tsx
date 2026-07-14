@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import type { Conversation } from '@/types/chat'
 import type { User } from '@/types/user'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -19,6 +19,7 @@ import { ChatSidebar } from '@/features/chat/components/ChatSidebar'
 import { MessageList } from '@/features/chat/components/MessageList'
 import { useMediaQuery } from '@/features/chat/hooks/useMediaQuery'
 import { MESSAGE_MAX_LENGTH } from '@/features/chat/utils'
+import { useCalls } from '@/features/calls'
 
 function parseConversationId(value?: string) {
     if (!value) return null
@@ -29,6 +30,8 @@ function parseConversationId(value?: string) {
 export default function ChatPage() {
     const { user } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
+    const { start: startCall } = useCalls()
     const { conversationId: conversationIdParam } = useParams()
     const isDesktop = useMediaQuery('(min-width: 768px)')
     const [draft, setDraft] = useState('')
@@ -78,6 +81,13 @@ export default function ChatPage() {
             setMobileShowSidebar(false)
         }
     }, [activeConversationId, isDesktop])
+
+    useEffect(() => {
+        const state = location.state as { resumeCallConversationId?: number } | null
+        if (!state?.resumeCallConversationId) return
+        navigate(location.pathname, { replace: true, state: null })
+        void startCall(state.resumeCallConversationId)
+    }, [location.pathname, location.state, navigate, startCall])
 
     function openConversation(conversationId: number) {
         navigate(`/chat/${conversationId}`)
@@ -188,6 +198,7 @@ export default function ChatPage() {
                 showBackButton={!isDesktop && !mobileShowSidebar}
                 isUpdatingGroup={updateMutation.isPending}
                 onBack={handleBackToList}
+                onStartCall={activeConversation?.type === 'direct' ? () => void startCall(activeConversation.id) : undefined}
                 onUpdateGroup={activeConversation?.type === 'group' ? handleUpdateGroup : undefined}
             />
             <MessageList

@@ -1,4 +1,4 @@
-import { ArrowLeft, Settings2, Users } from 'lucide-react'
+import { ArrowLeft, Phone, Settings2, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Conversation } from '@/types/chat'
@@ -14,6 +14,7 @@ interface ChatHeaderProps {
     showBackButton?: boolean
     isUpdatingGroup?: boolean
     onBack?: () => void
+    onStartCall?: () => void
     onUpdateGroup?: (payload: {
         name: string
         add_participants_employee_ids: number[]
@@ -28,6 +29,7 @@ export function ChatHeader({
     showBackButton,
     isUpdatingGroup = false,
     onBack,
+    onStartCall,
     onUpdateGroup,
 }: ChatHeaderProps) {
     const { t } = useTranslation()
@@ -105,6 +107,17 @@ export function ChatHeader({
                         </p>
                     ) : null}
                 </div>
+
+                {!isGroup && onStartCall && (
+                    <button
+                        type="button"
+                        onClick={onStartCall}
+                        className="rounded-md p-2 text-purple-300 transition-colors hover:bg-purple-500/10 hover:text-purple-200"
+                        aria-label="Start audio call"
+                    >
+                        <Phone className="h-4 w-4" />
+                    </button>
+                )}
 
                 {isGroup && onUpdateGroup && (
                     <button

@@ -21,6 +21,7 @@ import ReturnDetailPage from '@/pages/ReturnDetailPage'
 import ProjectsPage from "./pages/ProjectsPage"
 import ProjectDetailPage from "./pages/ProjectDetailPage"
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
+import { CallProvider } from '@/features/calls'
 
 export default function App() {
     const { user } = useAuth()
@@ -33,7 +34,7 @@ export default function App() {
             <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route element={<ProtectedRoute />}>
-                <Route element={<AppLayout />}>
+                <Route element={<CallProvider><AppLayout /></CallProvider>}>
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/tasks" element={<TasksPage />} />
                     <Route path="/tasks/:id" element={<TaskDetailPage />} />
