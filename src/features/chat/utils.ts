@@ -85,6 +85,13 @@ export function getDirectParticipant(conversation: Conversation, currentUserId?:
     return otherParticipant(conversation, currentUserId)
 }
 
+export function canCallWorkspaceUser(user?: User | null) {
+    return !!user
+        && user.is_active
+        && !user.is_bot
+        && (user.role === 'employee' || user.role === 'admin')
+}
+
 export function matchesSearchQuery(value: string, query: string) {
     return value.toLowerCase().includes(query.toLowerCase())
 }
