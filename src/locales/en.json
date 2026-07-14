@@ -206,6 +206,8 @@
       "approve": "Approve",
       "reject": "Reject",
       "stockChange": "Stock",
+      "addMembers": "Add members",
+      "removeMembers": "Remove members",
       "someone": "someone",
       "waitingForConfirmation": "Waiting for {{name}} to confirm",
       "status": {

@@ -60,7 +60,13 @@ export function AiActionCard({ conversationId, meta, currentUserId }: AiActionCa
   const canRespond =
     isRequester && effectiveStatus === 'pending' && !isExpired && !approveMutation.isPending && !rejectMutation.isPending
 
-  const argumentEntries = Object.entries(meta.arguments ?? {})
+  const argumentEntries = Object.entries(meta.arguments ?? {}).filter(([key]) => {
+    if (meta.tool_name === 'update_conversation_participants' && key === 'conversation_id') {
+      return false
+    }
+
+    return true
+  })
 
   const stockResult =
     meta.tool_name === 'update_stock' && meta.result
@@ -86,7 +92,13 @@ export function AiActionCard({ conversationId, meta, currentUserId }: AiActionCa
         <dl className="space-y-1.5 rounded-lg border border-zinc-700/60 bg-zinc-900/50 px-3 py-2 text-xs">
           {argumentEntries.map(([key, value]) => (
             <div key={key} className="flex justify-between gap-3">
-              <dt className="text-zinc-500">{formatArgumentLabel(key)}</dt>
+              <dt className="text-zinc-500">
+                {meta.tool_name === 'update_conversation_participants' && key === 'add_participants_employee_ids'
+                  ? t('chat.aiAction.addMembers')
+                  : meta.tool_name === 'update_conversation_participants' && key === 'remove_participants_employee_ids'
+                    ? t('chat.aiAction.removeMembers')
+                    : formatArgumentLabel(key)}
+              </dt>
               <dd className="text-right text-zinc-200">{formatArgumentValue(value)}</dd>
             </div>
           ))}

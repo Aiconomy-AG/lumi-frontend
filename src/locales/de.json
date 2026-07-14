@@ -206,6 +206,8 @@
       "approve": "Genehmigen",
       "reject": "Ablehnen",
       "stockChange": "Bestand",
+      "addMembers": "Mitglieder hinzufügen",
+      "removeMembers": "Mitglieder entfernen",
       "someone": "jemand",
       "waitingForConfirmation": "Warten auf Bestätigung von {{name}}",
       "status": {

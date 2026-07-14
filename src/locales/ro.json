@@ -206,6 +206,8 @@
       "approve": "Aprobă",
       "reject": "Respinge",
       "stockChange": "Stoc",
+      "addMembers": "Adaugă membri",
+      "removeMembers": "Elimină membri",
       "someone": "cineva",
       "waitingForConfirmation": "Se așteaptă confirmarea lui {{name}}",
       "status": {

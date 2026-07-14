@@ -202,6 +202,7 @@ export function useApproveAiActionMutation(conversationId: number | null) {
       }
 
       void queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
+      void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
     },
   })
 }
@@ -249,6 +250,7 @@ export function useRejectAiActionMutation(conversationId: number | null) {
       }
 
       void queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
+      void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
     },
   })
 }
