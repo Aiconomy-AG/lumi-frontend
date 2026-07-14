@@ -206,7 +206,24 @@
     "send": "Trimite",
     "messageMaxLength": "{{current}} / {{max}} caractere",
     "cancel": "Anulează",
-    "retry": "Reîncearcă"
+    "retry": "Reîncearcă",
+    "aiAction": {
+      "approve": "Aprobă",
+      "reject": "Respinge",
+      "stockChange": "Stoc",
+      "addMembers": "Adaugă membri",
+      "removeMembers": "Elimină membri",
+      "someone": "cineva",
+      "waitingForConfirmation": "Se așteaptă confirmarea lui {{name}}",
+      "status": {
+        "pending": "În așteptare",
+        "approved": "Aprobat",
+        "executed": "Finalizat",
+        "failed": "Eșuat",
+        "rejected": "Respins",
+        "expired": "Expirat"
+      }
+    }
   },
   "admin": {
     "usersCount": "{{count}} utilizatori",
@@ -434,6 +451,45 @@
       "time_start": "Cronometru pornit",
       "time_stop": "Cronometru oprit",
       "conversation_create": "Conversație creată"
+    }
+  },
+  "search": {
+    "title": "Căutare",
+    "description": "Caută pagini, înregistrări și acțiuni rapide în Lumi",
+    "open": "Deschide căutarea",
+    "close": "Închide căutarea",
+    "placeholder": "Caută orice...",
+    "shortcut": "⌘K",
+    "minChars": "Introdu cel puțin 2 caractere pentru a căuta înregistrări",
+    "noResults": "Niciun rezultat pentru \"{{query}}\"",
+    "loading": "Se caută...",
+    "error": "Căutarea este temporar indisponibilă",
+    "footerNavigate": "Navighează cu săgețile, selectează cu Enter",
+    "sections": {
+      "recent": "Recente",
+      "actions": "Acțiuni rapide",
+      "pages": "Pagini",
+      "pagesActions": "Pagini și acțiuni",
+      "tasks": "Task-uri",
+      "projects": "Proiecte",
+      "products": "Produse",
+      "orders": "Comenzi",
+      "returns": "Returnări",
+      "users": "Utilizatori"
+    },
+    "showCompleted": "Arată finalizate",
+    "prefixHint": "Filtrează cu prefixe: {{prefixes}}",
+    "summary": "{{total}} rezultate în {{sections}} secțiuni",
+    "actions": {
+      "createTask": "Creează task",
+      "createProject": "Creează proiect",
+      "openChat": "Deschide chat",
+      "openProfile": "Deschide profilul",
+      "messageUser": "Trimite mesaj unui utilizator",
+      "statusAvailable": "Setează status: Disponibil",
+      "statusBusy": "Setează status: Ocupat",
+      "statusAway": "Setează status: Plecat",
+      "startTimerOn": "Pornește cronometrul pentru \"{{task}}\""
     }
   }
 }

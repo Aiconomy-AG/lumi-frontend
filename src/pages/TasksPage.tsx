@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TaskStatus } from '@/types/task'
 import { useProjectsQuery } from '@/features/projects'
@@ -12,10 +13,13 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 
 export default function TasksPage() {
     const { t } = useTranslation()
+    const location = useLocation()
+    const navigate = useNavigate()
     const [filter, setFilter] = useState<'All' | TaskStatus>("All")
     const [search, setSearch] = useState("")
     const [page, setPage] = useState(1)
     const [perPage, setPerPage] = useState(10)
+    const [createOpen, setCreateOpen] = useState(false)
     const { data: tasks = [], isLoading: isLoadingTasks } = useTasksQuery()
     const { data: projects = [], isLoading: isLoadingProjects } = useProjectsQuery()
     const [showDueToday, setShowDueToday] = useState(false)
@@ -24,6 +28,14 @@ export default function TasksPage() {
     useEffect(() => {
         scrollRef.current?.scrollTo(0, 0)
     }, [page, perPage])
+
+    useEffect(() => {
+        const state = location.state as { openCreate?: boolean } | null
+        if (state?.openCreate) {
+            setCreateOpen(true)
+            navigate(location.pathname, { replace: true, state: null })
+        }
+    }, [location.pathname, location.state, navigate])
 
 
     const statusLabels: Record<TaskStatus, string> = {
@@ -59,7 +71,7 @@ export default function TasksPage() {
                     showDueToday={showDueToday}
                     setShowDueToday={(val) => { setShowDueToday(val); setPage(1); }}
                 />
-                <CreateTaskModal>
+                <CreateTaskModal open={createOpen} onOpenChange={setCreateOpen}>
                     <Button className="h-9">{t('tasks.addButton')}</Button>
                 </CreateTaskModal>
             </div>

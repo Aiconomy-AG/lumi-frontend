@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import type { Message } from '@/types/chat'
 import type { User } from '@/types/user'
 import { formatMessageTime } from '../utils'
+import { AiActionCard } from './AiActionCard'
 import { ChatAvatar } from './ChatAvatar'
+import { MessageMarkdown } from './MessageMarkdown'
 
 interface MessageBubbleProps {
     message: Message
@@ -12,6 +14,7 @@ interface MessageBubbleProps {
     isGroup?: boolean
     showSenderName?: boolean
     showAvatar?: boolean
+    currentUserId?: number
 }
 
 const senderTextColors = [
@@ -34,9 +37,11 @@ export const MessageBubble = memo(function MessageBubble({
     isGroup = false,
     showSenderName = false,
     showAvatar = false,
+    currentUserId,
 }: MessageBubbleProps) {
     const { i18n, t } = useTranslation()
     const isBot = sender?.is_bot === true
+    const isAiAction = message.type === 'ai_action' && message.meta
 
     return (
         <div className={`flex gap-2 ${fromMe ? 'justify-end' : 'justify-start'}`}>
@@ -48,7 +53,11 @@ export const MessageBubble = memo(function MessageBubble({
                 )
             ) : null}
 
-            <div className={`max-w-[min(20rem,85%)] ${fromMe ? 'items-end' : 'items-start'} flex flex-col`}>
+            <div
+                className={`flex flex-col ${fromMe ? 'items-end' : 'items-start'} ${
+                    isBot ? 'max-w-[min(36rem,92%)]' : 'max-w-[min(20rem,85%)]'
+                }`}
+            >
                 {(showSenderName || isBot) && sender && !fromMe && (
                     <span
                         className={`mb-1 flex items-center gap-1.5 px-1 text-xs font-semibold ${
@@ -74,7 +83,17 @@ export const MessageBubble = memo(function MessageBubble({
                                 : 'rounded-bl-md bg-zinc-800 text-zinc-100'
                     }`}
                 >
-                    <p className="whitespace-pre-wrap break-words">{message.message}</p>
+                    {isAiAction ? (
+                        <AiActionCard
+                            conversationId={message.conversation_id}
+                            meta={message.meta!}
+                            currentUserId={currentUserId}
+                        />
+                    ) : isBot ? (
+                        <MessageMarkdown content={message.message} />
+                    ) : (
+                        <p className="whitespace-pre-wrap break-words">{message.message}</p>
+                    )}
                     <span className={`mt-1 block text-right text-[11px] ${fromMe ? 'text-purple-100' : 'text-zinc-500'}`}>
                         {formatMessageTime(message.sent_at, i18n.language)}
                     </span>

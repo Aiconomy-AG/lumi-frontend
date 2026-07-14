@@ -206,7 +206,24 @@
     "send": "Send",
     "messageMaxLength": "{{current}} / {{max}} characters",
     "cancel": "Cancel",
-    "retry": "Retry"
+    "retry": "Retry",
+    "aiAction": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "stockChange": "Stock",
+      "addMembers": "Add members",
+      "removeMembers": "Remove members",
+      "someone": "someone",
+      "waitingForConfirmation": "Waiting for {{name}} to confirm",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "executed": "Done",
+        "failed": "Failed",
+        "rejected": "Rejected",
+        "expired": "Expired"
+      }
+    }
   },
   "admin": {
     "usersCount": "{{count}} users",
@@ -434,6 +451,45 @@
       "time_start": "Timer started",
       "time_stop": "Timer stopped",
       "conversation_create": "Conversation created"
+    }
+  },
+  "search": {
+    "title": "Search",
+    "description": "Search pages, records, and quick actions across Lumi",
+    "open": "Open search",
+    "close": "Close search",
+    "placeholder": "Search anything...",
+    "shortcut": "⌘K",
+    "minChars": "Type at least 2 characters to search records",
+    "noResults": "No results for \"{{query}}\"",
+    "loading": "Searching...",
+    "error": "Search is temporarily unavailable",
+    "footerNavigate": "Navigate with arrow keys, select with Enter",
+    "sections": {
+      "recent": "Recent",
+      "actions": "Quick actions",
+      "pages": "Pages",
+      "pagesActions": "Pages & Actions",
+      "tasks": "Tasks",
+      "projects": "Projects",
+      "products": "Products",
+      "orders": "Orders",
+      "returns": "Returns",
+      "users": "Users"
+    },
+    "showCompleted": "Show completed",
+    "prefixHint": "Filter with prefixes: {{prefixes}}",
+    "summary": "{{total}} results in {{sections}} sections",
+    "actions": {
+      "createTask": "Create task",
+      "createProject": "Create project",
+      "openChat": "Open chat",
+      "openProfile": "Open profile",
+      "messageUser": "Message a user",
+      "statusAvailable": "Set status: Available",
+      "statusBusy": "Set status: Busy",
+      "statusAway": "Set status: Away",
+      "startTimerOn": "Start timer on \"{{task}}\""
     }
   }
 }

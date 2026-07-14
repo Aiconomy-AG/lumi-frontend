@@ -206,7 +206,24 @@
     "send": "Senden",
     "messageMaxLength": "{{current}} / {{max}} Zeichen",
     "cancel": "Abbrechen",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "aiAction": {
+      "approve": "Genehmigen",
+      "reject": "Ablehnen",
+      "stockChange": "Bestand",
+      "addMembers": "Mitglieder hinzufügen",
+      "removeMembers": "Mitglieder entfernen",
+      "someone": "jemand",
+      "waitingForConfirmation": "Warten auf Bestätigung von {{name}}",
+      "status": {
+        "pending": "Ausstehend",
+        "approved": "Genehmigt",
+        "executed": "Erledigt",
+        "failed": "Fehlgeschlagen",
+        "rejected": "Abgelehnt",
+        "expired": "Abgelaufen"
+      }
+    }
   },
   "admin": {
     "usersCount": "{{count}} Benutzer",
@@ -434,6 +451,45 @@
       "time_start": "Timer gestartet",
       "time_stop": "Timer gestoppt",
       "conversation_create": "Unterhaltung erstellt"
+    }
+  },
+  "search": {
+    "title": "Suche",
+    "description": "Seiten, Datensätze und Schnellaktionen in Lumi durchsuchen",
+    "open": "Suche öffnen",
+    "close": "Suche schließen",
+    "placeholder": "Alles durchsuchen...",
+    "shortcut": "⌘K",
+    "minChars": "Mindestens 2 Zeichen eingeben, um Datensätze zu suchen",
+    "noResults": "Keine Ergebnisse für \"{{query}}\"",
+    "loading": "Suche läuft...",
+    "error": "Suche vorübergehend nicht verfügbar",
+    "footerNavigate": "Mit Pfeiltasten navigieren, mit Enter auswählen",
+    "sections": {
+      "recent": "Zuletzt verwendet",
+      "actions": "Schnellaktionen",
+      "pages": "Seiten",
+      "pagesActions": "Seiten & Aktionen",
+      "tasks": "Aufgaben",
+      "projects": "Projekte",
+      "products": "Produkte",
+      "orders": "Bestellungen",
+      "returns": "Retouren",
+      "users": "Benutzer"
+    },
+    "showCompleted": "Abgeschlossene anzeigen",
+    "prefixHint": "Mit Präfixen filtern: {{prefixes}}",
+    "summary": "{{total}} Ergebnisse in {{sections}} Bereichen",
+    "actions": {
+      "createTask": "Aufgabe erstellen",
+      "createProject": "Projekt erstellen",
+      "openChat": "Chat öffnen",
+      "openProfile": "Profil öffnen",
+      "messageUser": "Benutzer anschreiben",
+      "statusAvailable": "Status: Verfügbar",
+      "statusBusy": "Status: Beschäftigt",
+      "statusAway": "Status: Abwesend",
+      "startTimerOn": "Timer starten für \"{{task}}\""
     }
   }
 }

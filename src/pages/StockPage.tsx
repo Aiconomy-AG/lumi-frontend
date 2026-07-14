@@ -42,6 +42,7 @@ import {
   ImageIcon,
 } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthContext'
 
 
@@ -190,6 +191,7 @@ function Field({ label, children }: FieldProps) {
 export default function StockPage() {
   const { t } = useTranslation()
   const { isAdmin } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -208,6 +210,9 @@ export default function StockPage() {
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [newProduct, setNewProduct] = useState(emptyProduct)
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
+  const [highlightProductId, setHighlightProductId] = useState<number | null>(null)
+
+  const productParam = searchParams.get('product')
 
   const [productForm, setProductForm] = useState<ProductForm | null>(null)
   const [variantForm, setVariantForm] = useState<VariantForm | null>(null)
@@ -243,6 +248,35 @@ export default function StockPage() {
 
   const products = productPage?.data ?? []
   const meta = productPage?.meta
+
+  useEffect(() => {
+    if (!productParam) return
+
+    const productId = Number(productParam)
+    if (!Number.isFinite(productId)) return
+
+    const exists = products.some((product) => product.id === productId)
+    if (!exists) return
+
+    setExpanded((prev) => new Set([...prev, productId]))
+    setSelectedProductId(productId)
+    setHighlightProductId(productId)
+
+    requestAnimationFrame(() => {
+      document.getElementById(`product-row-${productId}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    })
+
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('product')
+    setSearchParams(nextParams, { replace: true })
+
+    const timer = window.setTimeout(() => setHighlightProductId(null), 3000)
+    return () => window.clearTimeout(timer)
+  }, [productParam, products, searchParams, setSearchParams])
+
   const selectedProduct = selectedProductId === null
     ? null
     : products.find((product) => product.id === selectedProductId) ?? null
@@ -837,6 +871,8 @@ export default function StockPage() {
               const productRow = (
                 <TableRow
                   key={`p-${product.id}`}
+                  id={`product-row-${product.id}`}
+                  className={highlightProductId === product.id ? 'bg-purple-500/10 ring-1 ring-purple-500/30' : undefined}
                   onClick={() => openProductDetails(product.id)}
                 >
                   <TableCell className="font-medium">

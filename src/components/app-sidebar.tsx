@@ -1,18 +1,8 @@
 import { Link, useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import {
-    Home,
-    CheckSquare,
-    ShoppingCart,
-    MessageSquare,
-    Users,
     ChevronLeft,
     ChevronRight,
-    ClipboardList,
-    FolderKanban,
-    History,
-    Undo2,
-    type LucideIcon,
 } from "lucide-react"
 import {
     Sidebar,
@@ -38,57 +28,10 @@ import {
 } from "@/components/ui/select"
 import { useAuth } from "@/features/auth/AuthContext"
 import { STATUS_TEXT_COLOR, type UserStatus } from "@/types/user"
+import { canSeeNavItem, navGroups } from "@/lib/navigation"
 
-type NavItem = {
-    titleKey: string
-    path: string
-    icon: LucideIcon
-    adminOnly?: boolean
-    staffOnly?: boolean
-}
-
-type NavGroup = {
-    labelKey: string
-    items: NavItem[]
-}
-
-export const navGroups: NavGroup[] = [
-    {
-        labelKey: "sidebar.groups.workspace",
-        items: [
-            { titleKey: "sidebar.dashboard", path: "/dashboard", icon: Home },
-            { titleKey: "sidebar.tasks", path: "/tasks", icon: CheckSquare },
-            { titleKey: "sidebar.projects", path: "/projects", icon: FolderKanban },
-            { titleKey: "sidebar.chat", path: "/chat", icon: MessageSquare },
-        ],
-    },
-    {
-        labelKey: "sidebar.groups.sales",
-        items: [
-            { titleKey: "sidebar.stock", path: "/stock", icon: ShoppingCart },
-            { titleKey: "sidebar.stockLogs", path: "/stock-logs", icon: History, adminOnly: true },
-            { titleKey: "sidebar.orders", path: "/orders", icon: ClipboardList, staffOnly: true },
-            { titleKey: "sidebar.returns", path: "/returns", icon: Undo2, staffOnly: true },
-        ],
-    },
-    {
-        labelKey: "sidebar.groups.admin",
-        items: [
-            { titleKey: "sidebar.admin", path: "/admin", icon: Users, adminOnly: true },
-            { titleKey: "sidebar.auditLogs", path: "/admin/audit-logs", icon: History, adminOnly: true },
-        ],
-    },
-]
-
-function canSeeNavItem(item: NavItem, isAdmin: boolean, role?: string): boolean {
-    if (item.adminOnly) {
-        return isAdmin
-    }
-    if (item.staffOnly) {
-        return role !== "client"
-    }
-    return true
-}
+export type { NavItem } from "@/lib/navigation"
+export { navGroups } from "@/lib/navigation"
 
 function isNavItemActive(path: string, pathname: string): boolean {
     return pathname === path || (path !== "/admin" && pathname.startsWith(path + "/"))

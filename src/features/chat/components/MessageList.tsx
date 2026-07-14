@@ -94,6 +94,18 @@ export function MessageList({
             {messages.map((message, index) => {
                 const previous = messages[index - 1]
                 const showDateSeparator = !previous || !isSameDay(previous.sent_at, message.sent_at)
+                const isSystemMessage = message.message_type === 'system'
+
+                if (isSystemMessage) {
+                    return (
+                        <div key={message.id} className="flex justify-center py-1">
+                            <span className="max-w-[85%] rounded-full bg-zinc-900 px-3 py-1 text-center text-[11px] leading-relaxed text-zinc-500">
+                                {message.message}
+                            </span>
+                        </div>
+                    )
+                }
+
                 const fromMe = message.sender_id === currentUserId
                 const sender = participantsById.get(message.sender_id)
                 const groupMeta = isGroup ? shouldShowGroupMessageMeta(messages, index, currentUserId) : null
@@ -117,6 +129,7 @@ export function MessageList({
                             isGroup={isGroup}
                             showSenderName={groupMeta?.showSenderName ?? false}
                             showAvatar={groupMeta?.showAvatar ?? false}
+                            currentUserId={currentUserId}
                         />
                     </div>
                 )

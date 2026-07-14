@@ -40,6 +40,7 @@ export function ChatSidebar({
         return conversations
             .filter(
                 (conversation) =>
+                    conversation.type === 'group' ||
                     conversation.last_message_at ||
                     (activeConversationId !== null && conversation.id === activeConversationId)
             )

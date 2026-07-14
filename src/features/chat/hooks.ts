@@ -1,8 +1,16 @@
 import { useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createConversation, getConversations, getMessages, sendMessage, updateConversation } from '@/api/client'
+import {
+  approveAiAction,
+  createConversation,
+  getConversations,
+  getMessages,
+  rejectAiAction,
+  sendMessage,
+  updateConversation,
+} from '@/api/client'
 import { connectEcho } from '@/lib/echo'
-import type { Message } from '@/types/chat'
+import type { AiActionMeta, Message } from '@/types/chat'
 import { chatKeys } from './queryKeys'
 
 function upsertMessage(messages: Message[] | undefined, incoming: Message): Message[] {
@@ -15,6 +23,20 @@ function upsertMessage(messages: Message[] | undefined, incoming: Message): Mess
     const sentAtDiff = new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
     return sentAtDiff === 0 ? a.id - b.id : sentAtDiff
   })
+}
+
+function patchMessageMeta(
+  messages: Message[] | undefined,
+  messageId: number,
+  meta: AiActionMeta
+): Message[] | undefined {
+  if (!messages) {
+    return messages
+  }
+
+  return messages.map((message) =>
+    message.id === messageId ? { ...message, meta } : message
+  )
 }
 
 export function useConversationsQuery() {
@@ -57,6 +79,13 @@ export function useConversationMessagesRealtime(conversationId: number | null) {
       void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
     })
 
+    channel.listen('.ai-action.updated', (payload: { message_id: number; meta: AiActionMeta }) => {
+      queryClient.setQueryData<Message[] | undefined>(
+        chatKeys.messages(conversationId),
+        (currentMessages) => patchMessageMeta(currentMessages, payload.message_id, payload.meta)
+      )
+    })
+
     return () => {
       echo.leave(channelName)
     }
@@ -97,6 +126,7 @@ export function useSendMessageMutation(conversationId: number | null, currentUse
         conversation_id: conversationId,
         sender_id: currentUserId ?? 0,
         message: text,
+        type: 'text',
         sent_at: new Date().toISOString(),
       }
 
@@ -125,6 +155,102 @@ export function useSendMessageMutation(conversationId: number | null, currentUse
       }
 
       queryClient.setQueryData(chatKeys.messages(conversationId), context?.previousMessages)
+    },
+  })
+}
+
+export function useApproveAiActionMutation(conversationId: number | null) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (actionId: number) => approveAiAction(conversationId!, actionId),
+    onMutate: async (actionId) => {
+      if (conversationId === null) {
+        return
+      }
+
+      await queryClient.cancelQueries({ queryKey: chatKeys.messages(conversationId) })
+      const previousMessages = queryClient.getQueryData<Message[]>(chatKeys.messages(conversationId))
+
+      queryClient.setQueryData<Message[] | undefined>(
+        chatKeys.messages(conversationId),
+        (currentMessages) =>
+          currentMessages?.map((message) => {
+            if (message.meta?.action_id !== actionId) {
+              return message
+            }
+
+            return {
+              ...message,
+              meta: { ...message.meta, status: 'approved' as const },
+            }
+          })
+      )
+
+      return { previousMessages }
+    },
+    onError: (_error, _actionId, context) => {
+      if (conversationId === null) {
+        return
+      }
+
+      queryClient.setQueryData(chatKeys.messages(conversationId), context?.previousMessages)
+    },
+    onSettled: () => {
+      if (conversationId === null) {
+        return
+      }
+
+      void queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
+      void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+    },
+  })
+}
+
+export function useRejectAiActionMutation(conversationId: number | null) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (actionId: number) => rejectAiAction(conversationId!, actionId),
+    onMutate: async (actionId) => {
+      if (conversationId === null) {
+        return
+      }
+
+      await queryClient.cancelQueries({ queryKey: chatKeys.messages(conversationId) })
+      const previousMessages = queryClient.getQueryData<Message[]>(chatKeys.messages(conversationId))
+
+      queryClient.setQueryData<Message[] | undefined>(
+        chatKeys.messages(conversationId),
+        (currentMessages) =>
+          currentMessages?.map((message) => {
+            if (message.meta?.action_id !== actionId) {
+              return message
+            }
+
+            return {
+              ...message,
+              meta: { ...message.meta, status: 'rejected' as const },
+            }
+          })
+      )
+
+      return { previousMessages }
+    },
+    onError: (_error, _actionId, context) => {
+      if (conversationId === null) {
+        return
+      }
+
+      queryClient.setQueryData(chatKeys.messages(conversationId), context?.previousMessages)
+    },
+    onSettled: () => {
+      if (conversationId === null) {
+        return
+      }
+
+      void queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
+      void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
     },
   })
 }
