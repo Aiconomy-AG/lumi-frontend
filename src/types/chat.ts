@@ -1,4 +1,5 @@
 import type { User } from './user'
+import type { WorkspaceCall } from './call'
 
 export interface LastMessage {
     message: string
@@ -25,6 +26,7 @@ export interface Message {
     message_type?: 'text' | 'call' | 'system'
     type?: 'text' | 'ai_action'
     meta?: AiActionMeta
+    call?: WorkspaceCall
     sent_at: string
 }
 

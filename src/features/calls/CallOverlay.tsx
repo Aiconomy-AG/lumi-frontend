@@ -1,4 +1,5 @@
-import { Mic, MicOff, Phone, PhoneOff } from 'lucide-react'
+import { Maximize2, Mic, MicOff, Minimize2, Phone, PhoneOff } from 'lucide-react'
+import { VideoConference } from '@livekit/components-react'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -9,12 +10,14 @@ interface Props {
   currentUserId: number
   connectionState: string
   muted: boolean
+  minimized: boolean
   error: string | null
   onAccept: () => void
   onDecline: () => void
   onCancel: () => void
   onEnd: () => void
   onToggleMute: () => void
+  onToggleMinimize: () => void
 }
 
 function durationSince(start?: string | null): string {
@@ -28,12 +31,14 @@ export function CallOverlay({
   currentUserId,
   connectionState,
   muted,
+  minimized,
   error,
   onAccept,
   onDecline,
   onCancel,
   onEnd,
   onToggleMute,
+  onToggleMinimize,
 }: Props) {
   const [, tick] = useState(0)
   const isCaller = call.initiated_by_user_id === currentUserId
@@ -53,9 +58,55 @@ export function CallOverlay({
         ? 'Lumi Workspace audio call'
         : 'Calling…'
 
+  if (minimized && call.status === 'active') {
+    return (
+      <div className="fixed bottom-6 right-6 z-[100] flex w-72 flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-zinc-100 shadow-2xl transition-all hover:border-zinc-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-500/15 text-sm font-bold text-purple-300 ring-1 ring-purple-400/30">
+              {displayName.slice(0, 2).toUpperCase()}
+            </div>
+            <div className="min-w-0 overflow-hidden">
+              <p className="truncate font-medium">{displayName}</p>
+              <p className="truncate text-xs text-zinc-400">{durationSince(call.answered_at)}</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-white" onClick={onToggleMinimize} aria-label="Expand call">
+            <Maximize2 className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="flex justify-center gap-4">
+          <Button type="button" variant={muted ? 'secondary' : 'outline'} size="icon" className="h-10 w-10 rounded-full border-zinc-800" onClick={onToggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
+            {muted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </Button>
+          <Button type="button" variant="destructive" size="icon" className="h-10 w-10 rounded-full" onClick={onEnd} aria-label="End call">
+            <PhoneOff className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // If this is a fullscreen active call that is video or group, use LiveKit's built-in VideoConference layout
+  if (!minimized && call.status === 'active' && (call.type === 'video' || (call as any).mode === 'group')) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-zinc-950">
+        <Button variant="ghost" size="icon" className="absolute right-6 top-6 z-[110] text-zinc-400 hover:text-white" onClick={onToggleMinimize} aria-label="Minimize call">
+          <Minimize2 className="h-6 w-6" />
+        </Button>
+        <VideoConference />
+      </div>
+    )
+  }
+
   return (
     <Dialog open>
       <DialogContent className="border-zinc-800 bg-zinc-950 text-zinc-100 sm:max-w-sm" showCloseButton={false}>
+        {call.status === 'active' && (
+          <Button variant="ghost" size="icon" className="absolute right-4 top-4 text-zinc-400 hover:text-white" onClick={onToggleMinimize} aria-label="Minimize call">
+            <Minimize2 className="h-5 w-5" />
+          </Button>
+        )}
         <DialogHeader>
           <DialogTitle className="text-center">{incoming ? 'Incoming audio call' : 'Lumi audio call'}</DialogTitle>
         </DialogHeader>

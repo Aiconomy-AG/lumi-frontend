@@ -220,7 +220,7 @@ export default function ChatPage() {
                 showBackButton={!isDesktop && !mobileShowSidebar}
                 isUpdatingGroup={updateMutation.isPending}
                 onBack={handleBackToList}
-                onStartCall={canStartCall ? () => void startCall(activeConversation!.id) : undefined}
+                onStartCall={canStartCall ? (type) => void startCall(activeConversation!.id, type) : undefined}
                 onUpdateGroup={activeConversation?.type === 'group' ? handleUpdateGroup : undefined}
             />
             <MessageList

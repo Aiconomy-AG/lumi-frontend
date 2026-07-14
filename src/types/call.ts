@@ -31,7 +31,8 @@ export interface WorkspaceCall {
   destination_type: 'workspace_user' | string
   caller: CallIdentity
   participants: CallParticipant[]
-  media_type: 'audio'
+  type: 'audio' | 'video'
+  media_type: 'audio' | 'video'
   status: CallStatus
   answered_client_instance_id?: string | null
   end_reason?: string | null

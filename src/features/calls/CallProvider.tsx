@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import { Room, RoomEvent, Track } from 'livekit-client'
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { LiveKitRoom } from '@livekit/components-react'
+import '@livekit/components-styles'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { acceptCall, cancelCall, declineCall, endCall, getActiveCall, startCall } from '@/api/calls'
 import { useAuth } from '@/features/auth/AuthContext'
 import { connectEcho } from '@/lib/echo'
@@ -21,7 +22,7 @@ function clientInstanceId(): string {
 }
 
 interface CallContextValue {
-  start: (conversationId: number) => Promise<void>
+  start: (conversationId: number, type?: 'audio' | 'video') => Promise<void>
 }
 
 const CallContext = createContext<CallContextValue | null>(null)
@@ -30,46 +31,15 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
   const instanceId = useMemo(clientInstanceId, [])
   const [call, setCall] = useState<WorkspaceCall | null>(null)
+  const [minimized, setMinimized] = useState(false)
   const [connectionState, setConnectionState] = useState('disconnected')
   const [muted, setMuted] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const roomRef = useRef<Room | null>(null)
-
+  // Room management is now handled by LiveKitRoom component
   const leaveRoom = useCallback(async () => {
-    const room = roomRef.current
-    roomRef.current = null
-    if (room) await room.disconnect()
     setConnectionState('disconnected')
     setMuted(false)
   }, [])
-
-  const joinRoom = useCallback(async (nextCall: WorkspaceCall) => {
-    if (!nextCall.connection || roomRef.current) return
-    setError(null)
-    setConnectionState('connecting')
-    const room = new Room({ adaptiveStream: true, dynacast: true })
-    roomRef.current = room
-
-    room.on(RoomEvent.TrackSubscribed, (track) => {
-      if (track.kind === Track.Kind.Audio) document.body.appendChild(track.attach())
-    })
-    room.on(RoomEvent.TrackUnsubscribed, (track) => track.detach().forEach((element) => element.remove()))
-    room.on(RoomEvent.ConnectionStateChanged, (state) => setConnectionState(state))
-    room.on(RoomEvent.Disconnected, () => setConnectionState('disconnected'))
-
-    try {
-      await room.connect(nextCall.connection.url, nextCall.connection.token)
-      await room.startAudio()
-      await room.localParticipant.setMicrophoneEnabled(true)
-      setConnectionState('connected')
-    } catch (cause) {
-      await leaveRoom()
-      const message = cause instanceof DOMException && cause.name === 'NotAllowedError'
-        ? 'Microphone permission is required for calls.'
-        : 'Could not connect the audio call. Check your connection and try again.'
-      setError(message)
-    }
-  }, [leaveRoom])
 
   const activeQuery = useQuery({
     queryKey: callKeys.active(instanceId),
@@ -83,8 +53,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     const recovered = activeQuery.data
     if (recovered === undefined) return
     setCall(recovered)
-    if (recovered?.connection) void joinRoom(recovered)
-  }, [activeQuery.data, joinRoom])
+  }, [activeQuery.data])
 
   useEffect(() => {
     if (!user) return
@@ -122,30 +91,29 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => () => { void leaveRoom() }, [leaveRoom])
 
-  const start = useCallback(async (conversationId: number) => {
+  const start = useCallback(async (conversationId: number, type: 'audio' | 'video' = 'audio') => {
     if (!user) return
     setError(null)
     try {
-      const created = await startCall(conversationId, instanceId)
-      setCall(created)
-      await joinRoom(created)
+      // Pass type to startCall if the backend supports it, otherwise default
+      const created = await startCall(conversationId, instanceId, type)
+      setCall({ ...created, type }) // Temporary override if backend doesn't return type
     } catch (cause) {
       const response = (cause as AxiosError<{ code?: string; message?: string }>).response
       setError(response?.data?.message ?? 'The call could not be started.')
     }
-  }, [instanceId, joinRoom, user])
+  }, [instanceId, user])
 
   const accept = useCallback(async () => {
     if (!call) return
     try {
       const accepted = await acceptCall(call.id, instanceId)
       setCall(accepted)
-      await joinRoom(accepted)
     } catch (cause) {
       const response = (cause as AxiosError<{ code?: string; message?: string }>).response
       setError(response?.data?.code === 'ANSWERED_ELSEWHERE' ? 'This call was answered on another device.' : response?.data?.message ?? 'Unable to answer the call.')
     }
-  }, [call, instanceId, joinRoom])
+  }, [call, instanceId])
 
   const finish = useCallback(async (action: 'decline' | 'cancel' | 'end') => {
     if (!call) return
@@ -159,10 +127,12 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
   }, [call, leaveRoom])
 
   const toggleMute = useCallback(async () => {
-    const next = !muted
-    await roomRef.current?.localParticipant.setMicrophoneEnabled(!next)
-    setMuted(next)
-  }, [muted])
+    setMuted((m) => !m)
+  }, [])
+
+  const toggleMinimize = useCallback(() => {
+    setMinimized(m => !m)
+  }, [])
 
   return (
     <CallContext.Provider value={{ start }}>
@@ -176,20 +146,47 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
           {error}
         </button>
       )}
-      {call && user && (
+      {call && user && call.status === 'active' && call.connection ? (
+        <LiveKitRoom
+          serverUrl={call.connection.url}
+          token={call.connection.token}
+          connect={true}
+          audio={!muted}
+          video={call.type === 'video'}
+          onConnected={() => setConnectionState('connected')}
+          onDisconnected={() => setConnectionState('disconnected')}
+        >
+          <CallOverlay
+            call={call}
+            currentUserId={user.id}
+            connectionState={connectionState}
+            muted={muted}
+            minimized={minimized}
+            error={error}
+            onAccept={() => void accept()}
+            onDecline={() => void finish('decline')}
+            onCancel={() => void finish('cancel')}
+            onEnd={() => void finish('end')}
+            onToggleMute={() => void toggleMute()}
+            onToggleMinimize={() => void toggleMinimize()}
+          />
+        </LiveKitRoom>
+      ) : call && user ? (
         <CallOverlay
           call={call}
           currentUserId={user.id}
           connectionState={connectionState}
           muted={muted}
+          minimized={minimized}
           error={error}
           onAccept={() => void accept()}
           onDecline={() => void finish('decline')}
           onCancel={() => void finish('cancel')}
           onEnd={() => void finish('end')}
           onToggleMute={() => void toggleMute()}
+          onToggleMinimize={() => void toggleMinimize()}
         />
-      )}
+      ) : null}
     </CallContext.Provider>
   )
 }
