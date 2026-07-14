@@ -14,13 +14,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export interface CreateTaskModalProps {
-    children: React.ReactNode
+    children?: React.ReactNode
     defaultProjectId?: number
+    open?: boolean
+    onOpenChange?: (open: boolean) => void
 }
 
-export function CreateTaskModal({ children, defaultProjectId }: CreateTaskModalProps) {
+export function CreateTaskModal({ children, defaultProjectId, open, onOpenChange }: CreateTaskModalProps) {
     const { t } = useTranslation()
-    const [isOpen, setIsOpen] = useState(false)
+    const [internalOpen, setInternalOpen] = useState(false)
+    const isControlled = open !== undefined
+    const isOpen = isControlled ? open : internalOpen
+
+    function setIsOpen(next: boolean) {
+        if (!isControlled) {
+            setInternalOpen(next)
+        }
+        onOpenChange?.(next)
+    }
 
     const { data: projects = [] } = useProjectsQuery()
     const createTaskMutation = useCreateTaskMutation()
@@ -67,7 +78,7 @@ export function CreateTaskModal({ children, defaultProjectId }: CreateTaskModalP
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger render={children as React.ReactElement} />
+            {children ? <DialogTrigger render={children as React.ReactElement} /> : null}
 
             <DialogContent className="max-w-[440px]">
                 <DialogHeader>

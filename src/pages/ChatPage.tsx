@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import type { Conversation } from '@/types/chat'
 import type { User } from '@/types/user'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -30,6 +30,7 @@ function parseConversationId(value?: string) {
 export default function ChatPage() {
     const { user } = useAuth()
     const navigate = useNavigate()
+    const [searchParams, setSearchParams] = useSearchParams()
     const { start: startCall } = useCalls()
     const { conversationId: conversationIdParam } = useParams()
     const isDesktop = useMediaQuery('(min-width: 768px)')
@@ -108,6 +109,29 @@ export default function ChatPage() {
         })
         openConversation(conversation.id)
     }
+
+    const userIdFromSearch = searchParams.get('user')
+
+    useEffect(() => {
+        if (!userIdFromSearch || people.length === 0) return
+
+        const userId = Number(userIdFromSearch)
+        if (!Number.isFinite(userId)) {
+            const nextParams = new URLSearchParams(searchParams)
+            nextParams.delete('user')
+            setSearchParams(nextParams, { replace: true })
+            return
+        }
+
+        const person = people.find((candidate) => candidate.id === userId)
+        const nextParams = new URLSearchParams(searchParams)
+        nextParams.delete('user')
+        setSearchParams(nextParams, { replace: true })
+
+        if (person) {
+            void openConversationWith(person)
+        }
+    }, [userIdFromSearch, people, conversations, createMutation, isDesktop, navigate, searchParams, setSearchParams])
 
     async function handleCreateGroup(payload: { name: string; participants_employee_ids: number[] }) {
         const conversation = await createMutation.mutateAsync({

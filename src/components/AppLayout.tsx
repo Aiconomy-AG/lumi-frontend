@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { Clock, Bell } from "lucide-react"
+import { Clock, Bell, Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
@@ -13,6 +13,7 @@ import {
     RealtimeNotificationPopup,
     useNotificationsQuery,
 } from "@/features/notifications"
+import { GlobalSearchDialog, SearchTrigger } from "@/features/search"
 
 function formatTime(totalSeconds: number) {
     const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0')
@@ -60,6 +61,7 @@ export default function AppLayout() {
     const { t } = useTranslation()
     const { user } = useAuth()
     const [notificationsOpen, setNotificationsOpen] = useState(false)
+    const [searchOpen, setSearchOpen] = useState(false)
     const notificationsRef = useRef<HTMLDivElement>(null)
     const currentUser = user
     const initials = currentUser?.name.split(" ").map((w) => w[0]).join("").toUpperCase() ?? ""
@@ -94,6 +96,18 @@ export default function AppLayout() {
         }
     }, [notificationsOpen])
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+                event.preventDefault()
+                setSearchOpen(true)
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [])
+
     const getPageTitle = () => {
         const path = location.pathname
         if (path.startsWith('/tasks')) return t('sidebar.tasks')
@@ -119,10 +133,21 @@ export default function AppLayout() {
 
                 <SidebarInset className="flex flex-1 flex-col bg-zinc-950 overflow-hidden">
 
-                    <header className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-800 bg-zinc-950 px-6">
-                        <h1 className="text-sm font-semibold text-white capitalize">{title}</h1>
+                    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-zinc-800 bg-zinc-950 px-6">
+                        <h1 className="shrink-0 text-sm font-semibold text-white capitalize">{title}</h1>
 
-                        <div className="flex items-center gap-3">
+                        <SearchTrigger onClick={() => setSearchOpen(true)} className="mx-auto hidden sm:flex" />
+
+                        <button
+                            type="button"
+                            onClick={() => setSearchOpen(true)}
+                            aria-label={t('search.open')}
+                            className="rounded-full border-none bg-transparent p-2 text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-white cursor-pointer sm:hidden"
+                        >
+                            <Search className="h-4 w-4" />
+                        </button>
+
+                        <div className="ml-auto flex items-center gap-3">
                             <HeaderClock userId={currentUser?.id} />
 
                             <div className="relative" ref={notificationsRef}>
@@ -163,6 +188,7 @@ export default function AppLayout() {
                 </SidebarInset>
 
                 <RealtimeNotificationPopup />
+                <GlobalSearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
             </div>
         </SidebarProvider>
     )

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,7 @@ const STATUSES: TaskStatus[] = ['to_do', 'in_progress', 'blocked', 'complete']
 export default function ProjectsPage() {
     const { t } = useTranslation()
     const navigate = useNavigate()
+    const location = useLocation()
     const { isAdmin } = useAuth()
 
     const [isOpen, setIsOpen] = useState(false)
@@ -36,6 +37,7 @@ export default function ProjectsPage() {
     useEffect(() => {
         scrollRef.current?.scrollTo(0, 0)
     }, [page, perPage])
+
     const [deadline, setDeadline] = useState('')
     const [status, setStatus] = useState<TaskStatus>('to_do')
 
@@ -61,6 +63,14 @@ export default function ProjectsPage() {
         setName(''); setDescription(''); setDeadline(''); setStatus('to_do')
         setIsOpen(true)
     }
+
+    useEffect(() => {
+        const state = location.state as { openCreate?: boolean } | null
+        if (state?.openCreate) {
+            openAdd()
+            navigate(location.pathname, { replace: true, state: null })
+        }
+    }, [location.pathname, location.state, navigate])
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
