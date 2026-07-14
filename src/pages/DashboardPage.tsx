@@ -11,33 +11,10 @@ import type { TaskStatus } from '@/types/task'
 import { TaskFilters } from '@/components/ui/task-filters'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react'
-
-function getDashboardGreetingKey(now: Date): string {
-    const hour = now.getHours()
-    const day = now.getDay()
-    const isWeekend = day === 0 || day === 6
-
-    if (hour >= 5 && hour < 9) {
-        return isWeekend ? 'dashboard.greetings.earlyMorningWeekend' : 'dashboard.greetings.earlyMorningWeekday'
-    }
-
-    if (hour >= 9 && hour < 12) {
-        return 'dashboard.greetings.lateMorning'
-    }
-
-    if (hour >= 12 && hour < 17) {
-        return 'dashboard.greetings.afternoon'
-    }
-
-    if (hour >= 17 && hour < 22) {
-        return isWeekend ? 'dashboard.greetings.eveningWeekend' : 'dashboard.greetings.eveningWeekday'
-    }
-
-    return 'dashboard.greetings.night'
-}
+import { formatWorkspaceDate, getDashboardGreetingKey, getWorkspaceDateParts } from '@/lib/workspaceTime'
 
 export default function DashboardPage() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const [showDueToday, setShowDueToday] = useState(false)
     const [filter, setFilter] = useState<'All' | TaskStatus>("All")
     const [search, setSearch] = useState("")
@@ -51,11 +28,7 @@ export default function DashboardPage() {
         scrollRef.current?.scrollTo(0, 0)
     }, [page, perPage])
 
-    const formattedDate = new Date().toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric'
-    })
+    const formattedDate = formatWorkspaceDate(new Date(), i18n.language)
 
     const { data: users = [], isLoading, isError } = useUsersQuery()
     const onlineUsersCount = users.filter(
@@ -70,7 +43,7 @@ export default function DashboardPage() {
     const greetingKey = getDashboardGreetingKey(new Date())
     const projectNameFor = (id?: number) => projects.find((p) => p.id === id)?.name ?? '—'
 
-    const today = new Date().toISOString().slice(0, 10)
+    const today = getWorkspaceDateParts().dateKey
     const myTasks = listTasks.filter(task => {
         const isMine = task.assignees?.some(assignee => assignee.id === user?.id)
         if (!isMine) return false
