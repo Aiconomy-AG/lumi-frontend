@@ -16,7 +16,11 @@ function clientInstanceId(): string {
   const key = 'lumi.call.client_instance_id'
   const existing = localStorage.getItem(key)
   if (existing) return existing
-  const value = crypto.randomUUID()
+  
+  const value = typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Date.now().toString(36) + Math.random().toString(36).substring(2)
+    
   localStorage.setItem(key, value)
   return value
 }
