@@ -1,11 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'
-import { useAuditLogsQuery } from '@/features/auditLogs'
+import { getAuditLogs } from '@/api/auditLogs'
 import type { AuditLog } from '@/types/auditLog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { PaginationFooter } from '@/components/ui/pagination-footer'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 function ChangesDiff({ log }: { log: AuditLog }) {
   const { t } = useTranslation()
@@ -44,31 +51,75 @@ export default function StockLogsPage() {
     scrollRef.current?.scrollTo(0, 0)
   }, [page, perPage])
 
-  const { data, isLoading } = useAuditLogsQuery({
-    page: 1,
-    per_page: 100,
-    action: action || undefined,
-    from: from || undefined,
-    to: to || undefined,
-  })
+  const [allLogs, setAllLogs] = useState<AuditLog[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  function formatActionLabel(actionKey: string): string {
-    const key = `auditLogs.actions.${actionKey}`
-    const translated = t(key)
-    return translated === key ? actionKey : translated
-  }
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchAll() {
+      setIsLoading(true)
+      let current = 1
+      let last = 1
+      const fetched: AuditLog[] = []
+      
+      try {
+        do {
+          const res = await getAuditLogs({
+            page: current,
+            per_page: 100,
+            action: action || undefined,
+            from: from || undefined,
+            to: to || undefined,
+          })
+          
+          if (!isMounted) return
+          fetched.push(...res.data)
+          last = res.meta.last_page
+          current++
+        } while (current <= last)
+        
+        if (isMounted) {
+          setAllLogs(fetched)
+        }
+      } catch (err) {
+        console.error(err)
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void fetchAll()
+
+    return () => {
+      isMounted = false
+    }
+  }, [action, from, to])
 
   const validActions = ['create', 'update', 'delete', 'stock_update', 'variant_create', 'variant_update', 'variant_delete']
-  const allLogs = data?.data?.filter(log => validActions.includes(log.action)) ?? []
+  const filteredLogs = allLogs.filter(log => {
+    if (!validActions.includes(log.action)) return false;
+    
+    if (['create', 'update', 'delete'].includes(log.action)) {
+      const mod = log.module?.toLowerCase() || '';
+      const entity = log.entity_type?.toLowerCase() || '';
+      return mod.includes('product') || mod.includes('variant') || mod.includes('stock') ||
+             entity.includes('product') || entity.includes('variant');
+    }
+    
+    return true;
+  })
   
   const startIndex = (page - 1) * perPage
-  const logs = allLogs.slice(startIndex, startIndex + perPage)
+  const logs = filteredLogs.slice(startIndex, startIndex + perPage)
   
   const meta = {
     current_page: page,
     per_page: perPage,
-    total: allLogs.length,
-    last_page: Math.ceil(allLogs.length / perPage) || 1
+    total: filteredLogs.length,
+    last_page: Math.ceil(filteredLogs.length / perPage) || 1
   }
 
   function updateFilter(setter: (value: string) => void) {
@@ -78,6 +129,23 @@ export default function StockLogsPage() {
     }
   }
 
+  function formatActionLabel(actionKey: string): string {
+    const key = `auditLogs.actions.${actionKey}`
+    const translated = t(key)
+    return translated === key ? actionKey : translated
+  }
+
+  const actionOptions = [
+    {
+      value: 'all',
+      label: t('auditLogs.allActions'),
+    },
+    ...validActions.map((actionKey) => ({
+      value: actionKey,
+      label: formatActionLabel(actionKey),
+    })),
+  ]
+
   return (
     <div className="p-6 h-full flex flex-col overflow-hidden">
       <div className="mb-6 flex items-start justify-between">
@@ -85,12 +153,29 @@ export default function StockLogsPage() {
             <h1 className="text-2xl font-semibold text-white">{t('stock.logsTitle') || 'Stock Logs'}</h1>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Input
-            value={action}
-            onChange={(e) => updateFilter(setAction)(e.target.value)}
-            placeholder={t('auditLogs.filterAction')}
-            className="w-44"
-          />
+          <Select
+              items={actionOptions}
+              value={action || null}
+              onValueChange={(value) => {
+                setAction(value === 'all' || value === null ? '' : value)
+                setPage(1)
+              }}
+          >
+            <SelectTrigger
+                className="w-44"
+                aria-label={t('auditLogs.filterAction')}
+            >
+              <SelectValue placeholder={t('auditLogs.filterAction')} />
+            </SelectTrigger>
+
+            <SelectContent>
+              {actionOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Input
             type="date"
             value={from}

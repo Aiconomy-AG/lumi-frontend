@@ -170,10 +170,10 @@
     "productNoVariants": "Keine Varianten verfuegbar"
   },
   "chat": {
-    "searchPlaceholder": "Personen suchen...",
-    "recent": "Aktuell",
-    "people": "Personen",
     "newChat": "Neuer Chat",
+    "searchPlaceholder": "Personen suchen...",
+    "recent": "Zuletzt",
+    "people": "Personen",
     "newGroup": "Neue Gruppe",
     "createGroup": "Gruppe erstellen",
     "editGroup": "Gruppe bearbeiten",
@@ -416,8 +416,21 @@
     "action": "Aktion",
     "entity": "Objekt",
     "description": "Beschreibung",
-    "empty": "Keine Einträge",
-    "noChanges": "Keine Feldänderungen erfasst",
+    "empty": "Keine Einträge vorhanden",
+    "noChanges": "Keine Feldänderungen aufgezeichnet",
+    "allModules": "Alle Module",
+    "allActions": "Alle Aktionen",
+    "modules": {
+      "auth": "Authentifizierung",
+      "users": "Benutzer",
+      "products": "Produkte",
+      "sales": "Verkäufe",
+      "returns": "Retouren",
+      "projects": "Projekte",
+      "tasks": "Aufgaben",
+      "time_entries": "Zeiteinträge",
+      "subtasks": "Unteraufgaben"
+    },
     "actions": {
       "create": "Erstellt",
       "update": "Aktualisiert",

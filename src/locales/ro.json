@@ -112,8 +112,8 @@
     "subtaskTitlePlaceholder": "Titlu sub-task...",
     "subtaskDescPlaceholder": "Descriere sub-task (opțional)...",
     "noUsersFound": "Niciun utilizator găsit.",
-    "addSubtaskTrigger": "+ Adaugă Sub-task",
-    "searchSubtasks": "Caută sub-taskuri...",
+    "addSubtaskTrigger": "+ Adaugă subtask",
+    "searchSubtasks": "Caută subtask-uri...",
     "searchTimeEntries": "Caută intrări de timp..."
   },
   "stock": {
@@ -170,10 +170,10 @@
     "productNoVariants": "Nu exista variante"
   },
   "chat": {
+    "newChat": "Chat nou",
     "searchPlaceholder": "Caută persoane...",
     "recent": "Recente",
     "people": "Persoane",
-    "newChat": "Chat nou",
     "newGroup": "Grup nou",
     "createGroup": "Creează grup",
     "editGroup": "Editează grupul",
@@ -416,8 +416,21 @@
     "action": "Acțiune",
     "entity": "Entitate",
     "description": "Descriere",
-    "empty": "Nicio înregistrare",
-    "noChanges": "Nicio modificare de câmp înregistrată",
+    "empty": "Nu există intrări de audit",
+    "noChanges": "Nicio modificare înregistrată",
+    "allModules": "Toate modulele",
+    "allActions": "Toate acțiunile",
+    "modules": {
+      "auth": "Autentificare",
+      "users": "Utilizatori",
+      "products": "Produse",
+      "sales": "Vânzări",
+      "returns": "Returnări",
+      "projects": "Proiecte",
+      "tasks": "Task-uri",
+      "time_entries": "Intrări de timp",
+      "subtasks": "Subtask-uri"
+    },
     "actions": {
       "create": "Creat",
       "update": "Actualizat",
