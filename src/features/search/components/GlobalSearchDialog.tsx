@@ -216,6 +216,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
     <CommandDialog
       open={open}
       onOpenChange={onOpenChange}
+      shouldFilter={false}
       title={t('search.title')}
       description={t('search.description')}
       className="max-h-[90vh] w-[min(96vw,72rem)] border-zinc-800 bg-zinc-950 text-zinc-100 sm:max-w-5xl"
