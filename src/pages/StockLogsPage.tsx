@@ -45,9 +45,8 @@ export default function StockLogsPage() {
   }, [page, perPage])
 
   const { data, isLoading } = useAuditLogsQuery({
-    page,
-    per_page: perPage,
-    module: 'sales',
+    page: 1,
+    per_page: 100,
     action: action || undefined,
     from: from || undefined,
     to: to || undefined,
@@ -60,8 +59,17 @@ export default function StockLogsPage() {
   }
 
   const validActions = ['create', 'update', 'delete', 'stock_update', 'variant_create', 'variant_update', 'variant_delete']
-  const logs = data?.data?.filter(log => validActions.includes(log.action)) ?? []
-  const meta = data?.meta
+  const allLogs = data?.data?.filter(log => validActions.includes(log.action)) ?? []
+  
+  const startIndex = (page - 1) * perPage
+  const logs = allLogs.slice(startIndex, startIndex + perPage)
+  
+  const meta = {
+    current_page: page,
+    per_page: perPage,
+    total: allLogs.length,
+    last_page: Math.ceil(allLogs.length / perPage) || 1
+  }
 
   function updateFilter(setter: (value: string) => void) {
     return (value: string) => {
