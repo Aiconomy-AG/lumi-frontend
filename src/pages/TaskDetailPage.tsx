@@ -84,6 +84,9 @@ export default function TaskDetailPage() {
         const currentIds = task.assignees?.map(u => u.id) || []
 
         if (currentIds.includes(userId)) {
+            if (activeTaskId === taskId && currentUser?.id === userId) {
+                await stop()
+            }
             await unassignTaskMutation.mutateAsync({ taskId, employeeId: userId })
         } else {
             await assignTaskMutation.mutateAsync({ taskId, employeeId: userId })
