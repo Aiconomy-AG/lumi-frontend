@@ -68,7 +68,14 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
     channel.listen('.call.ringing', (payload: WorkspaceCall) => {
       setError(null)
-      setCall(payload)
+      setCall((current) => {
+        if (!current || current.id !== payload.id) return payload
+        return {
+          ...payload,
+          media_type: current.media_type === 'video' ? 'video' : payload.media_type,
+          type: current.type === 'video' ? 'video' : payload.type,
+        }
+      })
     })
     channel.listen('.call.updated', (payload: WorkspaceCall) => {
       setCall((current) => {
@@ -152,20 +159,27 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
         <button
           type="button"
           onClick={() => setError(null)}
-          className="fixed bottom-6 right-6 z-[80] max-w-sm rounded-lg border border-red-500/30 bg-zinc-950 px-4 py-3 text-left text-sm text-red-300 shadow-xl"
+          className="fixed bottom-6 right-6 z-80 max-w-sm rounded-lg border border-red-500/30 bg-zinc-950 px-4 py-3 text-left text-sm text-red-300 shadow-xl"
         >
           {error}
         </button>
       )}
-      {call && user && call.status === 'active' && call.connection ? (
+      {call && user && call.connection && (call.status === 'active' || call.initiated_by_user_id === user.id) ? (
         <LiveKitRoom
           serverUrl={call.connection.url}
           token={call.connection.token}
           connect={true}
           audio={!muted}
-          video={call.media_type === 'video'}
+          video={call.media_type === 'video' || (call as any).type === 'video'}
           onConnected={() => setConnectionState('connected')}
-          onDisconnected={() => setConnectionState('disconnected')}
+          onDisconnected={() => {
+            setConnectionState('disconnected')
+            if (call.status === 'ringing' && call.initiated_by_user_id === user.id) {
+              void finish('cancel')
+            } else if (call.status === 'active') {
+              void finish('end')
+            }
+          }}
         >
           <CallOverlay
             call={call}

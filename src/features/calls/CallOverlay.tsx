@@ -88,7 +88,8 @@ export function CallOverlay({
   }
 
   // If this is a fullscreen active call that is video or group, use LiveKit's built-in VideoConference layout
-  if (!minimized && call.status === 'active' && (call.media_type === 'video' || (call as any).mode === 'group')) {
+  const isVideoOrGroup = call.media_type === 'video' || (call as any).type === 'video' || (call as any).mode === 'group'
+  if (!minimized && (call.status === 'active' || (isCaller && call.status === 'ringing')) && isVideoOrGroup) {
     return (
       <div className="fixed inset-0 z-[100] bg-zinc-950">
         <Button variant="ghost" size="icon" className="absolute right-6 top-6 z-[110] text-zinc-400 hover:text-white" onClick={onToggleMinimize} aria-label="Minimize call">
