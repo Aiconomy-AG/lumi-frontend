@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Plus, UserPlus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,7 @@ import type { User } from '@/types/user'
 import { conversationMatchesSearch, getConversationTitle, getDirectParticipant, personMatchesSearch } from '../utils'
 import { ConversationRow, PeopleRow } from './ConversationRow'
 import { CreateGroupDialog } from './CreateGroupDialog'
+import { CreateDirectDialog } from './CreateDirectDialog'
 
 interface ChatSidebarProps {
     conversations: Conversation[]
@@ -33,6 +34,7 @@ export function ChatSidebar({
     const { t } = useTranslation()
     const [search, setSearch] = useState('')
     const [groupDialogOpen, setGroupDialogOpen] = useState(false)
+    const [directDialogOpen, setDirectDialogOpen] = useState(false)
 
     const recentConversations = useMemo(() => {
         return conversations
@@ -84,15 +86,26 @@ export function ChatSidebar({
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                     />
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full justify-start gap-2 border-zinc-800 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
-                        onClick={() => setGroupDialogOpen(true)}
-                    >
-                        <Plus className="h-4 w-4" />
-                        {t('chat.newGroup')}
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="flex-1 justify-start gap-2 border-zinc-800 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+                            onClick={() => setDirectDialogOpen(true)}
+                        >
+                            <UserPlus className="h-4 w-4" />
+                            {t('chat.newChat') || 'New Chat'}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="flex-1 justify-start gap-2 border-zinc-800 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+                            onClick={() => setGroupDialogOpen(true)}
+                        >
+                            <Plus className="h-4 w-4" />
+                            {t('chat.newGroup')}
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="min-h-0 flex-1 overflow-y-auto p-3">
@@ -147,6 +160,15 @@ export function ChatSidebar({
                 currentUserId={currentUserId}
                 isSubmitting={isCreatingConversation}
                 onCreate={onCreateGroup}
+            />
+
+            <CreateDirectDialog
+                open={directDialogOpen}
+                onOpenChange={setDirectDialogOpen}
+                users={people}
+                currentUserId={currentUserId}
+                isSubmitting={isCreatingConversation}
+                onSelectPerson={onSelectPerson}
             />
         </>
     )

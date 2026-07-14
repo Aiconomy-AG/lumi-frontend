@@ -3,7 +3,8 @@
     "brand": "Lumi",
     "dashboard": "Übersicht",
     "tasks": "Aufgaben",
-    "stock": "Lager",
+    "stock": "Bestand",
+    "stockLogs": "Bestandsprotokolle",
     "orders": "Bestellungen",
     "returns": "Retouren",
     "chat": "Chat",
@@ -111,9 +112,12 @@
     "subtaskTitlePlaceholder": "Titel der Unteraufgabe...",
     "subtaskDescPlaceholder": "Beschreibung der Unteraufgabe (optional)...",
     "noUsersFound": "Keine Benutzer gefunden.",
-    "addSubtaskTrigger": "+ Unteraufgabe hinzufügen"
+    "addSubtaskTrigger": "+ Unteraufgabe hinzufügen",
+    "searchSubtasks": "Unteraufgaben suchen...",
+    "searchTimeEntries": "Zeiteinträge suchen..."
   },
   "stock": {
+    "logsTitle": "Bestandsprotokolle",
     "reasonPlaceholder": "Grund (optional)",
     "productsCount": "{{count}} Produkte",
     "variantsCount": "{{count}} Varianten",
@@ -169,6 +173,7 @@
     "searchPlaceholder": "Personen suchen...",
     "recent": "Aktuell",
     "people": "Personen",
+    "newChat": "Neuer Chat",
     "newGroup": "Neue Gruppe",
     "createGroup": "Gruppe erstellen",
     "editGroup": "Gruppe bearbeiten",

@@ -28,9 +28,11 @@ export function TimeTrackingProvider({ children }: { children: ReactNode }) {
     const [startedAt, setStartedAt] = useState<number | null>(null)
 
     const activeEntryIdRef = useRef<number | null>(null)
+    const activeTaskIdRef = useRef<number | null>(null)
     useEffect(() => {
         activeEntryIdRef.current = activeEntryId
-    }, [activeEntryId])
+        activeTaskIdRef.current = activeTaskId
+    }, [activeEntryId, activeTaskId])
 
     const applyEntry = useCallback((entry: TaskTimeEntry | null) => {
         if (entry && !entry.stopped_at) {
@@ -86,6 +88,18 @@ export function TimeTrackingProvider({ children }: { children: ReactNode }) {
                 applyEntry(null)
             }
             invalidate(entry.task_id)
+        })
+
+        channel.listen('.notification.delivered', (notification: any) => {
+            if (notification?.event?.type === 'task_unassigned') {
+                const taskId = notification.event.task_id
+                const currentTaskId = activeTaskIdRef.current
+                const currentEntryId = activeEntryIdRef.current
+                if (currentTaskId !== null && currentEntryId !== null && currentTaskId === taskId) {
+                    stopMutation.mutate({ taskId: currentTaskId, entryId: currentEntryId })
+                    applyEntry(null)
+                }
+            }
         })
 
         return () => {

@@ -4,6 +4,7 @@
     "dashboard": "Panou",
     "tasks": "Task-uri",
     "stock": "Stoc",
+    "stockLogs": "Jurnale stoc",
     "orders": "Comenzi",
     "returns": "Returnări",
     "chat": "Chat",
@@ -111,9 +112,12 @@
     "subtaskTitlePlaceholder": "Titlu sub-task...",
     "subtaskDescPlaceholder": "Descriere sub-task (opțional)...",
     "noUsersFound": "Niciun utilizator găsit.",
-    "addSubtaskTrigger": "+ Adaugă Sub-task"
+    "addSubtaskTrigger": "+ Adaugă Sub-task",
+    "searchSubtasks": "Caută sub-taskuri...",
+    "searchTimeEntries": "Caută intrări de timp..."
   },
   "stock": {
+    "logsTitle": "Jurnale stoc",
     "reasonPlaceholder": "Motiv (opțional)",
     "productsCount": "{{count}} produse",
     "variantsCount": "{{count}} variante",
@@ -169,6 +173,7 @@
     "searchPlaceholder": "Caută persoane...",
     "recent": "Recente",
     "people": "Persoane",
+    "newChat": "Chat nou",
     "newGroup": "Grup nou",
     "createGroup": "Creează grup",
     "editGroup": "Editează grupul",

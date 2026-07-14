@@ -4,6 +4,7 @@
     "dashboard": "Dashboard",
     "tasks": "Tasks",
     "stock": "Stock",
+    "stockLogs": "Stock Logs",
     "orders": "Orders",
     "returns": "Returns",
     "chat": "Chat",
@@ -111,9 +112,12 @@
     "subtaskTitlePlaceholder": "Subtask Title...",
     "subtaskDescPlaceholder": "Subtask Description (optional)...",
     "noUsersFound": "No users found.",
-    "addSubtaskTrigger": "+ Add Subtask"
+    "addSubtaskTrigger": "+ Add Subtask",
+    "searchSubtasks": "Search subtasks...",
+    "searchTimeEntries": "Search time entries..."
   },
   "stock": {
+    "logsTitle": "Stock Logs",
     "reasonPlaceholder": "Reason (optional)",
     "productsCount": "{{count}} products",
     "variantsCount": "{{count}} variants",
@@ -169,6 +173,7 @@
     "searchPlaceholder": "Search people...",
     "recent": "Recent",
     "people": "People",
+    "newChat": "New chat",
     "newGroup": "New group",
     "createGroup": "Create group",
     "editGroup": "Edit group",
