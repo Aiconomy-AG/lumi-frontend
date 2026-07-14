@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import type { Message } from '@/types/chat'
 import type { User } from '@/types/user'
 import { formatMessageTime } from '../utils'
+import { AiActionCard } from './AiActionCard'
 import { ChatAvatar } from './ChatAvatar'
+import { MessageMarkdown } from './MessageMarkdown'
 
 // Define the reaction shape
 export interface MessageReaction {
@@ -54,6 +56,7 @@ export const MessageBubble = memo(function MessageBubble({
     const { i18n, t } = useTranslation()
     const [showPicker, setShowPicker] = useState(false)
     const isBot = sender?.is_bot === true
+    const isAiAction = message.type === 'ai_action' && message.meta
 
     const reactions = message.reactions || []
 
@@ -68,7 +71,11 @@ export const MessageBubble = memo(function MessageBubble({
             ) : null}
 
             {/* This wraps the bubble and reactions to place the reaction trigger dynamically next to them */}
-            <div className={`flex items-center gap-2 max-w-[min(20rem,85%)] ${fromMe ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div
+                className={`flex items-center gap-2 ${
+                    isBot ? 'max-w-[min(36rem,92%)]' : 'max-w-[min(20rem,85%)]'
+                } ${fromMe ? 'flex-row-reverse' : 'flex-row'}`}
+            >
 
                 {/* Bubble Container */}
                 <div className={`flex flex-col ${fromMe ? 'items-end' : 'items-start'}`}>
@@ -97,7 +104,17 @@ export const MessageBubble = memo(function MessageBubble({
                                         : 'rounded-bl-md bg-zinc-800 text-zinc-100'
                         }`}
                     >
-                        <p className="whitespace-pre-wrap break-words">{message.message}</p>
+                        {isAiAction ? (
+                            <AiActionCard
+                                conversationId={message.conversation_id}
+                                meta={message.meta!}
+                                currentUserId={currentUserId}
+                            />
+                        ) : isBot ? (
+                            <MessageMarkdown content={message.message} />
+                        ) : (
+                            <p className="whitespace-pre-wrap break-words">{message.message}</p>
+                        )}
                         <span className={`mt-1 block text-right text-[11px] ${fromMe ? 'text-purple-100' : 'text-zinc-500'}`}>
                             {formatMessageTime(message.sent_at, i18n.language)}
                         </span>
