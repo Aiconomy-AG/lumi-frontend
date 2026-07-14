@@ -51,11 +51,14 @@ export function CallOverlay({
   }, [call.status])
 
   const incoming = call.status === 'ringing' && !isCaller
+  const isVideoOrGroup = call.media_type === 'video' || (call as any).type === 'video' || (call as any).mode === 'group'
+  
+  const callTypeLabel = isVideoOrGroup ? 'video' : 'audio'
   const displayName = incoming ? call.caller.name : other?.name ?? call.caller.name
   const subtitle = call.status === 'active'
       ? `${durationSince(call.answered_at)} · ${connectionState}`
       : incoming
-        ? 'Lumi Workspace audio call'
+        ? `Lumi Workspace ${callTypeLabel} call`
         : 'Calling…'
 
   if (minimized && call.status === 'active') {
@@ -88,7 +91,6 @@ export function CallOverlay({
   }
 
   // If this is a fullscreen active call that is video or group, use LiveKit's built-in VideoConference layout
-  const isVideoOrGroup = call.media_type === 'video' || (call as any).type === 'video' || (call as any).mode === 'group'
   if (!minimized && (call.status === 'active' || (isCaller && call.status === 'ringing')) && isVideoOrGroup) {
     return (
       <div className="fixed inset-0 z-[100] bg-zinc-950">
@@ -109,7 +111,7 @@ export function CallOverlay({
           </Button>
         )}
         <DialogHeader>
-          <DialogTitle className="text-center">{incoming ? 'Incoming audio call' : 'Lumi audio call'}</DialogTitle>
+          <DialogTitle className="text-center">{incoming ? `Incoming ${callTypeLabel} call` : `Lumi ${callTypeLabel} call`}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-5 py-5">

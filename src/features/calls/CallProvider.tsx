@@ -3,7 +3,7 @@ import { AxiosError } from 'axios'
 import { LiveKitRoom } from '@livekit/components-react'
 import '@livekit/components-styles'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { acceptCall, cancelCall, declineCall, endCall, getActiveCall, startCall } from '@/api/calls'
+import { acceptCall, cancelCall, declineCall, endCall, getActiveCall, startCall, createCall } from '@/api/calls'
 import { useAuth } from '@/features/auth/AuthContext'
 import { connectEcho } from '@/lib/echo'
 import type { WorkspaceCall } from '@/types/call'
@@ -26,7 +26,7 @@ function clientInstanceId(): string {
 }
 
 interface CallContextValue {
-  start: (conversationId: number, type?: 'audio' | 'video') => Promise<void>
+  start: (conversationId: number, type?: 'audio' | 'video', calleeIds?: number[]) => Promise<void>
 }
 
 const CallContext = createContext<CallContextValue | null>(null)
@@ -110,11 +110,17 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => () => { void leaveRoom() }, [leaveRoom])
 
-  const start = useCallback(async (conversationId: number, type: 'audio' | 'video' = 'audio') => {
+  const start = useCallback(async (conversationId: number, type: 'audio' | 'video' = 'audio', calleeIds?: number[]) => {
     if (!user) return
     setError(null)
     try {
-      const created = await startCall(conversationId, instanceId, type)
+      let created
+      if (calleeIds && calleeIds.length > 0) {
+        // Bypass the conversation endpoint directly to preserve the "type" field
+        created = await createCall(calleeIds, instanceId, type)
+      } else {
+        created = await startCall(conversationId, instanceId, type)
+      }
       setCall({ ...created, media_type: type }) // Temporary override if backend doesn't return it immediately
     } catch (cause) {
       const response = (cause as AxiosError<{ code?: string; message?: string }>).response
