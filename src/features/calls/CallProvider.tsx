@@ -73,18 +73,26 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     channel.listen('.call.updated', (payload: WorkspaceCall) => {
       setCall((current) => {
         if (current?.id !== payload.id) return current
-        if (TERMINAL.has(payload.status)) {
+
+        // Preserve video type in case backend doesn't support persisting it yet
+        const patchedPayload = {
+          ...payload,
+          media_type: current.media_type === 'video' ? 'video' : payload.media_type,
+          type: current.type === 'video' ? 'video' : payload.type,
+        }
+
+        if (TERMINAL.has(patchedPayload.status)) {
           void leaveRoom()
           window.setTimeout(() => setCall(null), 1200)
         } else if (
-          payload.status === 'active' &&
-          payload.initiated_by_user_id !== user.id &&
-          payload.answered_client_instance_id !== instanceId
+          patchedPayload.status === 'active' &&
+          patchedPayload.initiated_by_user_id !== user.id &&
+          patchedPayload.answered_client_instance_id !== instanceId
         ) {
           setError('This call was answered on another device.')
           window.setTimeout(() => setCall(null), 1600)
         }
-        return payload
+        return patchedPayload as WorkspaceCall
       })
     })
 
@@ -99,9 +107,8 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     if (!user) return
     setError(null)
     try {
-      // Pass type to startCall if the backend supports it, otherwise default
       const created = await startCall(conversationId, instanceId, type)
-      setCall({ ...created, type }) // Temporary override if backend doesn't return type
+      setCall({ ...created, media_type: type }) // Temporary override if backend doesn't return it immediately
     } catch (cause) {
       const response = (cause as AxiosError<{ code?: string; message?: string }>).response
       setError(response?.data?.message ?? 'The call could not be started.')
@@ -156,7 +163,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
           token={call.connection.token}
           connect={true}
           audio={!muted}
-          video={call.type === 'video'}
+          video={call.media_type === 'video'}
           onConnected={() => setConnectionState('connected')}
           onDisconnected={() => setConnectionState('disconnected')}
         >

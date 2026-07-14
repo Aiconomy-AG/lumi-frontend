@@ -4,7 +4,7 @@ import { requestData } from './http'
 export function startCall(conversationId: number, clientInstanceId: string, type?: 'audio' | 'video'): Promise<WorkspaceCall> {
   return requestData(`/workspace/conversations/${conversationId}/calls`, {
     method: 'POST',
-    data: { client_instance_id: clientInstanceId, type },
+    data: { client_instance_id: clientInstanceId, media_type: type },
   })
 }
 
