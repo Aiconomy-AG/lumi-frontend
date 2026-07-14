@@ -3,6 +3,7 @@ import DashboardPage from "./pages/DashboardPage"
 import TasksPage from "./pages/TasksPage"
 import TaskDetailPage from "./pages/TaskDetailPage"
 import StockPage from "./pages/StockPage"
+import StockLogsPage from "./pages/StockLogsPage"
 import ChatPage from "./pages/ChatPage"
 import AdminPage from "./pages/AdminPage"
 import AuditLogsPage from "./pages/AuditLogsPage"
@@ -41,6 +42,7 @@ export default function App() {
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/projects/:id" element={<ProjectDetailPage />} />
                     <Route path="/stock" element={<StockPage />} />
+                    <Route path="/stock-logs" element={<StockLogsPage />} />
                     <Route path="/chat" element={<ChatPage />} />
                     <Route path="/chat/:conversationId" element={<ChatPage />} />
                     <Route path="/profile" element={<ProfilePage />} />

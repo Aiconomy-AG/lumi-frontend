@@ -107,16 +107,15 @@ export default function ProjectDetailPage() {
     })
 
     return (
-        <div className="p-10 bg-zinc-950 min-h-screen">
-            <div className="mb-6">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate('/projects')}
-                >
-                    ← {t('projects.title')}
-                </Button>
-            </div>
+        <div className="p-6">
+            <Button
+                variant="ghost"
+                size="sm"
+                className="mb-6"
+                onClick={() => navigate('/projects')}
+            >
+                ← {t('projects.title')}
+            </Button>
 
             <div className="flex flex-col w-full">
 

@@ -66,6 +66,7 @@ export const navGroups: NavGroup[] = [
         labelKey: "sidebar.groups.sales",
         items: [
             { titleKey: "sidebar.stock", path: "/stock", icon: ShoppingCart },
+            { titleKey: "sidebar.stockLogs", path: "/stock-logs", icon: History, adminOnly: true },
             { titleKey: "sidebar.orders", path: "/orders", icon: ClipboardList, staffOnly: true },
             { titleKey: "sidebar.returns", path: "/returns", icon: Undo2, staffOnly: true },
         ],

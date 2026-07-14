@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
 import { useElapsedSeconds, useTimeTracking } from '@/hooks/useTimeTracking'
 import { useTimeEntriesQuery } from '@/features/timeTracking'
@@ -159,14 +160,16 @@ export default function TaskDetailPage() {
     const userGroups = Object.values(groupedEntries)
 
     return (
-        <div className="p-10 bg-zinc-950 min-h-screen">
+        <div className="p-6">
 
-            <button
-                className="btn-sm mb-6"
+            <Button
+                variant="ghost"
+                size="sm"
+                className="mb-6"
                 onClick={() => navigate(-1)}
             >
                 {t('taskDetail.back')}
-            </button>
+            </Button>
 
             <div className="flex flex-col w-full">
 
@@ -431,7 +434,7 @@ export default function TaskDetailPage() {
                             <div className="flex flex-col gap-2 mt-2">
                                 <input
                                     type="text"
-                                    placeholder={t('admin.searchPlaceholder')}
+                                    placeholder={t('taskDetail.searchSubtasks')}
                                     value={subtaskSearch}
                                     onChange={(e) => setSubtaskSearch(e.target.value)}
                                     className="bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 rounded-lg px-3 py-2 outline-none focus:border-purple-500 transition-colors"
@@ -474,7 +477,7 @@ export default function TaskDetailPage() {
                     <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">{t('taskDetail.timeEntries')}</h4>
                     <input
                         type="text"
-                        placeholder={t('admin.searchPlaceholder')}
+                        placeholder={t('taskDetail.searchTimeEntries')}
                         value={timeEntrySearch}
                         onChange={(e) => setTimeEntrySearch(e.target.value)}
                         className="bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 rounded-lg px-3 py-2 outline-none focus:border-purple-500 transition-colors"
