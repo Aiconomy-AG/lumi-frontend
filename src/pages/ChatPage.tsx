@@ -34,7 +34,6 @@ export default function ChatPage() {
     const { start: startCall } = useCalls()
     const { conversationId: conversationIdParam } = useParams()
     const isDesktop = useMediaQuery('(min-width: 768px)')
-    const [draft, setDraft] = useState('')
     const [mobileShowSidebar, setMobileShowSidebar] = useState(true)
 
     const activeConversationId = parseConversationId(conversationIdParam)
@@ -63,7 +62,10 @@ export default function ChatPage() {
     const people = useMemo(
         () =>
             users
-                .filter((candidate) => candidate.is_active && candidate.id !== user?.id)
+                .filter(
+                    (candidate) =>
+                        candidate.is_active && !candidate.is_bot && candidate.role !== 'client' && candidate.id !== user?.id
+                )
                 .sort((a, b) => a.name.localeCompare(b.name)),
         [users, user?.id]
     )
@@ -155,14 +157,13 @@ export default function ChatPage() {
         await updateMutation.mutateAsync(updates)
     }
 
-    async function handleSend() {
-        const text = draft.trim()
-        if (!text || activeConversationId === null || text.length > MESSAGE_MAX_LENGTH) return
-        setDraft('')
+    async function handleSend(text: string) {
+        if (!text || activeConversationId === null || text.length > MESSAGE_MAX_LENGTH) return false
         try {
             await sendMutation.mutateAsync(text)
+            return true
         } catch {
-            setDraft(text)
+            return false
         }
     }
 
@@ -210,11 +211,10 @@ export default function ChatPage() {
                 onRetry={() => void refetchMessages()}
             />
             <ChatComposer
+                key={activeConversationId ?? 'none'}
                 conversation={activeConversation}
                 currentUserId={user?.id}
-                draft={draft}
-                onDraftChange={setDraft}
-                onSend={() => void handleSend()}
+                onSend={handleSend}
                 isSending={sendMutation.isPending}
             />
         </>

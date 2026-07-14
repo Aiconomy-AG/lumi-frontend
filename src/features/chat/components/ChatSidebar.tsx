@@ -55,17 +55,11 @@ export function ChatSidebar({
     const peopleWithDirectConversations = useMemo(() => {
         return new Set(
             conversations
-                .filter((conversation) => conversation.type === 'direct')
+                .filter((conversation) => conversation.type === 'direct' && conversation.last_message_at)
                 .map((conversation) => getDirectParticipant(conversation, currentUserId)?.id)
                 .filter((id): id is number => typeof id === 'number')
         )
     }, [conversations, currentUserId])
-
-    const filteredPeople = useMemo(() => {
-        return people
-            .filter((person) => personMatchesSearch(person, search))
-            .filter((person) => !peopleWithDirectConversations.has(person.id))
-    }, [people, search, peopleWithDirectConversations])
 
     const activeDirectPersonId = useMemo(() => {
         if (!activeConversationId) return null
@@ -73,6 +67,12 @@ export function ChatSidebar({
         if (!activeConversation || activeConversation.type !== 'direct') return null
         return getDirectParticipant(activeConversation, currentUserId)?.id ?? null
     }, [activeConversationId, conversations, currentUserId])
+
+    const filteredPeople = useMemo(() => {
+        return people
+            .filter((person) => personMatchesSearch(person, search))
+            .filter((person) => !peopleWithDirectConversations.has(person.id) && person.id !== activeDirectPersonId)
+    }, [people, search, peopleWithDirectConversations, activeDirectPersonId])
 
     return (
         <>

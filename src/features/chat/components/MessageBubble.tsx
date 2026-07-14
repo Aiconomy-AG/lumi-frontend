@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Message } from '@/types/chat'
 import type { User } from '@/types/user'
@@ -26,7 +27,7 @@ function senderTextColorFor(id: number) {
     return senderTextColors[id % senderTextColors.length]
 }
 
-export function MessageBubble({
+export const MessageBubble = memo(function MessageBubble({
     message,
     fromMe,
     sender,
@@ -81,7 +82,7 @@ export function MessageBubble({
             </div>
         </div>
     )
-}
+})
 
 export function shouldShowGroupMessageMeta(
     messages: Message[],

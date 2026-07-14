@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
-import { useTimeTracking } from "@/hooks/useTimeTracking"
+import { useElapsedSeconds, useTimeTracking } from "@/hooks/useTimeTracking"
 import { useDailyTotalTimeQuery } from "@/features/timeTracking"
 import { useAuth } from "@/features/auth/AuthContext"
 import { avatarColorFor } from "@/components/ui/task-card"
@@ -21,23 +21,51 @@ function formatTime(totalSeconds: number) {
     return `${hrs}:${mins}:${secs}`
 }
 
+function HeaderClock({ userId }: { userId?: number }) {
+    const navigate = useNavigate()
+    const { startedAt, isRunning, activeTaskId } = useTimeTracking()
+    const elapsedSeconds = useElapsedSeconds(startedAt)
+    const { data: dailyTotalData, isFetching } = useDailyTotalTimeQuery(userId)
+
+    const baseTotalSeconds = typeof dailyTotalData === 'number' ? dailyTotalData : 0
+    const displayTotalSeconds = baseTotalSeconds + (isRunning ? elapsedSeconds : 0)
+
+    return (
+        <div
+            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                isRunning
+                    ? "border-purple-500/30 bg-purple-500/10 text-purple-400 cursor-pointer hover:bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
+                    : "border-zinc-800 bg-transparent text-zinc-400"
+            }`}
+            onClick={() => {
+                if (isRunning && activeTaskId) navigate(`/tasks/${activeTaskId}`)
+            }}
+            title={isRunning ? "Click to view active task" : "No active session"}
+        >
+            {isFetching && !isRunning ? (
+                <div className="h-4 w-4 rounded-full border-2 border-zinc-700 border-t-zinc-400 animate-spin" />
+            ) : (
+                <>
+                    <Clock className={`h-4 w-4 ${isRunning ? "text-purple-400" : "text-zinc-500"}`} />
+                    {formatTime(displayTotalSeconds)}
+                </>
+            )}
+        </div>
+    )
+}
+
 export default function AppLayout() {
     const location = useLocation()
     const navigate = useNavigate()
     const { t } = useTranslation()
-    const { elapsedSeconds, isRunning, activeTaskId } = useTimeTracking()
     const { user } = useAuth()
     const [notificationsOpen, setNotificationsOpen] = useState(false)
     const notificationsRef = useRef<HTMLDivElement>(null)
     const currentUser = user
     const initials = currentUser?.name.split(" ").map((w) => w[0]).join("").toUpperCase() ?? ""
 
-    const { data: dailyTotalData, isFetching } = useDailyTotalTimeQuery(currentUser?.id)
     const { data: unreadNotifications = [] } = useNotificationsQuery(true)
     const unreadCount = unreadNotifications.length
-
-    const baseTotalSeconds = typeof dailyTotalData === 'number' ? dailyTotalData : 0
-    const displayTotalSeconds = baseTotalSeconds + (isRunning ? elapsedSeconds : 0)
 
     useEffect(() => {
         if (!notificationsOpen) return
@@ -95,26 +123,7 @@ export default function AppLayout() {
                         <h1 className="text-sm font-semibold text-white capitalize">{title}</h1>
 
                         <div className="flex items-center gap-3">
-                            <div
-                                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
-                                    isRunning
-                                        ? "border-purple-500/30 bg-purple-500/10 text-purple-400 cursor-pointer hover:bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
-                                        : "border-zinc-800 bg-transparent text-zinc-400"
-                                }`}
-                                onClick={() => {
-                                    if (isRunning && activeTaskId) navigate(`/tasks/${activeTaskId}`)
-                                }}
-                                title={isRunning ? "Click to view active task" : "No active session"}
-                            >
-                                {isFetching && !isRunning ? (
-                                    <div className="h-4 w-4 rounded-full border-2 border-zinc-700 border-t-zinc-400 animate-spin" />
-                                ) : (
-                                    <>
-                                        <Clock className={`h-4 w-4 ${isRunning ? "text-purple-400" : "text-zinc-500"}`} />
-                                        {formatTime(displayTotalSeconds)}
-                                    </>
-                                )}
-                            </div>
+                            <HeaderClock userId={currentUser?.id} />
 
                             <div className="relative" ref={notificationsRef}>
                                 <button

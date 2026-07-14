@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Loader2, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -8,15 +8,14 @@ import { getConversationTitle, MESSAGE_MAX_LENGTH } from '../utils'
 interface ChatComposerProps {
     conversation: Conversation | null
     currentUserId?: number
-    draft: string
-    onDraftChange: (value: string) => void
-    onSend: () => void
+    onSend: (text: string) => Promise<boolean>
     isSending: boolean
 }
 
-export function ChatComposer({ conversation, currentUserId, draft, onDraftChange, onSend, isSending }: ChatComposerProps) {
+export function ChatComposer({ conversation, currentUserId, onSend, isSending }: ChatComposerProps) {
     const { t } = useTranslation()
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const [draft, setDraft] = useState('')
     const atLimit = draft.length >= MESSAGE_MAX_LENGTH
     const nearLimit = draft.length >= MESSAGE_MAX_LENGTH - 200
 
@@ -32,15 +31,24 @@ export function ChatComposer({ conversation, currentUserId, draft, onDraftChange
         : t('chat.messagePlaceholderDefault')
 
     function handleChange(value: string) {
-        onDraftChange(value.slice(0, MESSAGE_MAX_LENGTH))
+        setDraft(value.slice(0, MESSAGE_MAX_LENGTH))
+    }
+
+    function handleSend() {
+        const text = draft.trim()
+        if (!text || !conversation || isSending || atLimit) return
+        setDraft('')
+        void onSend(text).then((sent) => {
+            if (!sent) {
+                setDraft((current) => current || text)
+            }
+        })
     }
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault()
-            if (draft.trim() && conversation && !isSending && !atLimit) {
-                onSend()
-            }
+            handleSend()
         }
     }
 
@@ -56,7 +64,7 @@ export function ChatComposer({ conversation, currentUserId, draft, onDraftChange
                         maxLength={MESSAGE_MAX_LENGTH}
                         onChange={(event) => handleChange(event.target.value)}
                         onKeyDown={handleKeyDown}
-                        disabled={!conversation || isSending}
+                        disabled={!conversation}
                         className="max-h-40 min-h-10 w-full resize-none rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition-colors focus:border-purple-500/50 disabled:opacity-50"
                     />
                     {nearLimit && (
@@ -76,7 +84,7 @@ export function ChatComposer({ conversation, currentUserId, draft, onDraftChange
                     type="button"
                     size="icon"
                     className="h-10 w-10 shrink-0 rounded-full"
-                    onClick={onSend}
+                    onClick={handleSend}
                     disabled={draft.trim() === '' || !conversation || isSending || atLimit}
                     aria-label={t('chat.send')}
                 >

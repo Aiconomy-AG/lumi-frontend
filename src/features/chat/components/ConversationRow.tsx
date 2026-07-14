@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Conversation } from '@/types/chat'
@@ -18,7 +19,7 @@ interface ConversationRowProps {
     onSelect: (conversation: Conversation) => void
 }
 
-export function ConversationRow({ conversation, currentUserId, isActive, onSelect }: ConversationRowProps) {
+export const ConversationRow = memo(function ConversationRow({ conversation, currentUserId, isActive, onSelect }: ConversationRowProps) {
     const { t, i18n } = useTranslation()
     const isGroup = conversation.type === 'group'
     const title = getConversationTitle(conversation, currentUserId)
@@ -74,7 +75,7 @@ export function ConversationRow({ conversation, currentUserId, isActive, onSelec
             </div>
         </button>
     )
-}
+})
 
 interface PeopleRowProps {
     person: User
@@ -83,7 +84,7 @@ interface PeopleRowProps {
     disabled?: boolean
 }
 
-export function PeopleRow({ person, isActive, onSelect, disabled }: PeopleRowProps) {
+export const PeopleRow = memo(function PeopleRow({ person, isActive, onSelect, disabled }: PeopleRowProps) {
     return (
         <button
             type="button"
@@ -100,4 +101,4 @@ export function PeopleRow({ person, isActive, onSelect, disabled }: PeopleRowPro
             </div>
         </button>
     )
-}
+})

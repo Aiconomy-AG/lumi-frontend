@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useTimeTracking } from '@/hooks/useTimeTracking'
+import { useElapsedSeconds, useTimeTracking } from '@/hooks/useTimeTracking'
 import { useTimeEntriesQuery } from '@/features/timeTracking'
 import { useTasksQuery, useUpdateTaskMutation, useAssignTaskMutation, useUnassignTaskMutation, useCreateTaskMutation } from '@/features/tasks'
 import { useProjectsQuery } from '@/features/projects'
@@ -18,7 +18,8 @@ export default function TaskDetailPage() {
     const taskId = Number(id)
     const { user: currentUser } = useAuth()
 
-    const { activeTaskId, elapsedSeconds, start, stop } = useTimeTracking()
+    const { activeTaskId, startedAt, start, stop } = useTimeTracking()
+    const elapsedSeconds = useElapsedSeconds(startedAt)
     const isRunning = activeTaskId === taskId
 
     const { data: entries = [] } = useTimeEntriesQuery(taskId)

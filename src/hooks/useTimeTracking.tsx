@@ -9,7 +9,7 @@ import type { TaskTimeEntry } from '@/types/task'
 
 interface TimeTrackingContextValue {
     activeTaskId: number | null
-    elapsedSeconds: number
+    startedAt: number | null
     isRunning: boolean
     start: (taskId: number) => Promise<void>
     stop: () => Promise<void>
@@ -26,7 +26,6 @@ export function TimeTrackingProvider({ children }: { children: ReactNode }) {
     const [activeTaskId, setActiveTaskId] = useState<number | null>(null)
     const [activeEntryId, setActiveEntryId] = useState<number | null>(null)
     const [startedAt, setStartedAt] = useState<number | null>(null)
-    const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
     const activeEntryIdRef = useRef<number | null>(null)
     useEffect(() => {
@@ -38,22 +37,12 @@ export function TimeTrackingProvider({ children }: { children: ReactNode }) {
             setActiveTaskId(entry.task_id)
             setActiveEntryId(entry.id)
             setStartedAt(new Date(entry.started_at).getTime())
-            setElapsedSeconds(Math.max(0, Math.floor((Date.now() - new Date(entry.started_at).getTime()) / 1000)))
         } else {
             setActiveTaskId(null)
             setActiveEntryId(null)
             setStartedAt(null)
-            setElapsedSeconds(0)
         }
     }, [])
-
-    useEffect(() => {
-        if (startedAt === null) return
-        const interval = setInterval(() => {
-            setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000))
-        }, 1000)
-        return () => clearInterval(interval)
-    }, [startedAt])
 
     const activeQuery = useQuery({
         queryKey: ['timeTracking', 'active', user?.id],
@@ -117,7 +106,7 @@ export function TimeTrackingProvider({ children }: { children: ReactNode }) {
 
     return (
         <TimeTrackingContext.Provider
-            value={{ activeTaskId, elapsedSeconds, isRunning: activeTaskId !== null, start, stop }}
+            value={{ activeTaskId, startedAt, isRunning: activeTaskId !== null, start, stop }}
         >
             {children}
         </TimeTrackingContext.Provider>
@@ -128,4 +117,23 @@ export function useTimeTracking() {
     const ctx = useContext(TimeTrackingContext)
     if (!ctx) throw new Error('useTimeTracking must be used within TimeTrackingProvider')
     return ctx
+}
+
+export function useElapsedSeconds(startedAt: number | null) {
+    const [elapsedSeconds, setElapsedSeconds] = useState(() =>
+        startedAt === null ? 0 : Math.max(0, Math.floor((Date.now() - startedAt) / 1000))
+    )
+
+    useEffect(() => {
+        if (startedAt === null) {
+            setElapsedSeconds(0)
+            return
+        }
+        const update = () => setElapsedSeconds(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)))
+        update()
+        const interval = setInterval(update, 1000)
+        return () => clearInterval(interval)
+    }, [startedAt])
+
+    return elapsedSeconds
 }
