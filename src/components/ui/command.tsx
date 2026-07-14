@@ -28,6 +28,7 @@ function CommandDialog({
   className,
   showCloseButton = true,
   shouldFilter = true,
+  initialFocusRef,
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, 'children'> & {
   title?: string
@@ -35,6 +36,7 @@ function CommandDialog({
   className?: string
   showCloseButton?: boolean
   shouldFilter?: boolean
+  initialFocusRef?: React.RefObject<HTMLElement | null>
   children?: React.ReactNode
 }) {
   return (
@@ -42,6 +44,7 @@ function CommandDialog({
       <DialogContent
         className={cn('overflow-hidden p-0 sm:max-w-xl', className)}
         showCloseButton={showCloseButton}
+        initialFocus={initialFocusRef}
       >
         <DialogTitle className="sr-only">{title}</DialogTitle>
         <div className="sr-only">{description}</div>
@@ -53,27 +56,27 @@ function CommandDialog({
   )
 }
 
-function CommandInput({
-  className,
-  ...props
-}: React.ComponentProps<typeof CommandPrimitive.Input>) {
-  return (
-    <div
-      data-slot="command-input-wrapper"
-      className="flex h-12 items-center gap-2 border-b border-zinc-800 px-3"
-    >
-      <SearchIcon className="size-4 shrink-0 opacity-50" />
-      <CommandPrimitive.Input
-        data-slot="command-input"
-        className={cn(
-          'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
-          className,
-        )}
-        {...props}
-      />
-    </div>
-  )
-}
+const CommandInput = React.forwardRef<
+  React.ElementRef<typeof CommandPrimitive.Input>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
+>(({ className, ...props }, ref) => (
+  <div
+    data-slot="command-input-wrapper"
+    className="flex h-12 items-center gap-2 border-b border-zinc-800 px-3"
+  >
+    <SearchIcon className="size-4 shrink-0 opacity-50" />
+    <CommandPrimitive.Input
+      ref={ref}
+      data-slot="command-input"
+      className={cn(
+        'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+        className,
+      )}
+      {...props}
+    />
+  </div>
+))
+CommandInput.displayName = 'CommandInput'
 
 function CommandList({
   className,

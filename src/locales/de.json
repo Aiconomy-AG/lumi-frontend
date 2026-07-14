@@ -435,6 +435,7 @@
     "title": "Suche",
     "description": "Seiten, Datensätze und Schnellaktionen in Lumi durchsuchen",
     "open": "Suche öffnen",
+    "close": "Suche schließen",
     "placeholder": "Alles durchsuchen...",
     "shortcut": "⌘K",
     "minChars": "Mindestens 2 Zeichen eingeben, um Datensätze zu suchen",

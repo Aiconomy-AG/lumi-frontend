@@ -17,6 +17,5 @@ export function useGlobalSearchQuery(query: string, options: UseGlobalSearchOpti
     queryFn: () => globalSearch(normalized, { types, includeCompleted }),
     enabled: enabled && normalized.length >= 2,
     staleTime: 30_000,
-    placeholderData: (previous) => previous,
   })
 }

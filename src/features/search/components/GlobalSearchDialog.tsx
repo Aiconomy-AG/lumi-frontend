@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { History } from 'lucide-react'
+import { History, X } from 'lucide-react'
 import {
   CommandDialog,
   CommandEmpty,
@@ -44,24 +44,33 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
   const [query, setQuery] = useState('')
   const [includeCompleted, setIncludeCompleted] = useState(false)
   const [recent, setRecent] = useState<RecentSearchEntry[]>([])
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   const parsed = useMemo(() => parseSearchQuery(query), [query])
   const isStaff = user?.role !== 'client'
   const userParam = parsed.query
+  const hasActiveSearch = userParam.trim().length >= 2
 
-  const { data, isFetching, isError } = useGlobalSearchQuery(userParam, {
+  const { data, isFetching, isError, isFetched } = useGlobalSearchQuery(userParam, {
     types: parsed.types,
     includeCompleted,
     enabled: open && !parsed.pagesOnly,
   })
 
+  const apiResults = hasActiveSearch && data?.query === userParam ? data.results : []
+
   useEffect(() => {
-    if (open) {
-      setRecent(loadRecentSearches())
-    } else {
+    if (!open) {
       setQuery('')
       setIncludeCompleted(false)
+      return
     }
+
+    setRecent(loadRecentSearches())
+    const frame = window.requestAnimationFrame(() => {
+      searchInputRef.current?.focus()
+    })
+    return () => window.cancelAnimationFrame(frame)
   }, [open])
 
   const actionContext = useMemo<SearchActionContext>(() => ({
@@ -140,8 +149,8 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
   )
 
   const groupedResults = useMemo(
-    () => groupResultsByType(data?.results ?? []),
-    [data?.results],
+    () => groupResultsByType(apiResults),
+    [apiResults],
   )
 
   const pagesAndActionsItems = useMemo(() => {
@@ -199,15 +208,17 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
     t,
   ])
 
-  const apiSectionCount = groupedResults.length
+  const apiSectionCount = hasActiveSearch ? groupedResults.length : 0
   const summarySectionCount = apiSectionCount + (pagesAndActionsItems.length > 0 ? 1 : 0)
-  const summaryTotal = (data?.meta.total ?? 0) + pagesAndActionsItems.length
+  const summaryTotal = (hasActiveSearch ? apiResults.length : 0) + pagesAndActionsItems.length
 
-  const showHint = parsed.query.trim().length > 0 && parsed.query.trim().length < 2
+  const showHint = userParam.trim().length > 0 && !hasActiveSearch
+  const showApiLoading = hasActiveSearch && !parsed.pagesOnly && isFetching
   const showNoResults =
-    parsed.query.trim().length >= 2 &&
+    hasActiveSearch &&
     !parsed.pagesOnly &&
-    !isFetching &&
+    !showApiLoading &&
+    isFetched &&
     !isError &&
     pagesAndActionsItems.length === 0 &&
     groupedResults.length === 0
@@ -217,35 +228,50 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
       open={open}
       onOpenChange={onOpenChange}
       shouldFilter={false}
+      showCloseButton={false}
+      initialFocusRef={searchInputRef}
       title={t('search.title')}
       description={t('search.description')}
       className="max-h-[90vh] w-[min(96vw,72rem)] border-zinc-800 bg-zinc-950 text-zinc-100 sm:max-w-5xl"
     >
-      <div className="flex items-center justify-between gap-3 border-b border-zinc-800 px-4 py-3">
-        <h2 className="text-sm font-semibold text-white">{t('search.title')}</h2>
-        <label className="flex items-center gap-2 text-xs text-zinc-400">
-          <input
-            type="checkbox"
-            checked={includeCompleted}
-            onChange={(event) => setIncludeCompleted(event.target.checked)}
-            className="rounded border-zinc-700 bg-zinc-900"
-          />
-          {t('search.showCompleted')}
-        </label>
+      <div className="flex items-center justify-between gap-4 border-b border-zinc-800 px-4 py-3">
+        <h2 className="shrink-0 text-sm font-semibold text-white">{t('search.title')}</h2>
+        <div className="flex min-w-0 items-center gap-3">
+          <label className="flex shrink-0 items-center gap-2 text-xs text-zinc-400">
+            <input
+              type="checkbox"
+              checked={includeCompleted}
+              onChange={(event) => setIncludeCompleted(event.target.checked)}
+              onClick={(event) => event.stopPropagation()}
+              className="rounded border-zinc-700 bg-zinc-900"
+            />
+            <span className="whitespace-nowrap">{t('search.showCompleted')}</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            aria-label={t('search.close')}
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
       </div>
 
       <CommandInput
+        ref={searchInputRef}
         value={query}
         onValueChange={setQuery}
         placeholder={t('search.placeholder')}
         aria-label={t('search.placeholder')}
+        autoFocus
       />
 
       <div className="border-b border-zinc-800 px-4 py-2 text-xs text-zinc-500">
         {t('search.prefixHint', { prefixes: searchPrefixHints.join('  ') })}
       </div>
 
-      {parsed.query.trim().length >= 2 && summarySectionCount > 0 && (
+      {hasActiveSearch && summarySectionCount > 0 && (
         <div className="border-b border-zinc-800 px-4 py-2 text-xs text-zinc-400">
           {t('search.summary', { total: summaryTotal, sections: summarySectionCount })}
         </div>
@@ -258,16 +284,16 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
           </div>
         )}
 
-        {showNoResults && <CommandEmpty>{t('search.noResults', { query: parsed.query })}</CommandEmpty>}
+        {showNoResults && <CommandEmpty>{t('search.noResults', { query: userParam })}</CommandEmpty>}
 
-        {parsed.query.trim().length >= 2 && isError && (
+        {hasActiveSearch && isError && (
           <div className="px-4 py-6 text-center text-sm text-red-400">
             {t('search.error')}
           </div>
         )}
 
         <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
-          {(pagesAndActionsItems.length > 0 || parsed.query.trim().length < 2) && (
+          {(pagesAndActionsItems.length > 0 || !hasActiveSearch) && (
             <SearchSection
               title={t('search.sections.pagesActions')}
               count={pagesAndActionsItems.length}
@@ -277,7 +303,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
             />
           )}
 
-          {!parsed.pagesOnly && groupedResults.map((group) => {
+          {!parsed.pagesOnly && hasActiveSearch && groupedResults.map((group) => {
             const Icon = resultTypeIcons[group.type]
             return (
               <SearchSection
@@ -298,7 +324,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
             )
           })}
 
-          {!parsed.pagesOnly && parsed.query.trim().length >= 2 && isFetching && groupedResults.length === 0 && (
+          {!parsed.pagesOnly && showApiLoading && groupedResults.length === 0 && (
             resultTypeOrder.slice(0, 3).map((type) => {
               const Icon = resultTypeIcons[type]
               return (

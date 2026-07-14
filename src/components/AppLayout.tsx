@@ -100,7 +100,7 @@ export default function AppLayout() {
         const handleKeyDown = (event: KeyboardEvent) => {
             if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
                 event.preventDefault()
-                setSearchOpen(true)
+                setSearchOpen((open) => !open)
             }
         }
 
@@ -136,11 +136,11 @@ export default function AppLayout() {
                     <header className="flex h-14 shrink-0 items-center gap-4 border-b border-zinc-800 bg-zinc-950 px-6">
                         <h1 className="shrink-0 text-sm font-semibold text-white capitalize">{title}</h1>
 
-                        <SearchTrigger onClick={() => setSearchOpen(true)} className="mx-auto hidden sm:flex" />
+                        <SearchTrigger onClick={() => setSearchOpen((open) => !open)} className="mx-auto hidden sm:flex" />
 
                         <button
                             type="button"
-                            onClick={() => setSearchOpen(true)}
+                            onClick={() => setSearchOpen((open) => !open)}
                             aria-label={t('search.open')}
                             className="rounded-full border-none bg-transparent p-2 text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-white cursor-pointer sm:hidden"
                         >

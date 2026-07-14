@@ -435,6 +435,7 @@
     "title": "Căutare",
     "description": "Caută pagini, înregistrări și acțiuni rapide în Lumi",
     "open": "Deschide căutarea",
+    "close": "Închide căutarea",
     "placeholder": "Caută orice...",
     "shortcut": "⌘K",
     "minChars": "Introdu cel puțin 2 caractere pentru a căuta înregistrări",
