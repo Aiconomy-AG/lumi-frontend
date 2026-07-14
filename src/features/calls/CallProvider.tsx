@@ -22,7 +22,6 @@ function clientInstanceId(): string {
 }
 
 interface CallContextValue {
-  call: WorkspaceCall | null
   start: (conversationId: number) => Promise<void>
 }
 
@@ -172,7 +171,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
   }, [muted])
 
   return (
-    <CallContext.Provider value={{ call, start }}>
+    <CallContext.Provider value={{ start }}>
       {children}
       {error && !call && (
         <button

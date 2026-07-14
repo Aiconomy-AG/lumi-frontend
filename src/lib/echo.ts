@@ -1,5 +1,6 @@
 import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
+import { getApiBaseUrl } from '@/api/baseUrl'
 import { getAuthToken } from '@/api/token'
 
 declare global {
@@ -13,8 +14,7 @@ window.Pusher = Pusher
 let echoInstance: Echo<'reverb'> | null = null
 
 function parseApiUrl() {
-  const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:80/api/v1'
-  return new URL(apiUrl)
+  return new URL(getApiBaseUrl())
 }
 
 function buildBroadcastAuthEndpoint(apiUrl: URL): string {

@@ -14,10 +14,6 @@ export function getActiveCall(clientInstanceId: string): Promise<WorkspaceCall |
   })
 }
 
-export function getCall(callId: string): Promise<WorkspaceCall> {
-  return requestData(`/workspace/calls/${callId}`)
-}
-
 export function acceptCall(callId: string, clientInstanceId: string): Promise<WorkspaceCall> {
   return requestData(`/workspace/calls/${callId}/accept`, {
     method: 'POST',
@@ -32,4 +28,3 @@ function updateCall(callId: string, action: 'decline' | 'cancel' | 'end'): Promi
 export const declineCall = (callId: string) => updateCall(callId, 'decline')
 export const cancelCall = (callId: string) => updateCall(callId, 'cancel')
 export const endCall = (callId: string) => updateCall(callId, 'end')
-

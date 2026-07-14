@@ -6,6 +6,7 @@ import type {
   CompleteInvitePayload,
 } from '../types/user'
 import { request, requestData } from './http'
+import { getApiBaseUrl } from './baseUrl'
 import { setAuthToken, clearAuthToken, getAuthToken } from './token'
 
 export async function login(credentials: LoginCredentials): Promise<User> {
@@ -50,8 +51,7 @@ export function sendPresenceDisconnectBeacon(): void {
     return
   }
 
-  const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:80/api/v1'
-  const endpoint = `${apiUrl.replace(/\/$/, '')}/auth/me/presence/disconnect`
+  const endpoint = `${getApiBaseUrl()}/auth/me/presence/disconnect`
   const payload = JSON.stringify({ token })
 
   try {
