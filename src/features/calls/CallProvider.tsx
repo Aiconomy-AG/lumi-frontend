@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { LiveKitRoom } from '@livekit/components-react'
 import '@livekit/components-styles'
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { acceptCall, cancelCall, declineCall, endCall, getActiveCall, startCall, createCall } from '@/api/calls'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import {acceptCall, cancelCall, createCall, declineCall, endCall, getActiveCall, startCall} from '@/api/calls'
 import { useAuth } from '@/features/auth/AuthContext'
 import { connectEcho } from '@/lib/echo'
 import type { WorkspaceCall } from '@/types/call'
@@ -116,12 +116,11 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     try {
       let created
       if (calleeIds && calleeIds.length > 0) {
-        // Bypass the conversation endpoint directly to preserve the "type" field
         created = await createCall(calleeIds, instanceId, type)
       } else {
         created = await startCall(conversationId, instanceId, type)
       }
-      setCall({ ...created, media_type: type }) // Temporary override if backend doesn't return it immediately
+      setCall({ ...created, media_type: type })
     } catch (cause) {
       const response = (cause as AxiosError<{ code?: string; message?: string }>).response
       setError(response?.data?.message ?? 'The call could not be started.')
@@ -176,7 +175,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
           token={call.connection.token}
           connect={true}
           audio={!muted}
-          video={call.media_type === 'video' || (call as any).type === 'video'}
+          video={call.media_type === 'video' || (call as any).type === 'video' || (call as any).call_type === 'video'}
           onConnected={() => setConnectionState('connected')}
           onDisconnected={() => {
             setConnectionState('disconnected')

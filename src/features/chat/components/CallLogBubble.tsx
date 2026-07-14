@@ -12,8 +12,8 @@ export function CallLogBubble({ message }: CallLogBubbleProps) {
 
     if (!call) return null
 
+    const isVideo = (call as any).type === 'video' || (call as any).call_type === 'video' || call.media_type === 'video'
     const isMissed = call.status === 'missed' || call.status === 'declined' || call.status === 'cancelled'
-    const isVideo = (call as any).type === 'video' || call.media_type === 'video'
 
     let Icon = Phone
     if (isVideo) Icon = Video

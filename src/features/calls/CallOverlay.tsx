@@ -51,7 +51,7 @@ export function CallOverlay({
   }, [call.status])
 
   const incoming = call.status === 'ringing' && !isCaller
-  const isVideoOrGroup = call.media_type === 'video' || (call as any).type === 'video' || (call as any).mode === 'group'
+  const isVideoOrGroup = call.media_type === 'video' || (call as any).type === 'video' || (call as any).call_type === 'video' || (call as any).mode === 'group'
   
   const callTypeLabel = isVideoOrGroup ? 'video' : 'audio'
   const displayName = incoming ? call.caller.name : other?.name ?? call.caller.name
