@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import type { Conversation, Message } from '@/types/chat'
 import { formatDateSeparator, isSameDay } from '../utils'
 import { MessageBubble, shouldShowGroupMessageMeta } from './MessageBubble'
+import { CallLogBubble } from './CallLogBubble'
 
 interface MessageListProps {
     conversation: Conversation | null
@@ -104,6 +105,10 @@ export function MessageList({
                             </span>
                         </div>
                     )
+                }
+
+                if (message.message_type === 'call') {
+                    return <CallLogBubble key={message.id} message={message} />
                 }
 
                 const fromMe = message.sender_id === currentUserId

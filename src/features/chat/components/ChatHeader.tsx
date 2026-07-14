@@ -1,4 +1,4 @@
-import { ArrowLeft, Phone, Settings2, Users } from 'lucide-react'
+import { ArrowLeft, Phone, Settings2, Users, Video } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Conversation } from '@/types/chat'
@@ -14,7 +14,7 @@ interface ChatHeaderProps {
     showBackButton?: boolean
     isUpdatingGroup?: boolean
     onBack?: () => void
-    onStartCall?: () => void
+    onStartCall?: (type: 'audio' | 'video') => void
     onUpdateGroup?: (payload: {
         name: string
         add_participants_employee_ids: number[]
@@ -108,15 +108,25 @@ export function ChatHeader({
                     ) : null}
                 </div>
 
-                {!isGroup && onStartCall && (
-                    <button
-                        type="button"
-                        onClick={onStartCall}
-                        className="rounded-md p-2 text-purple-300 transition-colors hover:bg-purple-500/10 hover:text-purple-200"
-                        aria-label="Start audio call"
-                    >
-                        <Phone className="h-4 w-4" />
-                    </button>
+                {onStartCall && (
+                    <div className="flex items-center gap-1">
+                        <button
+                            type="button"
+                            onClick={() => onStartCall('audio')}
+                            className="rounded-md p-2 text-purple-300 transition-colors hover:bg-purple-500/10 hover:text-purple-200"
+                            aria-label="Start audio call"
+                        >
+                            <Phone className="h-4 w-4" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onStartCall('video')}
+                            className="rounded-md p-2 text-purple-300 transition-colors hover:bg-purple-500/10 hover:text-purple-200"
+                            aria-label="Start video call"
+                        >
+                            <Video className="h-4.5 w-4.5" />
+                        </button>
+                    </div>
                 )}
 
                 {isGroup && onUpdateGroup && (
