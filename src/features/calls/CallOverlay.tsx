@@ -47,11 +47,11 @@ export function CallOverlay({
 
   const incoming = call.status === 'ringing' && !isCaller
   const displayName = incoming ? call.caller.name : other?.name ?? call.caller.name
-  const subtitle = incoming
-    ? `${call.caller.phone_number} · self-declared Lumi handle`
-    : call.status === 'active'
+  const subtitle = call.status === 'active'
       ? `${durationSince(call.answered_at)} · ${connectionState}`
-      : 'Calling…'
+      : incoming
+        ? 'Lumi Workspace audio call'
+        : 'Calling…'
 
   return (
     <Dialog open>
@@ -98,4 +98,3 @@ export function CallOverlay({
     </Dialog>
   )
 }
-

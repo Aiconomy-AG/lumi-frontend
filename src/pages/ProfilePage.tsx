@@ -46,18 +46,7 @@ export default function ProfilePage() {
                 prev ? { ...prev, phone_number: data.phone_number } : prev
             )
             setIsEditOpen(false)
-            const returnPath = searchParams.get('return')
-            const pendingCall = Number(searchParams.get('call'))
-            if (returnPath?.startsWith('/')) {
-                navigate(returnPath, {
-                    replace: true,
-                    state: Number.isFinite(pendingCall) && pendingCall > 0
-                        ? { resumeCallConversationId: pendingCall }
-                        : null,
-                })
-            } else {
-                alert("Phone number updated successfully!")
-            }
+            alert("Phone number updated successfully!")
         },
         onError: (err: any) => {
             alert(err?.response?.data?.message || "Failed to update phone number.")

@@ -10,7 +10,6 @@ export type CallStatus =
 export interface CallIdentity {
   id: number
   name: string
-  phone_number: string
 }
 
 export interface CallParticipant {
@@ -29,6 +28,7 @@ export interface WorkspaceCall {
   id: string
   conversation_id: number
   initiated_by_user_id: number
+  destination_type: 'workspace_user' | string
   caller: CallIdentity
   participants: CallParticipant[]
   media_type: 'audio'
@@ -41,4 +41,3 @@ export interface WorkspaceCall {
   updated_at: string
   connection?: CallConnection
 }
-

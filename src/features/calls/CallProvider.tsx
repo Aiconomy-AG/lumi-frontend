@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { Room, RoomEvent, Track } from 'livekit-client'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { acceptCall, cancelCall, declineCall, endCall, getActiveCall, startCall } from '@/api/calls'
 import { useAuth } from '@/features/auth/AuthContext'
 import { connectEcho } from '@/lib/echo'
@@ -29,7 +28,6 @@ const CallContext = createContext<CallContextValue | null>(null)
 
 export function CallProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
-  const navigate = useNavigate()
   const instanceId = useMemo(clientInstanceId, [])
   const [call, setCall] = useState<WorkspaceCall | null>(null)
   const [connectionState, setConnectionState] = useState('disconnected')
@@ -133,13 +131,9 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       await joinRoom(created)
     } catch (cause) {
       const response = (cause as AxiosError<{ code?: string; message?: string }>).response
-      if (response?.data?.code === 'PHONE_NUMBER_REQUIRED') {
-        navigate(`/profile?edit=phone&return=${encodeURIComponent(`/chat/${conversationId}`)}&call=${conversationId}`)
-        return
-      }
       setError(response?.data?.message ?? 'The call could not be started.')
     }
-  }, [instanceId, joinRoom, navigate, user])
+  }, [instanceId, joinRoom, user])
 
   const accept = useCallback(async () => {
     if (!call) return
