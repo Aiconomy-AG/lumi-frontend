@@ -67,6 +67,10 @@ export function getLastMessagePreview(
     const lastMessage = conversation.last_message
     if (!lastMessage) return null
 
+    if (lastMessage.message_type === 'system') {
+        return lastMessage.message
+    }
+
     if (conversation.type !== 'group') {
         return lastMessage.message
     }

@@ -4,6 +4,7 @@ export interface LastMessage {
     message: string
     sender_id: number
     sent_at: string
+    message_type?: 'text' | 'call' | 'system'
 }
 
 export interface Conversation {
@@ -21,6 +22,7 @@ export interface Message {
     conversation_id: number
     sender_id: number
     message: string
+    message_type?: 'text' | 'call' | 'system'
     type?: 'text' | 'ai_action'
     meta?: AiActionMeta
     sent_at: string
