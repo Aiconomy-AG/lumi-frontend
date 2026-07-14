@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import {useState, useRef, useEffect, useMemo} from 'react'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'
 import { useAuditLogsQuery } from '@/features/auditLogs'
@@ -6,7 +6,13 @@ import type { AuditLog } from '@/types/auditLog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { PaginationFooter } from '@/components/ui/pagination-footer'
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 function ChangesDiff({ log }: { log: AuditLog }) {
   const { t } = useTranslation()
   const oldValues = log.changes?.old ?? {}
@@ -54,14 +60,82 @@ export default function AuditLogsPage() {
     to: to || undefined,
   })
 
+  const { data: modulesData } = useAuditLogsQuery({
+    page: 1,
+    per_page: 100,
+  })
+
+  const { data: actionsData } = useAuditLogsQuery({
+    page: 1,
+    per_page: 100,
+    module: module || undefined,
+  })
+
   function formatActionLabel(actionKey: string): string {
     const key = `auditLogs.actions.${actionKey}`
     const translated = t(key)
-    return translated === key ? actionKey : translated
+
+    if (translated !== key) {
+      return translated
+    }
+
+    return actionKey
+        .replace(/[_-]/g, ' ')
+        .replace(/\b\w/g, (character) => character.toUpperCase())
   }
 
   const logs = data?.data ?? []
   const meta = data?.meta
+
+  const moduleLogs = modulesData?.data ?? []
+  const actionLogs = actionsData?.data ?? []
+
+  const availableModules = useMemo(
+      () =>
+          [...new Set(moduleLogs.map((log) => log.module).filter(Boolean))].sort(),
+      [moduleLogs]
+  )
+
+  const availableActions = useMemo(
+      () =>
+          [...new Set(actionLogs.map((log) => log.action).filter(Boolean))].sort(),
+      [actionLogs]
+  )
+
+  const moduleOptions = [
+    {
+      value: 'all',
+      label: t('auditLogs.allModules'),
+    },
+    ...availableModules.map((moduleKey) => ({
+      value: moduleKey,
+      label: formatModuleLabel(moduleKey),
+    })),
+  ]
+
+  const actionOptions = [
+    {
+      value: 'all',
+      label: t('auditLogs.allActions'),
+    },
+    ...availableActions.map((actionKey) => ({
+      value: actionKey,
+      label: formatActionLabel(actionKey),
+    })),
+  ]
+
+  function formatModuleLabel(moduleKey: string): string {
+    const key = `auditLogs.modules.${moduleKey}`
+    const translated = t(key)
+
+    if (translated !== key) {
+      return translated
+    }
+
+    return moduleKey
+        .replace(/[_-]/g, ' ')
+        .replace(/\b\w/g, (character) => character.toUpperCase())
+  }
 
   function updateFilter(setter: (value: string) => void) {
     return (value: string) => {
@@ -74,18 +148,56 @@ export default function AuditLogsPage() {
     <div className="p-6 h-full flex flex-col overflow-hidden">
       <div className="mb-6 flex items-start justify-between">
         <div className="flex flex-wrap items-center gap-3">
-          <Input
-            value={module}
-            onChange={(e) => updateFilter(setModule)(e.target.value)}
-            placeholder={t('auditLogs.filterModule')}
-            className="w-44"
-          />
-          <Input
-            value={action}
-            onChange={(e) => updateFilter(setAction)(e.target.value)}
-            placeholder={t('auditLogs.filterAction')}
-            className="w-44"
-          />
+          <Select
+              items={moduleOptions}
+              value={module || null}
+              onValueChange={(value) => {
+                const selectedModule = value === 'all' || value === null ? '' : value
+
+                setModule(selectedModule)
+                setAction('')
+                setPage(1)
+              }}
+          >
+            <SelectTrigger
+                className="w-44"
+                aria-label={t('auditLogs.filterModule')}
+            >
+              <SelectValue placeholder="Select an option" />
+            </SelectTrigger>
+
+            <SelectContent>
+              {moduleOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+              items={actionOptions}
+              value={action || null}
+              onValueChange={(value) => {
+                setAction(value === 'all' || value === null ? '' : value)
+                setPage(1)
+              }}
+          >
+            <SelectTrigger
+                className="w-44"
+                aria-label={t('auditLogs.filterAction')}
+            >
+              <SelectValue placeholder="Select an option" />
+            </SelectTrigger>
+
+            <SelectContent>
+              {actionOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Input
             type="date"
             value={from}

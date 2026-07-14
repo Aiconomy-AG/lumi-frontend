@@ -10,7 +10,7 @@ import { getApiBaseUrl } from './baseUrl'
 import { setAuthToken, clearAuthToken, getAuthToken } from './token'
 
 export async function login(credentials: LoginCredentials): Promise<User> {
-  const response = await request<{ token: string; user: User }>('/auth/login', {
+  const response = await request<{ token: string; user: User }>('auth/login', {
     method: 'POST',
     data: credentials,
   })
