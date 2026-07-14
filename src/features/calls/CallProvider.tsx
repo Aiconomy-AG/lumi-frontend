@@ -9,7 +9,6 @@ import { connectEcho } from '@/lib/echo'
 import type { WorkspaceCall } from '@/types/call'
 import { CallOverlay } from './CallOverlay'
 import { callKeys } from './queryKeys'
-import { hasValidCallHandle } from './phone'
 
 const TERMINAL = new Set(['declined', 'cancelled', 'missed', 'ended', 'failed'])
 
@@ -128,10 +127,6 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
   const start = useCallback(async (conversationId: number) => {
     if (!user) return
-    if (!hasValidCallHandle(user.phone_number)) {
-      navigate(`/profile?edit=phone&return=${encodeURIComponent(`/chat/${conversationId}`)}&call=${conversationId}`)
-      return
-    }
     setError(null)
     try {
       const created = await startCall(conversationId, instanceId)
