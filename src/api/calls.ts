@@ -11,7 +11,7 @@ export function startCall(conversationId: number, clientInstanceId: string, type
 export function createCall(calleeIds: number[], clientInstanceId: string, type?: 'audio' | 'video'): Promise<WorkspaceCall> {
   return requestData(`/workspace/calls`, {
     method: 'POST',
-    data: { client_instance_id: clientInstanceId, callee_ids: calleeIds, type: type, media_type: type },
+    data: { client_instance_id: clientInstanceId, callee_ids: calleeIds, type: type },
   })
 }
 
