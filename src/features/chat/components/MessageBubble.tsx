@@ -20,6 +20,7 @@ interface MessageBubbleProps {
     showSenderName?: boolean
     showAvatar?: boolean
     currentUserId?: number
+    participantsById: ReadonlyMap<number, User>
     onReact?: (message: Message, emoji: string, action: MessageReactionAction) => void
 }
 
@@ -44,6 +45,7 @@ export const MessageBubble = memo(function MessageBubble({
     showSenderName = false,
     showAvatar = false,
     currentUserId,
+    participantsById,
     onReact,
 }: MessageBubbleProps) {
     const { i18n, t } = useTranslation()
@@ -114,6 +116,7 @@ export const MessageBubble = memo(function MessageBubble({
                     message={message}
                     reactions={message.reactions ?? []}
                     currentUserId={currentUserId}
+                    participantsById={participantsById}
                     align={fromMe ? 'right' : 'left'}
                     onReact={onReact}
                 />
