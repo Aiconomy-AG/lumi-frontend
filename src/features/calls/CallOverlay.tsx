@@ -80,7 +80,7 @@ export function CallOverlay({
         : 'Calling…'
 
 
-  if (minimized && call.status === 'active') {
+  if (minimized && call.status === 'active' && call.connection) {
     return (
       <MinimizedCallWidget
         onMaximize={onToggleMinimize}
@@ -90,7 +90,7 @@ export function CallOverlay({
   }
 
   // If this is a fullscreen active call that is video or group, use LiveKit's built-in VideoConference layout
-  if (!minimized && (call.status === 'active' || (isCaller && call.status === 'ringing'))) {
+  if (!minimized && call.connection && (call.status === 'active' || (isCaller && call.status === 'ringing'))) {
     return (
       <ActiveCall 
         call={call} 
