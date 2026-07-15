@@ -1,6 +1,8 @@
 import { memo, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { SmilePlus } from 'lucide-react'
 import type { Message, MessageReaction } from '@/types/chat'
+import type { User } from '@/types/user'
 
 const EMOJI_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥']
 export type MessageReactionAction = 'add' | 'remove'
@@ -9,6 +11,7 @@ interface MessageReactionBadgesProps {
     message: Message
     reactions: MessageReaction[]
     currentUserId?: number
+    participantsById: ReadonlyMap<number, User>
     align: 'left' | 'right'
     onReact?: (message: Message, emoji: string, action: MessageReactionAction) => void
 }
@@ -17,9 +20,12 @@ export const MessageReactionBadges = memo(function MessageReactionBadges({
     message,
     reactions,
     currentUserId,
+    participantsById,
     align,
     onReact,
 }: MessageReactionBadgesProps) {
+    const { t } = useTranslation()
+
     if (reactions.length === 0) {
         return null
     }
@@ -28,24 +34,42 @@ export const MessageReactionBadges = memo(function MessageReactionBadges({
         <div className={`mt-1.5 flex flex-wrap gap-1 ${align === 'right' ? 'justify-end' : 'justify-start'}`}>
             {reactions.map((reaction) => {
                 const hasReacted = typeof currentUserId === 'number' && reaction.user_ids.includes(currentUserId)
-                const count = reaction.count || reaction.user_ids.length
+                const count = reaction.user_ids.length
+                const participantNames = reaction.user_ids.map((userId) => {
+                    if (userId === currentUserId) {
+                        return t('chat.you')
+                    }
+
+                    return participantsById.get(userId)?.name ?? `User #${userId}`
+                })
+                const tooltipText = participantNames.join(', ')
 
                 return (
-                    <button
-                        key={reaction.emoji}
-                        type="button"
-                        aria-label={`Toggle ${reaction.emoji} reaction`}
-                        onClick={() => onReact?.(message, reaction.emoji, hasReacted ? 'remove' : 'add')}
-                        disabled={!onReact || message.id < 0}
-                        className={`flex h-6 items-center gap-1 rounded-full border px-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-                            hasReacted
-                                ? 'border-purple-500/40 bg-purple-500/15 text-purple-200 hover:bg-purple-500/20'
-                                : 'border-zinc-700 bg-zinc-800/70 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200'
-                        }`}
-                    >
-                        <span>{reaction.emoji}</span>
-                        <span className="text-[10px] font-semibold">{count}</span>
-                    </button>
+                    <span key={reaction.emoji} className="group/reaction relative inline-flex">
+                        <button
+                            type="button"
+                            aria-label={`Toggle ${reaction.emoji} reaction`}
+                            onClick={() => onReact?.(message, reaction.emoji, hasReacted ? 'remove' : 'add')}
+                            disabled={!onReact || message.id < 0}
+                            className={`flex h-6 items-center gap-1 rounded-full border px-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                                hasReacted
+                                    ? 'border-purple-500/40 bg-purple-500/15 text-purple-200 hover:bg-purple-500/20'
+                                    : 'border-zinc-700 bg-zinc-800/70 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200'
+                            }`}
+                        >
+                            <span>{reaction.emoji}</span>
+                            <span className="text-[10px] font-semibold">{count}</span>
+                        </button>
+                        {tooltipText && (
+                            <span
+                                className={`pointer-events-none absolute bottom-full z-40 mb-1 hidden max-w-56 whitespace-nowrap rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-[11px] leading-4 text-zinc-200 shadow-xl group-hover/reaction:block group-focus-within/reaction:block ${
+                                    align === 'right' ? 'right-0' : 'left-0'
+                                }`}
+                            >
+                                {tooltipText}
+                            </span>
+                        )}
+                    </span>
                 )
             })}
         </div>

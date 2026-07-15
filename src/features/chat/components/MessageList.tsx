@@ -138,6 +138,7 @@ export function MessageList({
                             showSenderName={groupMeta?.showSenderName ?? false}
                             showAvatar={groupMeta?.showAvatar ?? false}
                             currentUserId={currentUserId}
+                            participantsById={participantsById}
                             onReact={onReact}
                         />
                     </div>
