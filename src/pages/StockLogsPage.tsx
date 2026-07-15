@@ -149,9 +149,6 @@ export default function StockLogsPage() {
   return (
     <div className="p-6 h-full flex flex-col overflow-hidden">
       <div className="mb-6 flex items-start justify-between">
-        <div className="flex flex-col gap-2">
-            <h1 className="text-2xl font-semibold text-white">{t('stock.logsTitle') || 'Stock Logs'}</h1>
-        </div>
         <div className="flex flex-wrap items-center gap-3">
           <Select
               items={actionOptions}

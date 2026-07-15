@@ -42,7 +42,6 @@ export default function App() {
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/projects/:id" element={<ProjectDetailPage />} />
                     <Route path="/stock" element={<StockPage />} />
-                    <Route path="/stock-logs" element={<StockLogsPage />} />
                     <Route path="/chat" element={<ChatPage />} />
                     <Route path="/chat/:conversationId" element={<ChatPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
@@ -55,6 +54,7 @@ export default function App() {
                     <Route element={<RequireAdmin />}>
                         <Route path="/admin" element={<AdminPage />} />
                         <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
+                        <Route path="/stock-logs" element={<StockLogsPage />} />
                     </Route>
                 </Route>
             </Route>

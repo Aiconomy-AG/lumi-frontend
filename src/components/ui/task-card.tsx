@@ -2,12 +2,13 @@ import * as React from "react"
 import { useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import type { TaskStatus } from "@/types/task"
+import { useUsersQuery } from "@/features/users/hooks"
 
 export interface TaskCardProps extends React.HTMLAttributes<HTMLDivElement> {
     taskId: number
     title: string
     projectName?: string
-    assignees: { id: number, name: string }[]
+    assignees: { id: number, name: string, avatar_url?: string | null }[]
     status: TaskStatus
     dueDate: string
     statusLabel: string
@@ -58,6 +59,12 @@ export function TaskCard({
     onClick
 }: TaskCardProps) {
     const navigate = useNavigate()
+    const { data: users = [] } = useUsersQuery()
+
+    const enrichedAssignees = assignees.map(a => {
+        const freshUser = users.find(u => u.id === a.id)
+        return freshUser ? { ...a, avatar_url: freshUser.avatar_url } : a
+    })
 
     const handleClick = (e: React.MouseEvent<HTMLTableRowElement>) => {
         if (onClick) onClick(e as any)
@@ -82,16 +89,20 @@ export function TaskCard({
 
             <TableCell>
                 <div className="flex items-center justify-center">
-                    {assignees.map((user) => (
+                    {enrichedAssignees.map((user) => (
                         <span
                             key={user.id}
                             title={user.name}
                             className={cn(
-                                "flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-semibold text-white ring-2 ring-zinc-950 -ml-2 first:ml-0",
-                                avatarColorFor(user.id)
+                                "flex items-center justify-center overflow-hidden w-7 h-7 rounded-full text-[11px] font-semibold text-white ring-2 ring-zinc-950 -ml-2 first:ml-0",
+                                user.avatar_url ? 'bg-zinc-800' : avatarColorFor(user.id)
                             )}
                         >
-                            {initialsOf(user.name)}
+                            {user.avatar_url ? (
+                                <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
+                            ) : (
+                                initialsOf(user.name)
+                            )}
                         </span>
                     ))}
                 </div>
