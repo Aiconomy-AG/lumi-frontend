@@ -254,6 +254,13 @@ export default function ChatPage() {
             ? canCallWorkspaceUser(user) && canCallWorkspaceUser(directParticipant)
             : canCallWorkspaceUser(user)
         : false
+        
+    const calleeIds = useMemo(() => {
+        if (!activeConversation || !user) return []
+        return activeConversation.participants
+            .filter(p => p.id !== user.id && canCallWorkspaceUser(p))
+            .map(p => p.id)
+    }, [activeConversation, user])
 
     const thread = (
         <>
@@ -265,7 +272,7 @@ export default function ChatPage() {
                 showBackButton={!isDesktop && !mobileShowSidebar}
                 isUpdatingGroup={updateMutation.isPending}
                 onBack={handleBackToList}
-                onStartCall={canStartCall ? (type) => void startCall(activeConversation!.id, type) : undefined}
+                onStartCall={canStartCall ? (type) => void startCall(activeConversation!.id, type, calleeIds) : undefined}
                 onUpdateGroup={activeConversation?.type === 'group' ? handleUpdateGroup : undefined}
                 onLeaveGroup={activeConversation?.type === 'group' ? handleLeaveGroup : undefined}
                 onDeleteGroup={canDeleteActiveGroup ? handleDeleteGroup : undefined}

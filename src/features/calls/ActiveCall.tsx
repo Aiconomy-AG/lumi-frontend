@@ -3,7 +3,6 @@ import {
     useTracks,
     GridLayout,
     ParticipantTile,
-    RoomAudioRenderer,
     TrackToggle,
     useMediaDeviceSelect,
 } from '@livekit/components-react'
@@ -55,7 +54,6 @@ export function ActiveCall({ call, isGroup, onToggleMinimize, onLeave }: ActiveC
 
   return (
       <div className="fixed inset-0 z-40 flex flex-col bg-zinc-950">
-      <RoomAudioRenderer />
       
       <div className="flex-1 overflow-hidden flex" style={{ paddingBottom: '72px' }}>
         {hasOneShare ? (
