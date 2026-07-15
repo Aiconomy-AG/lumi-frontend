@@ -223,7 +223,16 @@
         "rejected": "Rejected",
         "expired": "Expired"
       }
-    }
+    },
+    "dangerZone": "Danger zone",
+    "leaveGroup": "Leave group",
+    "deleteGroup": "Delete group",
+    "confirmLeaveGroup": "Leave \"{{name}}\"? You will stop receiving messages and need to be re-added to rejoin.",
+    "confirmDeleteGroup": "Delete \"{{name}}\" for everyone? The group disappears for all members.",
+    "confirmLeaveGroupAction": "Leave",
+    "confirmDeleteGroupAction": "Delete",
+    "leavingGroup": "Leaving…",
+    "deletingGroup": "Deleting…"
   },
   "admin": {
     "usersCount": "{{count}} users",

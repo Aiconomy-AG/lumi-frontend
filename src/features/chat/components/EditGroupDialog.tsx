@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { UserMinus } from 'lucide-react'
+import { LogOut, Trash2, UserMinus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,11 +21,16 @@ interface EditGroupDialogProps {
     currentUserId?: number
     users: User[]
     isSubmitting: boolean
+    canDelete?: boolean
+    isLeaving?: boolean
+    isDeleting?: boolean
     onSave: (payload: {
         name: string
         add_participants_employee_ids: number[]
         remove_participants_employee_ids: number[]
     }) => Promise<void>
+    onLeave?: () => Promise<void>
+    onDelete?: () => Promise<void>
 }
 
 export function EditGroupDialog({
@@ -35,13 +40,19 @@ export function EditGroupDialog({
     currentUserId,
     users,
     isSubmitting,
+    canDelete = false,
+    isLeaving = false,
+    isDeleting = false,
     onSave,
+    onLeave,
+    onDelete,
 }: EditGroupDialogProps) {
     const { t } = useTranslation()
     const [name, setName] = useState('')
     const [search, setSearch] = useState('')
     const [selectedIds, setSelectedIds] = useState<number[]>([])
     const [removedIds, setRemovedIds] = useState<number[]>([])
+    const [confirming, setConfirming] = useState<'leave' | 'delete' | null>(null)
 
     const memberIds = useMemo(
         () => new Set(conversation?.participants.map((participant) => participant.id) ?? []),
@@ -78,6 +89,7 @@ export function EditGroupDialog({
         setSearch('')
         setSelectedIds([])
         setRemovedIds([])
+        setConfirming(null)
     }, [open, conversation])
 
     function toggleUser(userId: number) {
@@ -258,6 +270,94 @@ export function EditGroupDialog({
                         </Button>
                     </div>
                 </form>
+
+                {(onLeave || (canDelete && onDelete)) && (
+                    <div className="mt-2 space-y-2 border-t border-zinc-800 pt-4">
+                        <p className="text-xs font-medium text-zinc-500">{t('chat.dangerZone')}</p>
+
+                        {confirming === null && (
+                            <div className="flex flex-wrap gap-2">
+                                {onLeave && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        disabled={isLeaving || isDeleting}
+                                        onClick={() => setConfirming('leave')}
+                                        className="gap-2 text-amber-400 hover:bg-amber-500/10 hover:text-amber-300"
+                                    >
+                                        <LogOut className="h-4 w-4" />
+                                        {t('chat.leaveGroup')}
+                                    </Button>
+                                )}
+                                {canDelete && onDelete && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        disabled={isLeaving || isDeleting}
+                                        onClick={() => setConfirming('delete')}
+                                        className="gap-2 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                        {t('chat.deleteGroup')}
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+
+                        {confirming !== null && (
+                            <div
+                                className={`space-y-3 rounded-md border p-3 ${
+                                    confirming === 'delete'
+                                        ? 'border-red-500/30 bg-red-500/5'
+                                        : 'border-amber-500/30 bg-amber-500/5'
+                                }`}
+                            >
+                                <p className="text-sm text-zinc-300">
+                                    {confirming === 'delete'
+                                        ? t('chat.confirmDeleteGroup', { name: conversation.name ?? '' })
+                                        : t('chat.confirmLeaveGroup', { name: conversation.name ?? '' })}
+                                </p>
+                                <div className="flex justify-end gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        disabled={isLeaving || isDeleting}
+                                        onClick={() => setConfirming(null)}
+                                    >
+                                        {t('chat.cancel')}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        disabled={isLeaving || isDeleting}
+                                        onClick={() => {
+                                            void (async () => {
+                                                if (confirming === 'delete') {
+                                                    await onDelete?.()
+                                                } else {
+                                                    await onLeave?.()
+                                                }
+                                                onOpenChange(false)
+                                            })()
+                                        }}
+                                        className={
+                                            confirming === 'delete'
+                                                ? 'bg-red-600 text-white hover:bg-red-500'
+                                                : 'bg-amber-600 text-white hover:bg-amber-500'
+                                        }
+                                    >
+                                        {confirming === 'delete'
+                                            ? isDeleting
+                                                ? t('chat.deletingGroup')
+                                                : t('chat.confirmDeleteGroupAction')
+                                            : isLeaving
+                                              ? t('chat.leavingGroup')
+                                              : t('chat.confirmLeaveGroupAction')}
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
             </DialogContent>
         </Dialog>
     )

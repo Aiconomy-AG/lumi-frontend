@@ -7,18 +7,8 @@ import { AiActionCard } from './AiActionCard'
 import { ChatAvatar } from './ChatAvatar'
 import { MessageMarkdown } from './MessageMarkdown'
 
-// Define the reaction shape
-export interface MessageReaction {
-    emoji: string
-    userIds: number[]
-}
-
-export type MessageWithReactions = Message & {
-    reactions?: MessageReaction[]
-}
-
 interface MessageBubbleProps {
-    message: MessageWithReactions
+    message: Message
     fromMe: boolean
     sender?: User
     isGroup?: boolean
@@ -124,7 +114,9 @@ export const MessageBubble = memo(function MessageBubble({
                     {reactions.length > 0 && (
                         <div className={`mt-1.5 flex flex-wrap gap-1 ${fromMe ? 'justify-end' : 'justify-start'}`}>
                             {reactions.map((reaction) => {
-                                const hasReacted = currentUserId ? reaction.userIds.includes(currentUserId) : false
+                                const hasReacted = currentUserId
+                                    ? (reaction.user_ids ?? []).includes(currentUserId)
+                                    : false
                                 return (
                                     <button
                                         key={reaction.emoji}
@@ -137,7 +129,9 @@ export const MessageBubble = memo(function MessageBubble({
                                         }`}
                                     >
                                         <span>{reaction.emoji}</span>
-                                        <span className="text-[10px] font-semibold">{reaction.userIds.length}</span>
+                                        <span className="text-[10px] font-semibold">
+                                            {reaction.count ?? reaction.user_ids?.length ?? 0}
+                                        </span>
                                     </button>
                                 )
                             })}

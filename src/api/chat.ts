@@ -38,6 +38,18 @@ export async function updateConversation(
   })
 }
 
+export async function leaveConversation(conversationId: number): Promise<void> {
+  await requestData(`/workspace/conversations/${conversationId}/leave`, {
+    method: 'POST',
+  })
+}
+
+export async function deleteConversation(conversationId: number): Promise<void> {
+  await requestData(`/workspace/conversations/${conversationId}`, {
+    method: 'DELETE',
+  })
+}
+
 export async function sendMessage(conversationId: number, message: string): Promise<Message> {
   return requestData<Message>(`/workspace/conversations/${conversationId}/messages`, {
     method: 'POST',

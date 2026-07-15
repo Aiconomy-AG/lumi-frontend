@@ -13,6 +13,9 @@ interface ChatHeaderProps {
     users: User[]
     showBackButton?: boolean
     isUpdatingGroup?: boolean
+    canDeleteGroup?: boolean
+    isLeavingGroup?: boolean
+    isDeletingGroup?: boolean
     onBack?: () => void
     onStartCall?: (type: 'audio' | 'video') => void
     onUpdateGroup?: (payload: {
@@ -20,6 +23,8 @@ interface ChatHeaderProps {
         add_participants_employee_ids: number[]
         remove_participants_employee_ids: number[]
     }) => Promise<void>
+    onLeaveGroup?: () => Promise<void>
+    onDeleteGroup?: () => Promise<void>
 }
 
 export function ChatHeader({
@@ -28,9 +33,14 @@ export function ChatHeader({
     users,
     showBackButton,
     isUpdatingGroup = false,
+    canDeleteGroup = false,
+    isLeavingGroup = false,
+    isDeletingGroup = false,
     onBack,
     onStartCall,
     onUpdateGroup,
+    onLeaveGroup,
+    onDeleteGroup,
 }: ChatHeaderProps) {
     const { t } = useTranslation()
     const [editOpen, setEditOpen] = useState(false)
@@ -149,7 +159,12 @@ export function ChatHeader({
                     currentUserId={currentUserId}
                     users={users}
                     isSubmitting={isUpdatingGroup}
+                    canDelete={canDeleteGroup}
+                    isLeaving={isLeavingGroup}
+                    isDeleting={isDeletingGroup}
                     onSave={onUpdateGroup}
+                    onLeave={onLeaveGroup}
+                    onDelete={onDeleteGroup}
                 />
             )}
         </>

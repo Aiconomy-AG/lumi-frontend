@@ -223,7 +223,16 @@
         "rejected": "Abgelehnt",
         "expired": "Abgelaufen"
       }
-    }
+    },
+    "dangerZone": "Gefahrenzone",
+    "leaveGroup": "Gruppe verlassen",
+    "deleteGroup": "Gruppe löschen",
+    "confirmLeaveGroup": "\"{{name}}\" verlassen? Du erhältst keine Nachrichten mehr und musst erneut hinzugefügt werden.",
+    "confirmDeleteGroup": "\"{{name}}\" für alle löschen? Die Gruppe verschwindet für alle Mitglieder.",
+    "confirmLeaveGroupAction": "Verlassen",
+    "confirmDeleteGroupAction": "Löschen",
+    "leavingGroup": "Wird verlassen…",
+    "deletingGroup": "Wird gelöscht…"
   },
   "admin": {
     "usersCount": "{{count}} Benutzer",

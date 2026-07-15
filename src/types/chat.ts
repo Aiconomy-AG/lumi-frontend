@@ -18,6 +18,12 @@ export interface Conversation {
     last_message?: LastMessage | null
 }
 
+export interface MessageReaction {
+    emoji: string
+    count: number
+    user_ids: number[]
+}
+
 export interface Message {
     id: number
     conversation_id: number
@@ -27,6 +33,7 @@ export interface Message {
     type?: 'text' | 'ai_action'
     meta?: AiActionMeta
     call?: WorkspaceCall
+    reactions?: MessageReaction[]
     sent_at: string
 }
 

@@ -3,8 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   approveAiAction,
   createConversation,
+  deleteConversation,
   getConversations,
   getMessages,
+  leaveConversation,
   rejectAiAction,
   sendMessage,
   updateConversation,
@@ -86,6 +88,11 @@ export function useConversationMessagesRealtime(conversationId: number | null) {
       )
     })
 
+    channel.listen('.conversation.deleted', () => {
+      queryClient.removeQueries({ queryKey: chatKeys.messages(conversationId) })
+      void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+    })
+
     return () => {
       echo.leave(channelName)
     }
@@ -106,6 +113,28 @@ export function useUpdateConversationMutation(conversationId: number | null) {
     mutationFn: (payload: Parameters<typeof updateConversation>[1]) =>
       updateConversation(conversationId!, payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: chatKeys.conversations }),
+  })
+}
+
+export function useLeaveConversationMutation(conversationId: number | null) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => leaveConversation(conversationId!),
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: chatKeys.messages(conversationId) })
+      void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+    },
+  })
+}
+
+export function useDeleteConversationMutation(conversationId: number | null) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => deleteConversation(conversationId!),
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: chatKeys.messages(conversationId) })
+      void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+    },
   })
 }
 

@@ -8,6 +8,8 @@ import {
     useConversationsQuery,
     useConversationMessagesRealtime,
     useCreateConversationMutation,
+    useDeleteConversationMutation,
+    useLeaveConversationMutation,
     useMessagesQuery,
     useSendMessageMutation,
     useUpdateConversationMutation,
@@ -57,7 +59,13 @@ export default function ChatPage() {
 
     const createMutation = useCreateConversationMutation()
     const updateMutation = useUpdateConversationMutation(activeConversationId)
+    const leaveMutation = useLeaveConversationMutation(activeConversationId)
+    const deleteMutation = useDeleteConversationMutation(activeConversationId)
     const sendMutation = useSendMessageMutation(activeConversationId, user?.id)
+
+    const canDeleteActiveGroup =
+        activeConversation?.type === 'group' &&
+        (user?.role === 'admin' || activeConversation.created_by === user?.id)
 
     const people = useMemo(
         () =>
@@ -187,6 +195,24 @@ export default function ChatPage() {
         openConversation(conversation.id)
     }
 
+    async function handleLeaveGroup() {
+        if (!activeConversationId) return
+        await leaveMutation.mutateAsync()
+        navigate('/chat', { replace: true })
+        if (!isDesktop) {
+            setMobileShowSidebar(true)
+        }
+    }
+
+    async function handleDeleteGroup() {
+        if (!activeConversationId) return
+        await deleteMutation.mutateAsync()
+        navigate('/chat', { replace: true })
+        if (!isDesktop) {
+            setMobileShowSidebar(true)
+        }
+    }
+
     function handleBackToList() {
         if (isDesktop) return
         setMobileShowSidebar(true)
@@ -225,6 +251,11 @@ export default function ChatPage() {
                     void startCall(activeConversation!.id, type, otherUserIds)
                 } : undefined}
                 onUpdateGroup={activeConversation?.type === 'group' ? handleUpdateGroup : undefined}
+                onLeaveGroup={activeConversation?.type === 'group' ? handleLeaveGroup : undefined}
+                onDeleteGroup={canDeleteActiveGroup ? handleDeleteGroup : undefined}
+                canDeleteGroup={canDeleteActiveGroup}
+                isLeavingGroup={leaveMutation.isPending}
+                isDeletingGroup={deleteMutation.isPending}
             />
             <MessageList
                 conversation={activeConversation}

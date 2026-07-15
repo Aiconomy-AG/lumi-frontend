@@ -223,7 +223,16 @@
         "rejected": "Respins",
         "expired": "Expirat"
       }
-    }
+    },
+    "dangerZone": "Zonă periculoasă",
+    "leaveGroup": "Părăsește grupul",
+    "deleteGroup": "Șterge grupul",
+    "confirmLeaveGroup": "Părăsești \"{{name}}\"? Nu vei mai primi mesaje și va trebui să fii readăugat.",
+    "confirmDeleteGroup": "Ștergi \"{{name}}\" pentru toți? Grupul dispare pentru toți membrii.",
+    "confirmLeaveGroupAction": "Părăsește",
+    "confirmDeleteGroupAction": "Șterge",
+    "leavingGroup": "Se părăsește…",
+    "deletingGroup": "Se șterge…"
   },
   "admin": {
     "usersCount": "{{count}} utilizatori",
