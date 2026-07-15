@@ -68,3 +68,20 @@ export function useDismissNotificationMutation() {
         },
     })
 }
+
+export function useDismissAllNotificationsMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (notificationIds: number[]) => {
+            await Promise.all(notificationIds.map(id => dismissNotification(id)))
+        },
+        onSuccess: () => {
+            queryClient.setQueriesData<NotificationDelivery[]>(
+                { queryKey: notificationKeys.lists() },
+                () => []
+            )
+            void queryClient.invalidateQueries({ queryKey: notificationKeys.all })
+        },
+    })
+}

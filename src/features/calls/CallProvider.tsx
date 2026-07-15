@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import { LiveKitRoom } from '@livekit/components-react'
+import { LiveKitRoom, RoomAudioRenderer } from '@livekit/components-react'
 import '@livekit/components-styles'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {acceptCall, cancelCall, leaveCall, declineCall, endCall, getActiveCall, startCall} from '@/api/calls'
@@ -28,7 +28,7 @@ function clientInstanceId(): string {
 }
 
 interface CallContextValue {
-  start: (conversationId: number, type?: 'audio' | 'video') => Promise<void>
+  start: (conversationId: number, type?: 'audio' | 'video', calleeIds?: number[]) => Promise<void>
 }
 
 const CallContext = createContext<CallContextValue | null>(null)
@@ -124,11 +124,11 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => () => { void leaveRoom() }, [leaveRoom])
 
-  const start = useCallback(async (conversationId: number, type: 'audio' | 'video' = 'audio') => {
+  const start = useCallback(async (conversationId: number, type: 'audio' | 'video' = 'audio', calleeIds?: number[]) => {
     if (!user) return
     setError(null)
     try {
-      const created = await startCall(conversationId, instanceId, type)
+      const created = await startCall(conversationId, instanceId, type, calleeIds)
       setCall({ ...created, media_type: type })
     } catch (cause) {
       const response = (cause as AxiosError<{ code?: string; message?: string }>).response
@@ -198,6 +198,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
             setConnectionState('disconnected')
           }}
         >
+          <RoomAudioRenderer />
           <CallOverlay
             call={call}
             currentUserId={user.id}

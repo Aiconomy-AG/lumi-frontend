@@ -3,6 +3,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { NotificationDelivery } from '@/types/notification'
 import {
+    useDismissAllNotificationsMutation,
     useDismissNotificationMutation,
     useMarkAllNotificationsAsReadMutation,
     useMarkNotificationAsReadMutation,
@@ -27,6 +28,7 @@ export function NotificationCenter({ open, onClose }: NotificationCenterProps) {
     const { data: notifications = [], isLoading } = useNotificationsQuery()
     const markAsReadMutation = useMarkNotificationAsReadMutation()
     const markAllAsReadMutation = useMarkAllNotificationsAsReadMutation()
+    const dismissAllMutation = useDismissAllNotificationsMutation()
     const dismissNotificationMutation = useDismissNotificationMutation()
     const [visibleChatCount, setVisibleChatCount] = useState(PAGE_SIZE)
     const [visibleWorkCount, setVisibleWorkCount] = useState(PAGE_SIZE)
@@ -69,6 +71,17 @@ export function NotificationCenter({ open, onClose }: NotificationCenterProps) {
                         onClick={() => markAllAsReadMutation.mutate()}
                     >
                         <Check className="h-4 w-4" />
+                    </button>
+
+                    <button
+                        type="button"
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-transparent bg-transparent text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-red-400 disabled:opacity-40"
+                        disabled={notifications.length === 0 || dismissAllMutation.isPending}
+                        aria-label="Delete all notifications"
+                        title="Delete all notifications"
+                        onClick={() => dismissAllMutation.mutate(notifications.map(n => n.id))}
+                    >
+                        <Trash2 className="h-4 w-4" />
                     </button>
 
                     <button

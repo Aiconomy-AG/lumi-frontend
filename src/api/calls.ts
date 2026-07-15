@@ -1,7 +1,19 @@
 import type { WorkspaceCall } from '@/types/call'
 import { requestData } from './http'
 
-export function startCall(conversationId: number, clientInstanceId: string, type?: 'audio' | 'video'): Promise<WorkspaceCall> {
+export function startCall(conversationId: number, clientInstanceId: string, type?: 'audio' | 'video', calleeIds?: number[]): Promise<WorkspaceCall> {
+  if (calleeIds) {
+    return requestData(`/calls`, {
+      method: 'POST',
+      data: {
+        conversation_id: conversationId,
+        callee_ids: calleeIds,
+        client_instance_id: clientInstanceId,
+        type: type,
+        media_type: type,
+      },
+    })
+  }
   return requestData(`/workspace/conversations/${conversationId}/calls`, {
     method: 'POST',
     data: { client_instance_id: clientInstanceId, media_type: type, type: type },
