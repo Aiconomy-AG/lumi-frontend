@@ -1,5 +1,5 @@
 import { ActiveCall } from './ActiveCall'
-import { Maximize2, Mic, MicOff, Minimize2, Phone, PhoneOff, Video } from 'lucide-react'
+import { Mic, MicOff, Minimize2, Phone, PhoneOff, Video } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -68,7 +68,7 @@ export function CallOverlay({
       <button
         type="button"
         onClick={onToggleMinimize}
-        className="fixed bottom-6 right-6 z-[100] flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 shadow-2xl transition-all hover:scale-105 hover:bg-emerald-500"
+        className="fixed bottom-6 right-6 z-100 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 shadow-2xl transition-all hover:scale-105 hover:bg-emerald-500"
         aria-label="Restore call"
       >
         {isVideoOrGroup ? <Video className="h-6 w-6 text-white" /> : <Phone className="h-6 w-6 text-white" />}

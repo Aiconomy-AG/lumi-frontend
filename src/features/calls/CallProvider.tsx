@@ -180,11 +180,6 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
           onConnected={() => setConnectionState('connected')}
           onDisconnected={() => {
             setConnectionState('disconnected')
-            if (call.status === 'ringing' && call.initiated_by_user_id === user.id) {
-              void finish('cancel')
-            } else if (call.status === 'active') {
-              void finish((call as any).mode === 'group' || call.participants.length > 2 ? 'leave' : 'end')
-            }
           }}
         >
           <CallOverlay

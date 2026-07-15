@@ -30,7 +30,7 @@ export function CallLogBubble({ message }: CallLogBubbleProps) {
 
     return (
         <div className="flex justify-center py-2">
-            <div className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium ${
+            <div className={`flex cursor-pointer items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-opacity hover:opacity-80 ${
                 isMissed ? 'bg-red-500/10 text-red-400' : 'bg-zinc-800 text-zinc-300'
             }`}>
                 <Icon className="h-3.5 w-3.5" />

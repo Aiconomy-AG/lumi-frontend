@@ -144,25 +144,9 @@
   display: none !important; /* We render our own leave/end button */
 }
 
-/* Device Menus (Upward, opaque, bordered) */
-.lk-device-menu {
-  bottom: calc(100% + 1rem) !important;
-  top: auto !important;
-  background-color: #09090b !important; /* zinc-950 */
-  border: 1px solid #27272a !important; /* zinc-800 */
-  border-radius: 0.75rem !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
-  padding: 0.5rem !important;
-  max-height: 40vh !important;
-  overflow-y: auto !important;
-  color: #f4f4f5 !important; /* zinc-100 */
-  z-index: 120 !important;
-}
-.lk-device-menu > li {
-  padding: 0.5rem 1rem !important;
-  border-radius: 0.5rem !important;
-  cursor: pointer !important;
-}
-.lk-device-menu > li:hover {
-  background-color: #27272a !important;
+
+
+/* Force hide text in custom controls to save space */
+.lk-custom-controls .lk-button-text {
+  display: none !important;
 }
