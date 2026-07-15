@@ -121,6 +121,7 @@ export function ChatSidebar({
                                         conversation={conversation}
                                         currentUserId={currentUserId}
                                         isActive={conversation.id === activeConversationId}
+                                        users={people}
                                         onSelect={onSelectConversation}
                                     />
                                 ))}

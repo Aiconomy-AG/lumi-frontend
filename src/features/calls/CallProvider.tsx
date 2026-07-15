@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { LiveKitRoom } from '@livekit/components-react'
 import '@livekit/components-styles'
@@ -9,6 +9,8 @@ import { connectEcho } from '@/lib/echo'
 import type { WorkspaceCall } from '@/types/call'
 import { CallOverlay } from './CallOverlay'
 import { callKeys } from './queryKeys'
+import { userKeys } from '@/features/users/queryKeys'
+import { chatKeys } from '@/features/chat/queryKeys'
 
 const TERMINAL = new Set(['declined', 'cancelled', 'missed', 'ended', 'failed'])
 
@@ -32,6 +34,7 @@ interface CallContextValue {
 const CallContext = createContext<CallContextValue | null>(null)
 
 export function CallProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient()
   const { user } = useAuth()
   const instanceId = useMemo(clientInstanceId, [])
   const [call, setCall] = useState<WorkspaceCall | null>(null)
@@ -90,14 +93,25 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
         if (TERMINAL.has(patchedPayload.status)) {
           void leaveRoom()
-          window.setTimeout(() => setCall(null), 1200)
+          window.setTimeout(() => {
+            setCall(null)
+            queryClient.invalidateQueries({ queryKey: userKeys.all })
+            queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+          }, 1200)
         } else if (
           patchedPayload.status === 'active' &&
           patchedPayload.initiated_by_user_id !== user.id &&
-          patchedPayload.answered_client_instance_id !== instanceId
+          patchedPayload.answered_client_instance_id &&
+          patchedPayload.answered_client_instance_id !== instanceId &&
+          (patchedPayload as any).mode !== 'group' &&
+          patchedPayload.participants.length <= 2
         ) {
           setError('This call was answered on another device.')
-          window.setTimeout(() => setCall(null), 1600)
+          window.setTimeout(() => {
+            setCall(null)
+            queryClient.invalidateQueries({ queryKey: userKeys.all })
+            queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+          }, 1600)
         }
         return patchedPayload as WorkspaceCall
       })
@@ -147,8 +161,10 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     } finally {
       await leaveRoom()
       setCall(null)
+      queryClient.invalidateQueries({ queryKey: userKeys.all })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
     }
-  }, [call, leaveRoom])
+  }, [call, leaveRoom, queryClient])
 
   const toggleMute = useCallback(async () => {
     setMuted((m) => !m)

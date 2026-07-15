@@ -16,14 +16,16 @@ interface ConversationRowProps {
     conversation: Conversation
     currentUserId?: number
     isActive: boolean
+    users?: User[]
     onSelect: (conversation: Conversation) => void
 }
 
-export const ConversationRow = memo(function ConversationRow({ conversation, currentUserId, isActive, onSelect }: ConversationRowProps) {
+export const ConversationRow = memo(function ConversationRow({ conversation, currentUserId, isActive, users, onSelect }: ConversationRowProps) {
     const { t, i18n } = useTranslation()
     const isGroup = conversation.type === 'group'
     const title = getConversationTitle(conversation, currentUserId)
-    const directPerson = getDirectParticipant(conversation, currentUserId)
+    const initialDirectPerson = getDirectParticipant(conversation, currentUserId)
+    const directPerson = initialDirectPerson && users ? users.find(u => u.id === initialDirectPerson.id) || initialDirectPerson : initialDirectPerson
     const preview =
         getLastMessagePreview(conversation, conversation.participants, currentUserId, t('chat.you'), t('chat.photoMessage')) ??
         (isGroup ? t('chat.groupNoMessages') : directPerson?.role ?? t('chat.noMessages'))

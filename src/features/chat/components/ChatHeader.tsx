@@ -67,7 +67,8 @@ export function ChatHeader({
 
     const isGroup = conversation.type === 'group'
     const title = getConversationTitle(conversation, currentUserId)
-    const directPerson = getDirectParticipant(conversation, currentUserId)
+    const initialDirectPerson = getDirectParticipant(conversation, currentUserId)
+    const directPerson = initialDirectPerson ? users.find(u => u.id === initialDirectPerson.id) || initialDirectPerson : undefined
     const memberPreview = getGroupMemberPreview(conversation.participants, currentUserId)
 
     return (
