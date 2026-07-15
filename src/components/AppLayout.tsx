@@ -173,9 +173,17 @@ export default function AppLayout() {
 
                             <button
                                 onClick={() => navigate("/profile")}
-                                className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-white select-none cursor-pointer border-none ${currentUser ? avatarColorFor(currentUser.id) : 'bg-purple-400'}`}
+                                className={`flex h-7 w-7 items-center justify-center overflow-hidden rounded-full text-[10px] font-bold text-white select-none cursor-pointer border-none ${currentUser?.avatar_url ? 'bg-zinc-800' : currentUser ? avatarColorFor(currentUser.id) : 'bg-purple-400'}`}
                             >
-                                {initials}
+                                {currentUser?.avatar_url ? (
+                                    <img
+                                        src={currentUser.avatar_url}
+                                        alt={currentUser.name}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    initials
+                                )}
                             </button>
 
                         </div>
