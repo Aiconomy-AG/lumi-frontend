@@ -4,6 +4,7 @@
     "dashboard": "Panou",
     "tasks": "Task-uri",
     "stock": "Stoc",
+    "analytics": "Analytics",
     "stockLogs": "Jurnale stoc",
     "orders": "Comenzi",
     "returns": "Returnări",
@@ -168,6 +169,22 @@
     "productVariantsTitle": "Variante",
     "variantStockCount": "Stoc: {{count}}",
     "productNoVariants": "Nu exista variante"
+  },
+  "analytics": {
+    "eyebrow": "Statistici wishlist",
+    "title": "Cele mai dorite produse",
+    "subtitle": "Produse ordonate după câți clienți le-au salvat în wishlist.",
+    "refresh": "Reîncarcă",
+    "productsTracked": "Produse urmărite",
+    "totalWishlistAdds": "Salvări totale în wishlist",
+    "topProduct": "Produs de top",
+    "columnRank": "Loc",
+    "columnProduct": "Produs",
+    "columnSku": "SKU",
+    "columnPrice": "Preț",
+    "columnWishlistCount": "Salvări wishlist",
+    "empty": "Nu există încă date din wishlist.",
+    "error": "Statisticile wishlist nu au putut fi încărcate."
   },
   "chat": {
     "newChat": "Chat nou",

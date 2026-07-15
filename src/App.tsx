@@ -23,6 +23,7 @@ import ProjectsPage from "./pages/ProjectsPage"
 import ProjectDetailPage from "./pages/ProjectDetailPage"
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import { CallProvider } from '@/features/calls'
+import AnalyticsPage from '@/pages/AnalyticsPage'
 
 export default function App() {
     const { user } = useAuth()
@@ -42,6 +43,7 @@ export default function App() {
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/projects/:id" element={<ProjectDetailPage />} />
                     <Route path="/stock" element={<StockPage />} />
+                    <Route path="/analytics" element={<AnalyticsPage />} />
                     <Route path="/chat" element={<ChatPage />} />
                     <Route path="/chat/:conversationId" element={<ChatPage />} />
                     <Route path="/profile" element={<ProfilePage />} />

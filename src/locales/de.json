@@ -4,6 +4,7 @@
     "dashboard": "Übersicht",
     "tasks": "Aufgaben",
     "stock": "Bestand",
+    "analytics": "Analytics",
     "stockLogs": "Bestandsprotokolle",
     "orders": "Bestellungen",
     "returns": "Retouren",
@@ -168,6 +169,22 @@
     "productVariantsTitle": "Varianten",
     "variantStockCount": "Bestand: {{count}}",
     "productNoVariants": "Keine Varianten verfuegbar"
+  },
+  "analytics": {
+    "eyebrow": "Wishlist-Analytics",
+    "title": "Meistgewünschte Produkte",
+    "subtitle": "Produkte sortiert danach, wie viele Kunden sie in ihrer Wishlist gespeichert haben.",
+    "refresh": "Aktualisieren",
+    "productsTracked": "Erfasste Produkte",
+    "totalWishlistAdds": "Wishlist-Speicherungen gesamt",
+    "topProduct": "Top-Produkt",
+    "columnRank": "Rang",
+    "columnProduct": "Produkt",
+    "columnSku": "SKU",
+    "columnPrice": "Preis",
+    "columnWishlistCount": "Wishlist-Speicherungen",
+    "empty": "Noch keine Wishlist-Daten vorhanden.",
+    "error": "Wishlist-Analytics konnten nicht geladen werden."
   },
   "chat": {
     "newChat": "Neuer Chat",

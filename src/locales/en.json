@@ -4,6 +4,7 @@
     "dashboard": "Dashboard",
     "tasks": "Tasks",
     "stock": "Stock",
+    "analytics": "Analytics",
     "stockLogs": "Stock Logs",
     "orders": "Orders",
     "returns": "Returns",
@@ -168,6 +169,22 @@
     "productVariantsTitle": "Variants",
     "variantStockCount": "Stock: {{count}}",
     "productNoVariants": "No variants available"
+  },
+  "analytics": {
+    "eyebrow": "Wishlist analytics",
+    "title": "Most wanted products",
+    "subtitle": "Products ranked by how many customers saved them to their wishlist.",
+    "refresh": "Refresh",
+    "productsTracked": "Products tracked",
+    "totalWishlistAdds": "Total wishlist saves",
+    "topProduct": "Top product",
+    "columnRank": "Rank",
+    "columnProduct": "Product",
+    "columnSku": "SKU",
+    "columnPrice": "Price",
+    "columnWishlistCount": "Wishlist saves",
+    "empty": "No wishlist data yet.",
+    "error": "Could not load wishlist analytics."
   },
   "chat": {
     "newChat": "New chat",

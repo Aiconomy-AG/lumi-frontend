@@ -113,6 +113,7 @@ export default function AppLayout() {
         if (path.startsWith('/tasks')) return t('sidebar.tasks')
         if (path.startsWith('/dashboard')) return t('sidebar.dashboard')
         if (path.startsWith('/stock')) return t('sidebar.stock')
+        if (path.startsWith('/analytics')) return t('sidebar.analytics')
         if (path.startsWith('/orders')) return t('sidebar.orders')
         if (path.startsWith('/returns')) return t('sidebar.returns')
         if (path.startsWith('/chat')) return t('sidebar.chat')
