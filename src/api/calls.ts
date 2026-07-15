@@ -8,13 +8,6 @@ export function startCall(conversationId: number, clientInstanceId: string, type
   })
 }
 
-export function createCall(calleeIds: number[], clientInstanceId: string, type?: 'audio' | 'video'): Promise<WorkspaceCall> {
-  return requestData(`/calls`, {
-    method: 'POST',
-    data: { client_instance_id: clientInstanceId, callee_ids: calleeIds, type: type },
-  })
-}
-
 export function getActiveCall(clientInstanceId: string): Promise<WorkspaceCall | null> {
   return requestData('/workspace/calls/active', {
     params: { client_instance_id: clientInstanceId },
@@ -26,6 +19,10 @@ export function acceptCall(callId: string, clientInstanceId: string): Promise<Wo
     method: 'POST',
     data: { client_instance_id: clientInstanceId },
   })
+}
+
+export function leaveCall(callId: string): Promise<void> {
+  return requestData(`/workspace/calls/${callId}/leave`, { method: 'POST' })
 }
 
 function updateCall(callId: string, action: 'decline' | 'cancel' | 'end'): Promise<WorkspaceCall> {

@@ -3,7 +3,7 @@ import { AxiosError } from 'axios'
 import { LiveKitRoom } from '@livekit/components-react'
 import '@livekit/components-styles'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import {acceptCall, cancelCall, createCall, declineCall, endCall, getActiveCall, startCall} from '@/api/calls'
+import {acceptCall, cancelCall, leaveCall, declineCall, endCall, getActiveCall, startCall} from '@/api/calls'
 import { useAuth } from '@/features/auth/AuthContext'
 import { connectEcho } from '@/lib/echo'
 import type { WorkspaceCall } from '@/types/call'
@@ -26,7 +26,7 @@ function clientInstanceId(): string {
 }
 
 interface CallContextValue {
-  start: (conversationId: number, type?: 'audio' | 'video', calleeIds?: number[]) => Promise<void>
+  start: (conversationId: number, type?: 'audio' | 'video') => Promise<void>
 }
 
 const CallContext = createContext<CallContextValue | null>(null)
@@ -110,16 +110,11 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => () => { void leaveRoom() }, [leaveRoom])
 
-  const start = useCallback(async (conversationId: number, type: 'audio' | 'video' = 'audio', calleeIds?: number[]) => {
+  const start = useCallback(async (conversationId: number, type: 'audio' | 'video' = 'audio') => {
     if (!user) return
     setError(null)
     try {
-      let created
-      if (calleeIds && calleeIds.length > 0) {
-        created = await createCall(calleeIds, instanceId, type)
-      } else {
-        created = await startCall(conversationId, instanceId, type)
-      }
+      const created = await startCall(conversationId, instanceId, type)
       setCall({ ...created, media_type: type })
     } catch (cause) {
       const response = (cause as AxiosError<{ code?: string; message?: string }>).response
@@ -138,11 +133,17 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     }
   }, [call, instanceId])
 
-  const finish = useCallback(async (action: 'decline' | 'cancel' | 'end') => {
+  const finish = useCallback(async (action: 'decline' | 'cancel' | 'end' | 'leave') => {
     if (!call) return
-    const fn = action === 'decline' ? declineCall : action === 'cancel' ? cancelCall : endCall
+    let promise
+    if (action === 'leave') {
+      promise = leaveCall(call.id)
+    } else {
+      const fn = action === 'decline' ? declineCall : action === 'cancel' ? cancelCall : endCall
+      promise = fn(call.id)
+    }
     try {
-      await fn(call.id)
+      await promise
     } finally {
       await leaveRoom()
       setCall(null)
@@ -182,7 +183,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
             if (call.status === 'ringing' && call.initiated_by_user_id === user.id) {
               void finish('cancel')
             } else if (call.status === 'active') {
-              void finish('end')
+              void finish((call as any).mode === 'group' || call.participants.length > 2 ? 'leave' : 'end')
             }
           }}
         >
@@ -196,7 +197,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
             onAccept={() => void accept()}
             onDecline={() => void finish('decline')}
             onCancel={() => void finish('cancel')}
-            onEnd={() => void finish('end')}
+            onEnd={() => void finish((call as any).mode === 'group' || call.participants.length > 2 ? 'leave' : 'end')}
             onToggleMute={() => void toggleMute()}
             onToggleMinimize={() => void toggleMinimize()}
           />
@@ -212,7 +213,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
           onAccept={() => void accept()}
           onDecline={() => void finish('decline')}
           onCancel={() => void finish('cancel')}
-          onEnd={() => void finish('end')}
+          onEnd={() => void finish((call as any).mode === 'group' || call.participants.length > 2 ? 'leave' : 'end')}
           onToggleMute={() => void toggleMute()}
           onToggleMinimize={() => void toggleMinimize()}
         />

@@ -115,3 +115,54 @@
         @apply rounded-md bg-primary px-2.5 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/80 transition-colors cursor-pointer border-none;
     }
 }
+
+/* LiveKit Custom Controls Overrides */
+.lk-custom-controls .lk-button-group {
+  gap: 0.5rem;
+}
+.lk-custom-controls .lk-button {
+  height: 3rem !important;
+  width: 3rem !important;
+  border-radius: 9999px !important;
+  background-color: #27272a !important; /* zinc-800 */
+  color: white !important;
+  border: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lk-custom-controls .lk-button:hover {
+  background-color: #3f3f46 !important; /* zinc-700 */
+}
+.lk-custom-controls .lk-button[data-lk-state="off"] {
+  background-color: #ef4444 !important; /* red-500 */
+}
+.lk-custom-controls .lk-button[data-lk-state="off"]:hover {
+  background-color: #dc2626 !important; /* red-600 */
+}
+.lk-custom-controls .lk-disconnect-button {
+  display: none !important; /* We render our own leave/end button */
+}
+
+/* Device Menus (Upward, opaque, bordered) */
+.lk-device-menu {
+  bottom: calc(100% + 1rem) !important;
+  top: auto !important;
+  background-color: #09090b !important; /* zinc-950 */
+  border: 1px solid #27272a !important; /* zinc-800 */
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+  padding: 0.5rem !important;
+  max-height: 40vh !important;
+  overflow-y: auto !important;
+  color: #f4f4f5 !important; /* zinc-100 */
+  z-index: 120 !important;
+}
+.lk-device-menu > li {
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  cursor: pointer !important;
+}
+.lk-device-menu > li:hover {
+  background-color: #27272a !important;
+}
