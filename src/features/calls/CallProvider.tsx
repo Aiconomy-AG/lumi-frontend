@@ -10,6 +10,7 @@ import type { WorkspaceCall } from '@/types/call'
 import { CallOverlay } from './CallOverlay'
 import { callKeys } from './queryKeys'
 import { userKeys } from '@/features/users/queryKeys'
+import { chatKeys } from '@/features/chat/queryKeys'
 
 const TERMINAL = new Set(['declined', 'cancelled', 'missed', 'ended', 'failed'])
 
@@ -95,6 +96,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
           window.setTimeout(() => {
             setCall(null)
             queryClient.invalidateQueries({ queryKey: userKeys.all })
+            queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
           }, 1200)
         } else if (
           patchedPayload.status === 'active' &&
@@ -108,6 +110,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
           window.setTimeout(() => {
             setCall(null)
             queryClient.invalidateQueries({ queryKey: userKeys.all })
+            queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
           }, 1600)
         }
         return patchedPayload as WorkspaceCall
@@ -159,6 +162,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       await leaveRoom()
       setCall(null)
       queryClient.invalidateQueries({ queryKey: userKeys.all })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
     }
   }, [call, leaveRoom, queryClient])
 
