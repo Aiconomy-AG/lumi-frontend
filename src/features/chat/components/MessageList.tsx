@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Conversation, Message } from '@/types/chat'
 import { formatDateSeparator, isSameDay } from '../utils'
+import type { MessageReactionAction } from './MessageReactions'
 import { MessageBubble, shouldShowGroupMessageMeta } from './MessageBubble'
 import { CallLogBubble } from './CallLogBubble'
 
@@ -14,6 +15,7 @@ interface MessageListProps {
     isLoading: boolean
     isError: boolean
     onRetry?: () => void
+    onReact?: (message: Message, emoji: string, action: MessageReactionAction) => void
 }
 
 export function MessageList({
@@ -23,6 +25,7 @@ export function MessageList({
     isLoading,
     isError,
     onRetry,
+    onReact,
 }: MessageListProps) {
     const { t, i18n } = useTranslation()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -135,6 +138,7 @@ export function MessageList({
                             showSenderName={groupMeta?.showSenderName ?? false}
                             showAvatar={groupMeta?.showAvatar ?? false}
                             currentUserId={currentUserId}
+                            onReact={onReact}
                         />
                     </div>
                 )

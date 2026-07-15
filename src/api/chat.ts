@@ -45,6 +45,28 @@ export async function sendMessage(conversationId: number, message: string): Prom
   })
 }
 
+export async function reactToMessage(
+  conversationId: number,
+  messageId: number,
+  emoji: string
+): Promise<Message> {
+  return requestData<Message>(`/workspace/conversations/${conversationId}/messages/${messageId}/reactions`, {
+    method: 'POST',
+    data: { emoji },
+  })
+}
+
+export async function unreactToMessage(
+  conversationId: number,
+  messageId: number,
+  emoji: string
+): Promise<Message> {
+  return requestData<Message>(`/workspace/conversations/${conversationId}/messages/${messageId}/reactions`, {
+    method: 'DELETE',
+    data: { emoji },
+  })
+}
+
 export async function approveAiAction(conversationId: number, actionId: number): Promise<void> {
   await requestData(`/workspace/conversations/${conversationId}/ai-actions/${actionId}/approve`, {
     method: 'POST',

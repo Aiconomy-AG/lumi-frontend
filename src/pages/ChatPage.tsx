@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import type { Conversation } from '@/types/chat'
+import type { Conversation, Message } from '@/types/chat'
 import type { User } from '@/types/user'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useUsersQuery } from '@/features/users'
@@ -10,6 +10,7 @@ import {
     useCreateConversationMutation,
     useMessagesQuery,
     useSendMessageMutation,
+    useToggleMessageReactionMutation,
     useUpdateConversationMutation,
 } from '@/features/chat'
 import { ChatComposer } from '@/features/chat/components/ChatComposer'
@@ -17,6 +18,7 @@ import { ChatHeader } from '@/features/chat/components/ChatHeader'
 import { ChatLayout } from '@/features/chat/components/ChatLayout'
 import { ChatSidebar } from '@/features/chat/components/ChatSidebar'
 import { MessageList } from '@/features/chat/components/MessageList'
+import type { MessageReactionAction } from '@/features/chat/components/MessageReactions'
 import { useMediaQuery } from '@/features/chat/hooks/useMediaQuery'
 import { canCallWorkspaceUser, getDirectParticipant, MESSAGE_MAX_LENGTH } from '@/features/chat/utils'
 import { useCalls } from '@/features/calls'
@@ -51,13 +53,14 @@ export default function ChatPage() {
         isLoading: isMessagesLoading,
         isError: isMessagesError,
         refetch: refetchMessages,
-    } = useMessagesQuery(activeConversationId)
+    } = useMessagesQuery(activeConversationId, user?.id)
 
-    useConversationMessagesRealtime(activeConversationId)
+    useConversationMessagesRealtime(activeConversationId, user?.id)
 
     const createMutation = useCreateConversationMutation()
     const updateMutation = useUpdateConversationMutation(activeConversationId)
     const sendMutation = useSendMessageMutation(activeConversationId, user?.id)
+    const reactionMutation = useToggleMessageReactionMutation(activeConversationId, user?.id)
 
     const people = useMemo(
         () =>
@@ -183,6 +186,11 @@ export default function ChatPage() {
         }
     }
 
+    function handleReact(message: Message, emoji: string, action: MessageReactionAction) {
+        if (activeConversationId === null || !user?.id || message.id < 0) return
+        reactionMutation.mutate({ message, emoji, action })
+    }
+
     function handleSelectConversation(conversation: Conversation) {
         openConversation(conversation.id)
     }
@@ -233,6 +241,7 @@ export default function ChatPage() {
                 isLoading={isMessagesLoading}
                 isError={isMessagesError}
                 onRetry={() => void refetchMessages()}
+                onReact={handleReact}
             />
             <ChatComposer
                 key={activeConversationId ?? 'none'}

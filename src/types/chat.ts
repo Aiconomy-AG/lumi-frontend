@@ -27,7 +27,14 @@ export interface Message {
     type?: 'text' | 'ai_action'
     meta?: AiActionMeta
     call?: WorkspaceCall
+    reactions?: MessageReaction[]
     sent_at: string
+}
+
+export interface MessageReaction {
+    emoji: string
+    count: number
+    user_ids: number[]
 }
 
 export type AiActionStatus =
