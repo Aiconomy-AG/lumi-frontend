@@ -23,6 +23,7 @@ interface MessageBubbleProps {
     currentUserId?: number
     participantsById: ReadonlyMap<number, User>
     onReact?: (message: Message, emoji: string, action: MessageReactionAction) => void
+    onOpenProfile?: (userId: number) => void
 }
 
 const senderTextColors = [
@@ -48,17 +49,30 @@ export const MessageBubble = memo(function MessageBubble({
     currentUserId,
     participantsById,
     onReact,
+    onOpenProfile,
 }: MessageBubbleProps) {
     const { i18n, t } = useTranslation()
     const isBot = sender?.is_bot === true
     const isAiAction = message.type === 'ai_action' && message.meta
     const image = message.message_type === 'image' ? message.image : undefined
+    const canOpenProfile = Boolean(onOpenProfile) && sender !== undefined && !isBot
 
     return (
         <div className={`group relative flex gap-2 ${fromMe ? 'justify-end' : 'justify-start'}`}>
             {!fromMe && (isGroup || isBot) ? (
                 showAvatar || isBot ? (
-                    <ChatAvatar user={sender} className="mt-5 h-7 w-7" />
+                    canOpenProfile ? (
+                        <button
+                            type="button"
+                            onClick={() => onOpenProfile!(sender!.id)}
+                            aria-label={t('chat.viewProfile', { name: sender!.name })}
+                            className="mt-5 shrink-0 rounded-full transition-opacity hover:opacity-80"
+                        >
+                            <ChatAvatar user={sender} className="h-7 w-7" />
+                        </button>
+                    ) : (
+                        <ChatAvatar user={sender} className="mt-5 h-7 w-7" />
+                    )
                 ) : (
                     <div className="w-7 shrink-0" />
                 )
@@ -67,9 +81,10 @@ export const MessageBubble = memo(function MessageBubble({
             <div className={`flex flex-col ${fromMe ? 'items-end' : 'items-start'}`}>
                 {(showSenderName || isBot) && sender && !fromMe && (
                     <span
+                        onClick={canOpenProfile ? () => onOpenProfile!(sender.id) : undefined}
                         className={`mb-1 flex items-center gap-1.5 px-1 text-xs font-semibold ${
                             isBot ? 'text-cyan-400' : senderTextColorFor(sender.id)
-                        }`}
+                        } ${canOpenProfile ? 'cursor-pointer hover:underline' : ''}`}
                     >
                         {sender.name}
                         {isBot && (

@@ -240,7 +240,11 @@
     "imageUnavailable": "Imagine indisponibilă",
     "imageTypeError": "Sunt acceptate doar imagini JPG, PNG, WebP și GIF.",
     "imageSizeError": "Imaginile trebuie să aibă cel mult 10 MB.",
-    "photoMessage": "Fotografie"
+    "photoMessage": "Fotografie",
+    "viewProfile": "Vezi profilul lui {{name}}",
+    "profileTitle": "Profil",
+    "profileNotEnabled": "Încă neactivat",
+    "profileDeactivated": "Dezactivat"
   },
   "admin": {
     "usersCount": "{{count}} utilizatori",

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUsersQuery } from '@/features/users'
 import { useTasksQuery } from '@/features/tasks'
@@ -12,6 +12,8 @@ import { TaskFilters } from '@/components/ui/task-filters'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react'
 import { formatWorkspaceDate, getDashboardGreetingKey, getWorkspaceDateParts } from '@/lib/workspaceTime'
+import { UserProfileDialog } from '@/features/users/components/UserProfileDialog'
+import { useProfileDialog } from '@/features/users/useProfileDialog'
 
 export default function DashboardPage() {
     const { t, i18n } = useTranslation()
@@ -34,6 +36,8 @@ export default function DashboardPage() {
     const onlineUsersCount = users.filter(
         (currentUser) => currentUser.status === 'available' || currentUser.status === 'busy'
     ).length
+    const profileCandidates = useMemo(() => [users], [users])
+    const { profileUser, openProfile, closeProfile } = useProfileDialog(profileCandidates)
     const { data: listTasks = [], isLoading: isTasksLoading } = useTasksQuery()
     const { data: projects = [] } = useProjectsQuery()
 
@@ -64,6 +68,7 @@ export default function DashboardPage() {
     const paginatedTasks = myTasks.slice((page - 1) * perPage, page * perPage)
 
     return (
+        <>
         <div className="p-10 flex gap-5 w-full bg-zinc-950 h-full overflow-hidden">
             <div className="flex-[1.8] min-w-0 flex flex-col h-full">
                 <p className="text-xs text-zinc-500 mb-2 shrink-0">{formattedDate}</p>
@@ -183,19 +188,28 @@ export default function DashboardPage() {
                                             : user.status === 'away' ? 'bg-amber-500'
                                                 : 'bg-zinc-600'
                                 return (
-                                    <li key={user.id} className={`flex items-center w-full ${isUsersCollapsed ? 'justify-center' : 'gap-3'}`} title={isUsersCollapsed ? user.name : undefined}>
-                                        <div className={`relative w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 ${avatarColorFor(user.id)}`}>
-                                            {initialsOf(user.name)}
-                                            <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-zinc-950 ${dotColor}`}></div>
-                                        </div>
-                                        {!isUsersCollapsed && (
-                                            <div className="flex flex-col min-w-0">
-                                                <p className="text-xs font-medium text-zinc-200 m-0 truncate">{user.name}</p>
-                                                <p className="text-[11px] text-zinc-500 m-0 truncate">
-                                                    {t(`userStatus.${user.status}`)}
-                                                </p>
+                                    <li key={user.id} className="w-full" title={isUsersCollapsed ? user.name : undefined}>
+                                        <button
+                                            type="button"
+                                            onClick={() => openProfile(user.id)}
+                                            aria-label={t('chat.viewProfile', { name: user.name })}
+                                            className={`flex w-full items-center rounded-lg text-left transition-colors hover:bg-zinc-900/60 ${isUsersCollapsed ? 'justify-center' : 'gap-3 px-1 py-0.5'}`}
+                                        >
+                                            <div className={`relative w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 ${user.avatar_url ? 'bg-zinc-800' : avatarColorFor(user.id)}`}>
+                                                {user.avatar_url
+                                                    ? <img src={user.avatar_url} alt="" loading="lazy" className="h-full w-full rounded-full object-cover" />
+                                                    : initialsOf(user.name)}
+                                                <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-zinc-950 ${dotColor}`}></div>
                                             </div>
-                                        )}
+                                            {!isUsersCollapsed && (
+                                                <div className="flex flex-col min-w-0">
+                                                    <p className="text-xs font-medium text-zinc-200 m-0 truncate">{user.name}</p>
+                                                    <p className="text-[11px] text-zinc-500 m-0 truncate">
+                                                        {t(`userStatus.${user.status}`)}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </button>
                                     </li>
                                 )
                             })}
@@ -203,5 +217,11 @@ export default function DashboardPage() {
                 </div>
             </div>
         </div>
+        <UserProfileDialog
+            user={profileUser}
+            open={profileUser !== null}
+            onOpenChange={(open) => !open && closeProfile()}
+        />
+        </>
     )
 }

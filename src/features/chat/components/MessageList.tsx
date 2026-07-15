@@ -16,6 +16,7 @@ interface MessageListProps {
     isError: boolean
     onRetry?: () => void
     onReact?: (message: Message, emoji: string, action: MessageReactionAction) => void
+    onOpenProfile?: (userId: number) => void
 }
 
 export function MessageList({
@@ -26,6 +27,7 @@ export function MessageList({
     isError,
     onRetry,
     onReact,
+    onOpenProfile,
 }: MessageListProps) {
     const { t, i18n } = useTranslation()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -140,6 +142,7 @@ export function MessageList({
                             currentUserId={currentUserId}
                             participantsById={participantsById}
                             onReact={onReact}
+                            onOpenProfile={onOpenProfile}
                         />
                     </div>
                 )

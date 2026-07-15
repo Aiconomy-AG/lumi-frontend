@@ -240,7 +240,11 @@
     "imageUnavailable": "Bild nicht verfügbar",
     "imageTypeError": "Es werden nur JPG-, PNG-, WebP- und GIF-Bilder unterstützt.",
     "imageSizeError": "Bilder dürfen höchstens 10 MB groß sein.",
-    "photoMessage": "Foto"
+    "photoMessage": "Foto",
+    "viewProfile": "Profil von {{name}} ansehen",
+    "profileTitle": "Profil",
+    "profileNotEnabled": "Noch nicht aktiviert",
+    "profileDeactivated": "Deaktiviert"
   },
   "admin": {
     "usersCount": "{{count}} Benutzer",

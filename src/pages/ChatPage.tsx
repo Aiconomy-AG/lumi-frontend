@@ -21,6 +21,8 @@ import { ChatLayout } from '@/features/chat/components/ChatLayout'
 import { ChatSidebar } from '@/features/chat/components/ChatSidebar'
 import { MessageList } from '@/features/chat/components/MessageList'
 import type { MessageReactionAction } from '@/features/chat/components/MessageReactions'
+import { UserProfileDialog } from '@/features/users/components/UserProfileDialog'
+import { useProfileDialog } from '@/features/users/useProfileDialog'
 import { useMediaQuery } from '@/features/chat/hooks/useMediaQuery'
 import { canCallWorkspaceUser, getDirectParticipant, MESSAGE_MAX_LENGTH } from '@/features/chat/utils'
 import { useCalls } from '@/features/calls'
@@ -120,6 +122,12 @@ export default function ChatPage() {
         })
         openConversation(conversation.id)
     }
+
+    const profileCandidates = useMemo(
+        () => [activeConversation?.participants ?? [], users],
+        [activeConversation, users]
+    )
+    const { profileUser, openProfile, closeProfile } = useProfileDialog(profileCandidates)
 
     const userIdFromSearch = searchParams.get('user')
 
@@ -251,6 +259,7 @@ export default function ChatPage() {
                 conversation={activeConversation}
                 currentUserId={user?.id}
                 users={users}
+                onOpenProfile={openProfile}
                 showBackButton={!isDesktop && !mobileShowSidebar}
                 isUpdatingGroup={updateMutation.isPending}
                 onBack={handleBackToList}
@@ -273,6 +282,7 @@ export default function ChatPage() {
                 isError={isMessagesError}
                 onRetry={() => void refetchMessages()}
                 onReact={handleReact}
+                onOpenProfile={openProfile}
             />
             <ChatComposer
                 key={activeConversationId ?? 'none'}
@@ -285,10 +295,17 @@ export default function ChatPage() {
     )
 
     return (
-        <ChatLayout
-            sidebar={sidebar}
-            thread={thread}
-            showSidebar={isDesktop || mobileShowSidebar}
-        />
+        <>
+            <ChatLayout
+                sidebar={sidebar}
+                thread={thread}
+                showSidebar={isDesktop || mobileShowSidebar}
+            />
+            <UserProfileDialog
+                user={profileUser}
+                open={profileUser !== null}
+                onOpenChange={(open) => !open && closeProfile()}
+            />
+        </>
     )
 }

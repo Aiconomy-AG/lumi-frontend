@@ -17,6 +17,7 @@ interface ChatHeaderProps {
     isLeavingGroup?: boolean
     isDeletingGroup?: boolean
     onBack?: () => void
+    onOpenProfile?: (userId: number) => void
     onStartCall?: (type: 'audio' | 'video') => void
     onUpdateGroup?: (payload: {
         name: string
@@ -37,6 +38,7 @@ export function ChatHeader({
     isLeavingGroup = false,
     isDeletingGroup = false,
     onBack,
+    onOpenProfile,
     onStartCall,
     onUpdateGroup,
     onLeaveGroup,
@@ -92,6 +94,15 @@ export function ChatHeader({
                         groupName={conversation.name}
                         className="h-11 w-11"
                     />
+                ) : directPerson && onOpenProfile ? (
+                    <button
+                        type="button"
+                        onClick={() => onOpenProfile(directPerson.id)}
+                        aria-label={t('chat.viewProfile', { name: directPerson.name })}
+                        className="shrink-0 rounded-full transition-opacity hover:opacity-80"
+                    >
+                        <ChatAvatar user={directPerson} showStatus className="h-10 w-10" />
+                    </button>
                 ) : (
                     <ChatAvatar user={directPerson} showStatus className="h-10 w-10" />
                 )}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ImageOff, Loader2, X } from 'lucide-react'
+import { ImageOff, Loader2 } from 'lucide-react'
+import { ImageLightbox } from '@/components/ImageLightbox'
 import type { MessageImage } from '@/types/chat'
 
 const MAX_BUBBLE_WIDTH = 280
@@ -71,29 +72,12 @@ export function MessageImageAttachment({ image, isPending = false }: MessageImag
                 )}
             </button>
 
-            {isExpanded && (
-                <div
-                    role="dialog"
-                    aria-modal="true"
-                    onClick={() => setIsExpanded(false)}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
-                >
-                    <button
-                        type="button"
-                        onClick={() => setIsExpanded(false)}
-                        aria-label={t('chat.closeImage')}
-                        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-                    >
-                        <X className="h-5 w-5" />
-                    </button>
-                    <img
-                        src={image.url}
-                        alt=""
-                        onClick={(event) => event.stopPropagation()}
-                        className="max-h-full max-w-full rounded-lg object-contain"
-                    />
-                </div>
-            )}
+            <ImageLightbox
+                src={image.url}
+                title={t('chat.openImage')}
+                open={isExpanded}
+                onOpenChange={setIsExpanded}
+            />
         </>
     )
 }
