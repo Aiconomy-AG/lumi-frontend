@@ -1,7 +1,9 @@
 import { Heart, ImageIcon, RefreshCw, TrendingUp } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { PaginationFooter } from '@/components/ui/pagination-footer'
 import {
   Table,
   TableBody,
@@ -31,6 +33,8 @@ function productSubtitle(product: MostWishlistedProduct): string {
 
 export default function AnalyticsPage() {
   const { t } = useTranslation()
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
   const {
     data: products = [],
     isLoading,
@@ -41,6 +45,15 @@ export default function AnalyticsPage() {
 
   const totalWishlistAdds = products.reduce((sum, product) => sum + product.wishlist_count, 0)
   const topProduct = products[0]
+  const lastPage = Math.max(1, Math.ceil(products.length / perPage))
+  const visibleProducts = useMemo(() => {
+    const start = (page - 1) * perPage
+    return products.slice(start, start + perPage)
+  }, [page, perPage, products])
+
+  useEffect(() => {
+    setPage((currentPage) => Math.min(currentPage, lastPage))
+  }, [lastPage])
 
   return (
     <div className="flex h-full flex-col gap-6 p-6">
@@ -97,75 +110,90 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
-        <Table containerClassName="max-h-full bg-zinc-900">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16 text-zinc-400">{t('analytics.columnRank')}</TableHead>
-              <TableHead className="text-zinc-400">{t('analytics.columnProduct')}</TableHead>
-              <TableHead className="text-zinc-400">{t('analytics.columnSku')}</TableHead>
-              <TableHead className="text-right text-zinc-400">{t('analytics.columnPrice')}</TableHead>
-              <TableHead className="text-right text-zinc-400">{t('analytics.columnWishlistCount')}</TableHead>
-            </TableRow>
-          </TableHeader>
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+          <Table containerClassName="max-h-full bg-zinc-900">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-16 text-zinc-400">{t('analytics.columnRank')}</TableHead>
+                <TableHead className="text-zinc-400">{t('analytics.columnProduct')}</TableHead>
+                <TableHead className="text-zinc-400">{t('analytics.columnSku')}</TableHead>
+                <TableHead className="text-right text-zinc-400">{t('analytics.columnPrice')}</TableHead>
+                <TableHead className="text-right text-zinc-400">{t('analytics.columnWishlistCount')}</TableHead>
+              </TableRow>
+            </TableHeader>
 
-          <TableBody>
-            {isLoading ? (
-              Array.from({ length: 6 }).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell colSpan={5}>
-                    <div className="h-12 animate-pulse rounded-md bg-zinc-800/70" />
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: perPage }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell colSpan={5}>
+                      <div className="h-12 animate-pulse rounded-md bg-zinc-800/70" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : isError ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-32 text-center text-sm text-red-400">
+                    {t('analytics.error')}
                   </TableCell>
                 </TableRow>
-              ))
-            ) : isError ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-sm text-red-400">
-                  {t('analytics.error')}
-                </TableCell>
-              </TableRow>
-            ) : products.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-sm text-zinc-400">
-                  {t('analytics.empty')}
-                </TableCell>
-              </TableRow>
-            ) : (
-              products.map((product, index) => (
-                <TableRow key={product.id} className="hover:bg-zinc-800/60">
-                  <TableCell className="font-medium text-zinc-400">#{index + 1}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-800 bg-zinc-950">
-                        {product.image_url ? (
-                          <img
-                            src={product.image_url}
-                            alt={product.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <ImageIcon className="h-4 w-4 text-zinc-600" />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-white">{product.name}</p>
-                        <p className="truncate text-xs text-zinc-500">{productSubtitle(product)}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-zinc-300">{product.sku || '-'}</TableCell>
-                  <TableCell className="text-right text-zinc-300">{formatPrice(product.price)}</TableCell>
-                  <TableCell className="text-right">
-                    <Badge className="gap-1 border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/10">
-                      <Heart className="h-3 w-3 fill-current" />
-                      {product.wishlist_count}
-                    </Badge>
+              ) : products.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-32 text-center text-sm text-zinc-400">
+                    {t('analytics.empty')}
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                visibleProducts.map((product, index) => (
+                  <TableRow key={product.id} className="hover:bg-zinc-800/60">
+                    <TableCell className="font-medium text-zinc-400">
+                      #{(page - 1) * perPage + index + 1}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-800 bg-zinc-950">
+                          {product.image_url ? (
+                            <img
+                              src={product.image_url}
+                              alt={product.name}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="h-4 w-4 text-zinc-600" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-white">{product.name}</p>
+                          <p className="truncate text-xs text-zinc-500">{productSubtitle(product)}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-zinc-300">{product.sku || '-'}</TableCell>
+                    <TableCell className="text-right text-zinc-300">{formatPrice(product.price)}</TableCell>
+                    <TableCell className="text-right">
+                      <Badge className="gap-1 border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/10">
+                        <Heart className="h-3 w-3 fill-current" />
+                        {product.wishlist_count}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {!isLoading && !isError && products.length > 0 && (
+          <PaginationFooter
+            page={page}
+            setPage={setPage}
+            perPage={perPage}
+            setPerPage={setPerPage}
+            lastPage={lastPage}
+            total={products.length}
+          />
+        )}
       </div>
     </div>
   )
