@@ -134,7 +134,7 @@ export function ChatHeader({
                         <button
                             type="button"
                             onClick={() => onStartCall('audio')}
-                            className="rounded-md p-2 text-purple-300 transition-colors hover:bg-purple-500/10 hover:text-purple-200"
+                            className="cursor-pointer rounded-md p-2 text-purple-300 transition-colors hover:bg-purple-500/10 hover:text-purple-200"
                             aria-label="Start audio call"
                         >
                             <Phone className="h-4 w-4" />
@@ -142,7 +142,7 @@ export function ChatHeader({
                         <button
                             type="button"
                             onClick={() => onStartCall('video')}
-                            className="rounded-md p-2 text-purple-300 transition-colors hover:bg-purple-500/10 hover:text-purple-200"
+                            className="cursor-pointer rounded-md p-2 text-purple-300 transition-colors hover:bg-purple-500/10 hover:text-purple-200"
                             aria-label="Start video call"
                         >
                             <Video className="h-4.5 w-4.5" />

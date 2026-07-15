@@ -1,5 +1,6 @@
-import { Maximize2, Mic, MicOff, Minimize2, Phone, PhoneOff } from 'lucide-react'
-import { VideoConference } from '@livekit/components-react'
+import { ActiveCall } from './ActiveCall'
+import { MinimizedCallWidget } from './MinimizedCallWidget'
+import { Mic, MicOff, Minimize2, Phone, PhoneOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -61,44 +62,26 @@ export function CallOverlay({
         ? `Lumi Workspace ${callTypeLabel} call`
         : 'Calling…'
 
+  const isGroup = (call as any).mode === 'group' || call.participants.length > 2
+
   if (minimized && call.status === 'active') {
     return (
-      <div className="fixed bottom-6 right-6 z-[100] flex w-72 flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-zinc-100 shadow-2xl transition-all hover:border-zinc-700">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-500/15 text-sm font-bold text-purple-300 ring-1 ring-purple-400/30">
-              {displayName.slice(0, 2).toUpperCase()}
-            </div>
-            <div className="min-w-0 overflow-hidden">
-              <p className="truncate font-medium">{displayName}</p>
-              <p className="truncate text-xs text-zinc-400">{durationSince(call.answered_at)}</p>
-            </div>
-          </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-white" onClick={onToggleMinimize} aria-label="Expand call">
-            <Maximize2 className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="flex justify-center gap-4">
-          <Button type="button" variant={muted ? 'secondary' : 'outline'} size="icon" className="h-10 w-10 rounded-full border-zinc-800" onClick={onToggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
-            {muted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-          </Button>
-          <Button type="button" variant="destructive" size="icon" className="h-10 w-10 rounded-full" onClick={onEnd} aria-label="End call">
-            <PhoneOff className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      <MinimizedCallWidget
+        onMaximize={onToggleMinimize}
+        onEnd={onEnd}
+      />
     )
   }
 
   // If this is a fullscreen active call that is video or group, use LiveKit's built-in VideoConference layout
-  if (!minimized && (call.status === 'active' || (isCaller && call.status === 'ringing')) && isVideoOrGroup) {
+  if (!minimized && (call.status === 'active' || (isCaller && call.status === 'ringing'))) {
     return (
-      <div className="fixed inset-0 z-[100] bg-zinc-950">
-        <Button variant="ghost" size="icon" className="absolute right-6 top-6 z-[110] text-zinc-400 hover:text-white" onClick={onToggleMinimize} aria-label="Minimize call">
-          <Minimize2 className="h-6 w-6" />
-        </Button>
-        <VideoConference />
-      </div>
+      <ActiveCall 
+        call={call} 
+        isGroup={isGroup} 
+        onToggleMinimize={onToggleMinimize} 
+        onLeave={onEnd} 
+      />
     )
   }
 

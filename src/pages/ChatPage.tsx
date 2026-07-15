@@ -263,10 +263,7 @@ export default function ChatPage() {
                 showBackButton={!isDesktop && !mobileShowSidebar}
                 isUpdatingGroup={updateMutation.isPending}
                 onBack={handleBackToList}
-                onStartCall={canStartCall ? (type) => {
-                    const otherUserIds = activeConversation?.participants.filter(p => p.id !== user?.id).map(p => p.id) || []
-                    void startCall(activeConversation!.id, type, otherUserIds)
-                } : undefined}
+                onStartCall={canStartCall ? (type) => void startCall(activeConversation!.id, type) : undefined}
                 onUpdateGroup={activeConversation?.type === 'group' ? handleUpdateGroup : undefined}
                 onLeaveGroup={activeConversation?.type === 'group' ? handleLeaveGroup : undefined}
                 onDeleteGroup={canDeleteActiveGroup ? handleDeleteGroup : undefined}
