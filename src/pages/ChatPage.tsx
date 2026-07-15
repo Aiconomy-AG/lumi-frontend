@@ -251,14 +251,14 @@ export default function ChatPage() {
     const directParticipant = activeConversation ? getDirectParticipant(activeConversation, user?.id) : null
     const canStartCall = activeConversation
         ? activeConversation.type === 'direct'
-            ? canCallWorkspaceUser(user) && canCallWorkspaceUser(directParticipant)
+            ? canCallWorkspaceUser(user) && canCallWorkspaceUser(directParticipant) && directParticipant?.status !== 'busy'
             : canCallWorkspaceUser(user)
         : false
         
     const calleeIds = useMemo(() => {
         if (!activeConversation || !user) return []
         return activeConversation.participants
-            .filter(p => p.id !== user.id && canCallWorkspaceUser(p))
+            .filter(p => p.id !== user.id && p.status !== 'busy' && canCallWorkspaceUser(p))
             .map(p => p.id)
     }, [activeConversation, user])
 

@@ -11,6 +11,7 @@ import { CallOverlay } from './CallOverlay'
 import { callKeys } from './queryKeys'
 import { userKeys } from '@/features/users/queryKeys'
 import { chatKeys } from '@/features/chat/queryKeys'
+import { authKeys } from '@/features/auth/queryKeys'
 
 const TERMINAL = new Set(['declined', 'cancelled', 'missed', 'ended', 'failed'])
 
@@ -70,6 +71,8 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     const channel = echo.private(channelName)
 
     channel.listen('.call.ringing', (payload: WorkspaceCall) => {
+      if (payload.initiated_by_user_id !== user.id && user.status === 'busy') return
+      
       setError(null)
       setCall((current) => {
         if (!current || current.id !== payload.id) return payload
@@ -97,6 +100,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
             setCall(null)
             queryClient.invalidateQueries({ queryKey: userKeys.all })
             queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+            queryClient.invalidateQueries({ queryKey: authKeys.me() })
           }, 1200)
         } else if (
           patchedPayload.status === 'active' &&
@@ -111,6 +115,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
             setCall(null)
             queryClient.invalidateQueries({ queryKey: userKeys.all })
             queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+            queryClient.invalidateQueries({ queryKey: authKeys.me() })
           }, 1600)
         }
         return patchedPayload as WorkspaceCall
@@ -161,8 +166,11 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     } finally {
       await leaveRoom()
       setCall(null)
-      queryClient.invalidateQueries({ queryKey: userKeys.all })
-      queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+      window.setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: userKeys.all })
+        queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+        queryClient.invalidateQueries({ queryKey: authKeys.me() })
+      }, 1200)
     }
   }, [call, leaveRoom, queryClient])
 
