@@ -267,11 +267,17 @@ export function useDeleteConversationMutation(conversationId: number | null) {
   })
 }
 
+export interface SendMessageVariables {
+  text: string
+  image?: File
+}
+
 export function useSendMessageMutation(conversationId: number | null, currentUserId?: number) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (text: string) => sendMessage(conversationId!, text),
-    onMutate: async (text) => {
+    mutationFn: ({ text, image }: SendMessageVariables) =>
+      sendMessage(conversationId!, { message: text || undefined, image }),
+    onMutate: async ({ text, image }) => {
       if (conversationId === null) {
         return
       }
@@ -279,12 +285,24 @@ export function useSendMessageMutation(conversationId: number | null, currentUse
       await queryClient.cancelQueries({ queryKey: chatKeys.messages(conversationId) })
 
       const previousMessages = queryClient.getQueryData<Message[]>(chatKeys.messages(conversationId))
+      const localPreviewUrl = image ? URL.createObjectURL(image) : undefined
       const optimisticMessage: Message = {
         id: -Date.now(),
         conversation_id: conversationId,
         sender_id: currentUserId ?? 0,
-        message: text,
+        message: text || null,
+        message_type: image ? 'image' : 'text',
         type: 'text',
+        image: localPreviewUrl
+          ? {
+              url: localPreviewUrl,
+              thumb_url: localPreviewUrl,
+              width: null,
+              height: null,
+              size: image?.size ?? null,
+              mime: image?.type ?? null,
+            }
+          : undefined,
         reactions: [],
         sent_at: new Date().toISOString(),
       }
@@ -294,9 +312,14 @@ export function useSendMessageMutation(conversationId: number | null, currentUse
         (currentMessages) => upsertMessage(currentMessages, optimisticMessage)
       )
 
-      return { optimisticMessage, previousMessages }
+      return { optimisticMessage, previousMessages, localPreviewUrl }
     },
-    onSuccess: (message, _text, context) => {
+    onSettled: (_message, _error, _variables, context) => {
+      if (context?.localPreviewUrl) {
+        URL.revokeObjectURL(context.localPreviewUrl)
+      }
+    },
+    onSuccess: (message, _variables, context) => {
       queryClient.setQueryData<Message[] | undefined>(
         chatKeys.messages(conversationId),
         (currentMessages) => {
@@ -308,7 +331,7 @@ export function useSendMessageMutation(conversationId: number | null, currentUse
       )
       void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
     },
-    onError: (_error, _text, context) => {
+    onError: (_error, _variables, context) => {
       if (conversationId === null) {
         return
       }

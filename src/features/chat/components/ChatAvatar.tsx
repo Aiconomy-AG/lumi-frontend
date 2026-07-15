@@ -1,9 +1,10 @@
+import { useEffect, useState } from 'react'
 import { Bot, Users } from 'lucide-react'
 import type { User } from '@/types/user'
 import { avatarColorFor, initialsFor, statusDotColors } from '../utils'
 
 interface AvatarProps {
-    user?: (Pick<User, 'id' | 'name' | 'status'> | Pick<User, 'id' | 'name'>) & { is_bot?: boolean } | null
+    user?: (Pick<User, 'id' | 'name' | 'status'> | Pick<User, 'id' | 'name'>) & { is_bot?: boolean; avatar_url?: string | null } | null
     label?: string
     showStatus?: boolean
     className?: string
@@ -13,6 +14,12 @@ export function ChatAvatar({ user, label, showStatus = false, className = 'h-9 w
     const displayName = user?.name ?? label ?? '?'
     const colorId = user?.id ?? displayName.length
     const isBot = user?.is_bot === true
+    const avatarUrl = user?.avatar_url
+    const [imageFailed, setImageFailed] = useState(false)
+
+    useEffect(() => {
+        setImageFailed(false)
+    }, [avatarUrl])
 
     if (isBot) {
         return (
@@ -24,11 +31,25 @@ export function ChatAvatar({ user, label, showStatus = false, className = 'h-9 w
         )
     }
 
+    const showImage = Boolean(avatarUrl) && !imageFailed
+
     return (
         <div
-            className={`relative flex shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white ${avatarColorFor(colorId)} ${className}`}
+            className={`relative flex shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white ${
+                showImage ? 'bg-zinc-800' : avatarColorFor(colorId)
+            } ${className}`}
         >
-            {initialsFor(displayName)}
+            {showImage ? (
+                <img
+                    src={avatarUrl!}
+                    alt={displayName}
+                    loading="lazy"
+                    onError={() => setImageFailed(true)}
+                    className="h-full w-full rounded-full object-cover"
+                />
+            ) : (
+                initialsFor(displayName)
+            )}
             {showStatus && user && 'status' in user && user.status && (
                 <span
                     className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-zinc-950 ${statusDotColors[user.status]}`}
@@ -39,7 +60,7 @@ export function ChatAvatar({ user, label, showStatus = false, className = 'h-9 w
 }
 
 interface GroupAvatarProps {
-    participants: Pick<User, 'id' | 'name'>[]
+    participants: Pick<User, 'id' | 'name' | 'avatar_url'>[]
     groupName?: string
     className?: string
 }

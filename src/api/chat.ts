@@ -50,10 +50,34 @@ export async function deleteConversation(conversationId: number): Promise<void> 
   })
 }
 
-export async function sendMessage(conversationId: number, message: string): Promise<Message> {
-  return requestData<Message>(`/workspace/conversations/${conversationId}/messages`, {
+export interface SendMessagePayload {
+  message?: string
+  image?: File
+}
+
+export async function sendMessage(
+  conversationId: number,
+  payload: SendMessagePayload
+): Promise<Message> {
+  const path = `/workspace/conversations/${conversationId}/messages`
+
+  if (!payload.image) {
+    return requestData<Message>(path, {
+      method: 'POST',
+      data: { message: payload.message },
+    })
+  }
+
+  const form = new FormData()
+  form.append('image', payload.image)
+  if (payload.message) {
+    form.append('message', payload.message)
+  }
+
+  return requestData<Message>(path, {
     method: 'POST',
-    data: { message },
+    data: form,
+    headers: { 'Content-Type': 'multipart/form-data' },
   })
 }
 

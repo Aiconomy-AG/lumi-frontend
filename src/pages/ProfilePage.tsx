@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Loader2 } from 'lucide-react'
 import { avatarColorFor } from "@/components/ui/task-card"
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { updateMyPhone } from '@/api/auth'
+import { deleteMyAvatar, updateMyPhone, uploadMyAvatar } from '@/api/auth'
 import { updatePassword } from '@/api/users'
 import { authKeys } from '@/features/auth/queryKeys'
+import { chatKeys } from '@/features/chat/queryKeys'
+import { AVATAR_MAX_BYTES, IMAGE_ACCEPT_ATTRIBUTE, isAcceptedImage } from '@/features/chat/utils'
 import { STATUS_TEXT_COLOR, type User, type UserStatus } from '@/types/user'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
@@ -27,6 +30,7 @@ export default function ProfilePage() {
     const queryClient = useQueryClient()
     const { user, logout, updateStatus } = useAuth()
 
+    const avatarInputRef = useRef<HTMLInputElement>(null)
     const [isEditOpen, setIsEditOpen] = useState(false)
     const [phone, setPhone] = useState('')
     const [currentPassword, setCurrentPassword] = useState('')
@@ -78,6 +82,48 @@ export default function ProfilePage() {
         }
     })
 
+    const avatarMutation = useMutation({
+        mutationFn: (file: File) => uploadMyAvatar(file),
+        onSuccess: (updated) => {
+            queryClient.setQueryData<User>(authKeys.me(), (prev) =>
+                prev ? { ...prev, avatar_url: updated.avatar_url } : prev
+            )
+            void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+        },
+        onError: (err: any) => {
+            alert(err?.response?.data?.message || t('profile.avatarUploadFailed'))
+        },
+    })
+
+    const removeAvatarMutation = useMutation({
+        mutationFn: () => deleteMyAvatar(),
+        onSuccess: (updated) => {
+            queryClient.setQueryData<User>(authKeys.me(), (prev) =>
+                prev ? { ...prev, avatar_url: updated.avatar_url } : prev
+            )
+            void queryClient.invalidateQueries({ queryKey: chatKeys.conversations })
+        },
+        onError: (err: any) => {
+            alert(err?.response?.data?.message || t('profile.avatarUploadFailed'))
+        },
+    })
+
+    const handleAvatarSelected = (file: File | undefined) => {
+        if (!file) return
+
+        if (!isAcceptedImage(file)) {
+            alert(t('profile.avatarTypeError'))
+            return
+        }
+
+        if (file.size > AVATAR_MAX_BYTES) {
+            alert(t('profile.avatarSizeError'))
+            return
+        }
+
+        avatarMutation.mutate(file)
+    }
+
     const handleSavePhone = (e: React.FormEvent) => {
         e.preventDefault()
         const trimmed = phone.trim()
@@ -102,6 +148,7 @@ export default function ProfilePage() {
     }
 
     const initials = user.name.split(' ').map((w) => w[0]).join('').toUpperCase()
+    const isAvatarBusy = avatarMutation.isPending || removeAvatarMutation.isPending
 
     return (
         <div className="p-10 max-w-120 mx-auto w-full">
@@ -115,12 +162,51 @@ export default function ProfilePage() {
             </Button>
 
             <div className="flex items-center gap-4 mb-8">
-                <div className={`flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold text-white select-none ${user ? avatarColorFor(user.id) : 'bg-purple-400'}`}>
-                    {initials}
+                <div className="relative">
+                    <div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-lg font-bold text-white select-none ${user.avatar_url ? 'bg-zinc-800' : avatarColorFor(user.id)}`}>
+                        {user.avatar_url
+                            ? <img src={user.avatar_url} alt={user.name} className="h-full w-full object-cover" />
+                            : initials}
+                    </div>
+                    {isAvatarBusy && (
+                        <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+                            <Loader2 className="h-4 w-4 animate-spin text-white" />
+                        </span>
+                    )}
                 </div>
-                <div>
+                <div className="min-w-0">
                     <h2 className="text-xl font-bold text-white m-0">{user.name}</h2>
                     <p className="text-xs text-zinc-500 mt-1">{user.email}</p>
+                    <div className="mt-2 flex items-center gap-3">
+                        <input
+                            ref={avatarInputRef}
+                            type="file"
+                            accept={IMAGE_ACCEPT_ATTRIBUTE}
+                            className="hidden"
+                            onChange={(e) => {
+                                handleAvatarSelected(e.target.files?.[0])
+                                e.target.value = ''
+                            }}
+                        />
+                        <button
+                            type="button"
+                            disabled={isAvatarBusy}
+                            onClick={() => avatarInputRef.current?.click()}
+                            className="text-xs font-medium text-purple-400 hover:text-purple-300 disabled:opacity-50"
+                        >
+                            {user.avatar_url ? t('profile.changePhoto') : t('profile.addPhoto')}
+                        </button>
+                        {user.avatar_url && (
+                            <button
+                                type="button"
+                                disabled={isAvatarBusy}
+                                onClick={() => removeAvatarMutation.mutate()}
+                                className="text-xs font-medium text-zinc-500 hover:text-zinc-300 disabled:opacity-50"
+                            >
+                                {t('profile.removePhoto')}
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
 

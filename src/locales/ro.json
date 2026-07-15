@@ -232,7 +232,15 @@
     "confirmLeaveGroupAction": "Părăsește",
     "confirmDeleteGroupAction": "Șterge",
     "leavingGroup": "Se părăsește…",
-    "deletingGroup": "Se șterge…"
+    "deletingGroup": "Se șterge…",
+    "attachImage": "Atașează imagine",
+    "removeImage": "Elimină imaginea",
+    "openImage": "Deschide imaginea",
+    "closeImage": "Închide imaginea",
+    "imageUnavailable": "Imagine indisponibilă",
+    "imageTypeError": "Sunt acceptate doar imagini JPG, PNG, WebP și GIF.",
+    "imageSizeError": "Imaginile trebuie să aibă cel mult 10 MB.",
+    "photoMessage": "Fotografie"
   },
   "admin": {
     "usersCount": "{{count}} utilizatori",
@@ -287,7 +295,13 @@
     "currentPassword": "Parola curentă",
     "newPassword": "Parolă nouă",
     "confirmPassword": "Confirmă parola nouă",
-    "savePassword": "Actualizează parola"
+    "savePassword": "Actualizează parola",
+    "addPhoto": "Adaugă fotografie",
+    "changePhoto": "Schimbă fotografia",
+    "removePhoto": "Elimină",
+    "avatarUploadFailed": "Fotografia nu a putut fi actualizată.",
+    "avatarTypeError": "Sunt acceptate doar imagini JPG, PNG și WebP.",
+    "avatarSizeError": "Fotografia trebuie să aibă cel mult 4 MB."
   },
   "userStatus": {
     "available": "Disponibil",

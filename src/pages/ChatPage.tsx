@@ -184,10 +184,10 @@ export default function ChatPage() {
         await updateMutation.mutateAsync(updates)
     }
 
-    async function handleSend(text: string) {
-        if (!text || activeConversationId === null || text.length > MESSAGE_MAX_LENGTH) return false
+    async function handleSend(text: string, image?: File) {
+        if ((!text && !image) || activeConversationId === null || text.length > MESSAGE_MAX_LENGTH) return false
         try {
-            await sendMutation.mutateAsync(text)
+            await sendMutation.mutateAsync({ text, image })
             return true
         } catch {
             return false

@@ -1,11 +1,13 @@
 import type { User } from './user'
 import type { WorkspaceCall } from './call'
 
+export type MessageType = 'text' | 'image' | 'call' | 'system'
+
 export interface LastMessage {
-    message: string
+    message: string | null
     sender_id: number
     sent_at: string
-    message_type?: 'text' | 'call' | 'system'
+    message_type?: MessageType
 }
 
 export interface Conversation {
@@ -24,14 +26,24 @@ export interface MessageReaction {
     user_ids: number[]
 }
 
+export interface MessageImage {
+    url: string
+    thumb_url: string
+    width: number | null
+    height: number | null
+    size: number | null
+    mime: string | null
+}
+
 export interface Message {
     id: number
     conversation_id: number
     sender_id: number
-    message: string
-    message_type?: 'text' | 'call' | 'system'
+    message: string | null
+    message_type?: MessageType
     type?: 'text' | 'ai_action'
     meta?: AiActionMeta
+    image?: MessageImage
     call?: WorkspaceCall
     reactions?: MessageReaction[]
     sent_at: string

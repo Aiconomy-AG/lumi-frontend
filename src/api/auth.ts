@@ -34,6 +34,21 @@ export async function updateMyStatus(status: UserStatus): Promise<User> {
   })
 }
 
+export async function uploadMyAvatar(file: File): Promise<User> {
+  const form = new FormData()
+  form.append('avatar', file)
+
+  return requestData<User>('/auth/me/avatar', {
+    method: 'POST',
+    data: form,
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+
+export async function deleteMyAvatar(): Promise<User> {
+  return requestData<User>('/auth/me/avatar', { method: 'DELETE' })
+}
+
 export async function updateMyPhone(phoneNumber: string): Promise<{ phone_number: string }> {
   return request('/auth/phone', {
     method: 'PUT',

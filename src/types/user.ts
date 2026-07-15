@@ -16,6 +16,7 @@ export interface User {
   phone_number?: string
   status: UserStatus
   language_flag?: string
+  avatar_url?: string | null
   is_active: boolean
   must_change_password?: boolean
   is_bot?: boolean

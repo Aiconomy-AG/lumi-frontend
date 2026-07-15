@@ -5,6 +5,7 @@ import type { User } from '@/types/user'
 import { formatMessageTime } from '../utils'
 import { AiActionCard } from './AiActionCard'
 import { ChatAvatar } from './ChatAvatar'
+import { MessageImageAttachment } from './MessageImageAttachment'
 import { MessageMarkdown } from './MessageMarkdown'
 import {
     MessageReactionBadges,
@@ -51,6 +52,7 @@ export const MessageBubble = memo(function MessageBubble({
     const { i18n, t } = useTranslation()
     const isBot = sender?.is_bot === true
     const isAiAction = message.type === 'ai_action' && message.meta
+    const image = message.message_type === 'image' ? message.image : undefined
 
     return (
         <div className={`group relative flex gap-2 ${fromMe ? 'justify-end' : 'justify-start'}`}>
@@ -100,10 +102,15 @@ export const MessageBubble = memo(function MessageBubble({
                                 meta={message.meta!}
                                 currentUserId={currentUserId}
                             />
-                        ) : isBot ? (
-                            <MessageMarkdown content={message.message} />
                         ) : (
-                            <p className="whitespace-pre-wrap break-words">{message.message}</p>
+                            <>
+                                {image && <MessageImageAttachment image={image} isPending={message.id < 0} />}
+                                {message.message
+                                    ? isBot
+                                        ? <MessageMarkdown content={message.message} />
+                                        : <p className="whitespace-pre-wrap break-words">{message.message}</p>
+                                    : null}
+                            </>
                         )}
                         <span className={`mt-1 block text-right text-[11px] ${fromMe ? 'text-purple-100' : 'text-zinc-500'}`}>
                             {formatMessageTime(message.sent_at, i18n.language)}

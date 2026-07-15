@@ -25,7 +25,7 @@ export const ConversationRow = memo(function ConversationRow({ conversation, cur
     const title = getConversationTitle(conversation, currentUserId)
     const directPerson = getDirectParticipant(conversation, currentUserId)
     const preview =
-        getLastMessagePreview(conversation, conversation.participants, currentUserId, t('chat.you')) ??
+        getLastMessagePreview(conversation, conversation.participants, currentUserId, t('chat.you'), t('chat.photoMessage')) ??
         (isGroup ? t('chat.groupNoMessages') : directPerson?.role ?? t('chat.noMessages'))
     const sentAt = conversation.last_message?.sent_at ?? conversation.last_message_at
 

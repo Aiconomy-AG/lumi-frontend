@@ -232,7 +232,15 @@
     "confirmLeaveGroupAction": "Verlassen",
     "confirmDeleteGroupAction": "Löschen",
     "leavingGroup": "Wird verlassen…",
-    "deletingGroup": "Wird gelöscht…"
+    "deletingGroup": "Wird gelöscht…",
+    "attachImage": "Bild anhängen",
+    "removeImage": "Bild entfernen",
+    "openImage": "Bild öffnen",
+    "closeImage": "Bild schließen",
+    "imageUnavailable": "Bild nicht verfügbar",
+    "imageTypeError": "Es werden nur JPG-, PNG-, WebP- und GIF-Bilder unterstützt.",
+    "imageSizeError": "Bilder dürfen höchstens 10 MB groß sein.",
+    "photoMessage": "Foto"
   },
   "admin": {
     "usersCount": "{{count}} Benutzer",
@@ -287,7 +295,13 @@
     "currentPassword": "Aktuelles Passwort",
     "newPassword": "Neues Passwort",
     "confirmPassword": "Neues Passwort bestätigen",
-    "savePassword": "Passwort aktualisieren"
+    "savePassword": "Passwort aktualisieren",
+    "addPhoto": "Foto hinzufügen",
+    "changePhoto": "Foto ändern",
+    "removePhoto": "Entfernen",
+    "avatarUploadFailed": "Dein Foto konnte nicht aktualisiert werden.",
+    "avatarTypeError": "Es werden nur JPG-, PNG- und WebP-Bilder unterstützt.",
+    "avatarSizeError": "Dein Foto darf höchstens 4 MB groß sein."
   },
   "userStatus": {
     "available": "Verfügbar",

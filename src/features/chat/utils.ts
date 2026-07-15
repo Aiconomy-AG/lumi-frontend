@@ -3,6 +3,23 @@ import type { User, UserStatus } from '@/types/user'
 
 export const MESSAGE_MAX_LENGTH = 5000
 
+export const IMAGE_MAX_BYTES = 10 * 1024 * 1024
+
+export const AVATAR_MAX_BYTES = 4 * 1024 * 1024
+
+export const IMAGE_ACCEPTED_MIME_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+] as const
+
+export const IMAGE_ACCEPT_ATTRIBUTE = IMAGE_ACCEPTED_MIME_TYPES.join(',')
+
+export function isAcceptedImage(file: File) {
+    return (IMAGE_ACCEPTED_MIME_TYPES as readonly string[]).includes(file.type)
+}
+
 export const avatarColors = [
     'bg-sky-500',
     'bg-violet-500',
@@ -62,17 +79,25 @@ export function getLastMessagePreview(
     conversation: Conversation,
     participants: User[],
     currentUserId?: number,
-    youLabel = 'You'
+    youLabel = 'You',
+    photoLabel = 'Photo'
 ) {
     const lastMessage = conversation.last_message
     if (!lastMessage) return null
 
+    const body =
+        lastMessage.message_type === 'image'
+            ? `📷 ${lastMessage.message || photoLabel}`
+            : lastMessage.message
+
+    if (!body) return null
+
     if (lastMessage.message_type === 'system') {
-        return lastMessage.message
+        return body
     }
 
     if (conversation.type !== 'group') {
-        return lastMessage.message
+        return body
     }
 
     const sender = participants.find((participant) => participant.id === lastMessage.sender_id)
@@ -81,7 +106,7 @@ export function getLastMessagePreview(
             ? youLabel
             : sender?.name.split(' ')[0] ?? 'Someone'
 
-    return `${senderLabel}: ${lastMessage.message}`
+    return `${senderLabel}: ${body}`
 }
 
 export function getDirectParticipant(conversation: Conversation, currentUserId?: number) {

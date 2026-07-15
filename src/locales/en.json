@@ -232,7 +232,15 @@
     "confirmLeaveGroupAction": "Leave",
     "confirmDeleteGroupAction": "Delete",
     "leavingGroup": "Leaving…",
-    "deletingGroup": "Deleting…"
+    "deletingGroup": "Deleting…",
+    "attachImage": "Attach image",
+    "removeImage": "Remove image",
+    "openImage": "Open image",
+    "closeImage": "Close image",
+    "imageUnavailable": "Image unavailable",
+    "imageTypeError": "Only JPG, PNG, WebP and GIF images are supported.",
+    "imageSizeError": "Images must be 10 MB or smaller.",
+    "photoMessage": "Photo"
   },
   "admin": {
     "usersCount": "{{count}} users",
@@ -287,7 +295,13 @@
     "currentPassword": "Current Password",
     "newPassword": "New Password",
     "confirmPassword": "Confirm New Password",
-    "savePassword": "Update Password"
+    "savePassword": "Update Password",
+    "addPhoto": "Add photo",
+    "changePhoto": "Change photo",
+    "removePhoto": "Remove",
+    "avatarUploadFailed": "Failed to update your photo.",
+    "avatarTypeError": "Only JPG, PNG and WebP images are supported.",
+    "avatarSizeError": "Your photo must be 4 MB or smaller."
   },
   "userStatus": {
     "available": "Available",
