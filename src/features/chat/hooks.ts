@@ -331,19 +331,6 @@ export function useToggleMessageReactionMutation(conversationId: number | null, 
         return unreactToMessage(conversationId, message.id, emoji)
       }
 
-      const currentMessage =
-        queryClient.getQueryData<Message[]>(chatKeys.messages(conversationId))
-          ?.find((cachedMessage) => cachedMessage.id === message.id) ?? message
-      const existingUserEmojis = (currentMessage.reactions ?? [])
-        .filter((reaction) => reaction.user_ids.includes(currentUserId))
-        .map((reaction) => reaction.emoji)
-
-      for (const existingEmoji of existingUserEmojis) {
-        if (existingEmoji !== emoji) {
-          await unreactToMessage(conversationId, message.id, existingEmoji)
-        }
-      }
-
       return reactToMessage(conversationId, message.id, emoji)
     },
     onMutate: async ({ message, emoji, action }) => {
