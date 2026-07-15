@@ -302,21 +302,24 @@ export default function TaskDetailPage() {
                 <div className="mb-8">
                     <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">{t('taskDetail.assignedTo')}</h4>
                     <div className="flex items-center gap-3 flex-wrap">
-                        {task.assignees?.map(user => (
-                            <div key={user.id} className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300">
-                                <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-bold text-white ${avatarColorFor(user.id)}`}>
-                                    {initialsOf(user.name)}
-                                </span>
-                                {user.name}
-                                <button
-                                    onClick={() => handleToggleAssignee(user.id)}
-                                    className="ml-1 text-zinc-500 hover:text-rose-400 cursor-pointer border-none bg-transparent flex items-center justify-center p-0"
-                                    title="Unassign"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                        ))}
+                        {task.assignees?.map(rawUser => {
+                            const user = users.find(u => u.id === rawUser.id) || rawUser
+                            return (
+                                <div key={user.id} className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300">
+                                    <span className={`flex items-center overflow-hidden justify-center w-5 h-5 rounded-full text-[9px] font-bold text-white ${user.avatar_url ? 'bg-zinc-800' : avatarColorFor(user.id)}`}>
+                                        {user.avatar_url ? <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" /> : initialsOf(user.name)}
+                                    </span>
+                                    {user.name}
+                                    <button
+                                        onClick={() => handleToggleAssignee(user.id)}
+                                        className="ml-1 text-zinc-500 hover:text-rose-400 cursor-pointer border-none bg-transparent flex items-center justify-center p-0"
+                                        title="Unassign"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )
+                        })}
                         {(!task.assignees || task.assignees.length === 0) && (
                             <div className="text-xs text-zinc-500 italic">{t('taskDetail.unassigned')}</div>
                         )}
@@ -354,8 +357,8 @@ export default function TaskDetailPage() {
                                                 onClick={() => handleToggleAssignee(u.id)}
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${avatarColorFor(u.id)}`}>
-                                                        {initialsOf(u.name)}
+                                                    <div className={`w-8 h-8 overflow-hidden rounded-full flex items-center justify-center text-xs font-bold text-white ${u.avatar_url ? 'bg-zinc-800' : avatarColorFor(u.id)}`}>
+                                                        {u.avatar_url ? <img src={u.avatar_url} alt={u.name} className="w-full h-full object-cover" /> : initialsOf(u.name)}
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span className="text-sm font-medium">{u.name}</span>
@@ -505,8 +508,8 @@ export default function TaskDetailPage() {
                                             )}
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${user ? avatarColorFor(user.id) : 'bg-zinc-800'}`}>
-                                                    {user ? initialsOf(user.name) : '?'}
+                                                <div className={`w-8 h-8 overflow-hidden rounded-full flex items-center justify-center text-xs font-bold text-white ${user?.avatar_url ? 'bg-zinc-800' : user ? avatarColorFor(user.id) : 'bg-zinc-800'}`}>
+                                                    {user?.avatar_url ? <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" /> : (user ? initialsOf(user.name) : '?')}
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-medium text-zinc-200">{user?.name || 'Unknown User'}</span>

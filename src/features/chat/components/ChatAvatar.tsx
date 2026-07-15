@@ -98,7 +98,7 @@ export function GroupAvatar({ participants, groupName, className = 'h-10 w-10' }
                     {visible.slice(0, 2).map((participant, index) => (
                         <div
                             key={participant.id}
-                            className={`absolute flex h-5 w-5 items-center justify-center rounded-full border border-zinc-950 text-[8px] font-semibold text-white ${avatarColorFor(participant.id)}`}
+                            className={`absolute flex h-5 w-5 overflow-hidden items-center justify-center rounded-full border border-zinc-950 text-[8px] font-semibold text-white ${participant.avatar_url ? 'bg-zinc-800' : avatarColorFor(participant.id)}`}
                             style={{
                                 top: index === 0 ? 0 : 'auto',
                                 bottom: index === 1 ? 0 : 'auto',
@@ -106,7 +106,15 @@ export function GroupAvatar({ participants, groupName, className = 'h-10 w-10' }
                                 right: index === 1 ? 0 : 'auto',
                             }}
                         >
-                            {initialsFor(participant.name).charAt(0)}
+                            {participant.avatar_url ? (
+                                <img
+                                    src={participant.avatar_url}
+                                    alt={participant.name}
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                initialsFor(participant.name).charAt(0)
+                            )}
                         </div>
                     ))}
                     {visible.length > 2 && (

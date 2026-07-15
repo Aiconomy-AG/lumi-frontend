@@ -5,6 +5,10 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { WorkspaceCall } from '@/types/call'
+import { ChatAvatar } from '@/features/chat/components/ChatAvatar'
+import { useQueryClient } from '@tanstack/react-query'
+import { userKeys } from '@/features/users/queryKeys'
+import type { User } from '@/types/user'
 
 interface Props {
   call: WorkspaceCall
@@ -41,9 +45,15 @@ export function CallOverlay({
   onToggleMute,
   onToggleMinimize,
 }: Props) {
+  const queryClient = useQueryClient()
   const [, tick] = useState(0)
   const isCaller = call.initiated_by_user_id === currentUserId
   const other = call.participants.find((participant) => participant.user_id !== currentUserId)
+  
+  const users = queryClient.getQueryData<User[]>(userKeys.all)
+  const incoming = call.status === 'ringing' && !isCaller
+  const avatarUserId = incoming ? call.caller.id : other?.user_id ?? call.caller.id
+  const avatarUser = users?.find(u => u.id === avatarUserId)
 
   useEffect(() => {
     if (call.status !== 'active') return
@@ -51,7 +61,6 @@ export function CallOverlay({
     return () => window.clearInterval(timer)
   }, [call.status])
 
-  const incoming = call.status === 'ringing' && !isCaller
   const isVideoOrGroup = call.media_type === 'video' || (call as any).type === 'video' || (call as any).call_type === 'video' || (call as any).mode === 'group'
   
   const callTypeLabel = isVideoOrGroup ? 'video' : 'audio'
@@ -98,9 +107,10 @@ export function CallOverlay({
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-5 py-5">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-purple-500/15 text-2xl font-bold text-purple-300 ring-1 ring-purple-400/30">
-            {displayName.slice(0, 2).toUpperCase()}
-          </div>
+          <ChatAvatar 
+            user={avatarUser || { id: avatarUserId, name: displayName }} 
+            className="h-20 w-20 text-2xl" 
+          />
           <div className="text-center">
             <p className="text-lg font-semibold">{displayName}</p>
             <p className="mt-1 text-xs text-zinc-400">{subtitle}</p>
