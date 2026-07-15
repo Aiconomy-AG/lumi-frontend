@@ -37,6 +37,12 @@ export interface Message {
     sent_at: string
 }
 
+export interface MessageReaction {
+    emoji: string
+    count: number
+    user_ids: number[]
+}
+
 export type AiActionStatus =
     | 'pending'
     | 'approved'
