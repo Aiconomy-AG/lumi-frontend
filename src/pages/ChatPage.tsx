@@ -249,9 +249,11 @@ export default function ChatPage() {
     )
 
     const directParticipant = activeConversation ? getDirectParticipant(activeConversation, user?.id) : null
-    const canStartCall = activeConversation?.type === 'direct'
-        && canCallWorkspaceUser(user)
-        && canCallWorkspaceUser(directParticipant)
+    const canStartCall = activeConversation
+        ? activeConversation.type === 'direct'
+            ? canCallWorkspaceUser(user) && canCallWorkspaceUser(directParticipant)
+            : canCallWorkspaceUser(user)
+        : false
 
     const thread = (
         <>

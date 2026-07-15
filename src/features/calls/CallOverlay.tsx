@@ -9,6 +9,8 @@ import { ChatAvatar } from '@/features/chat/components/ChatAvatar'
 import { useQueryClient } from '@tanstack/react-query'
 import { userKeys } from '@/features/users/queryKeys'
 import type { User } from '@/types/user'
+import type { Conversation } from '@/types/chat'
+import { chatKeys } from '@/features/chat/queryKeys'
 
 interface Props {
   call: WorkspaceCall
@@ -54,6 +56,9 @@ export function CallOverlay({
   const incoming = call.status === 'ringing' && !isCaller
   const avatarUserId = incoming ? call.caller.id : other?.user_id ?? call.caller.id
   const avatarUser = users?.find(u => u.id === avatarUserId)
+  const conversations = queryClient.getQueryData<Conversation[]>(chatKeys.conversations)
+  const conversation = conversations?.find(c => c.id === call.conversation_id)
+  const isGroup = (call as any).mode === 'group' || call.participants.length > 2 || conversation?.type === 'group'
 
   useEffect(() => {
     if (call.status !== 'active') return
@@ -64,14 +69,16 @@ export function CallOverlay({
   const isVideoOrGroup = call.media_type === 'video' || (call as any).type === 'video' || (call as any).call_type === 'video' || (call as any).mode === 'group'
   
   const callTypeLabel = isVideoOrGroup ? 'video' : 'audio'
-  const displayName = incoming ? call.caller.name : other?.name ?? call.caller.name
+  let displayName = incoming ? call.caller.name : other?.name ?? call.caller.name
+  if (isGroup && conversation?.name) {
+    displayName = conversation.name
+  }
   const subtitle = call.status === 'active'
       ? `${durationSince(call.answered_at)} · ${connectionState}`
       : incoming
         ? `Lumi Workspace ${callTypeLabel} call`
         : 'Calling…'
 
-  const isGroup = (call as any).mode === 'group' || call.participants.length > 2
 
   if (minimized && call.status === 'active') {
     return (
