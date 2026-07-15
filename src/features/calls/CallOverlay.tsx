@@ -53,7 +53,8 @@ export function CallOverlay({
   const other = call.participants.find((participant) => participant.user_id !== currentUserId)
   
   const users = queryClient.getQueryData<User[]>(userKeys.all)
-  const incoming = call.status === 'ringing' && !isCaller
+  const isTerminal = ['declined', 'cancelled', 'missed', 'ended', 'failed'].includes(call.status)
+  const incoming = !isCaller && !call.connection && !isTerminal
   const avatarUserId = incoming ? call.caller.id : other?.user_id ?? call.caller.id
   const avatarUser = users?.find(u => u.id === avatarUserId)
   const conversations = queryClient.getQueryData<Conversation[]>(chatKeys.conversations)
@@ -73,11 +74,13 @@ export function CallOverlay({
   if (isGroup && conversation?.name) {
     displayName = conversation.name
   }
-  const subtitle = call.status === 'active'
+  const subtitle = (call.status === 'active' && call.connection)
       ? `${durationSince(call.answered_at)} · ${connectionState}`
       : incoming
         ? `Lumi Workspace ${callTypeLabel} call`
-        : 'Calling…'
+        : isTerminal
+          ? call.status.charAt(0).toUpperCase() + call.status.slice(1)
+          : 'Calling…'
 
 
   if (minimized && call.status === 'active' && call.connection) {
@@ -133,7 +136,13 @@ export function CallOverlay({
                 <Phone />
               </Button>
             </div>
-          ) : call.status === 'ringing' ? (
+          ) : isTerminal ? (
+            <div className="flex gap-8 opacity-50">
+              <Button type="button" variant="destructive" size="icon-lg" className="rounded-full" disabled>
+                <PhoneOff />
+              </Button>
+            </div>
+          ) : !call.connection ? (
             <Button type="button" variant="destructive" size="icon-lg" className="rounded-full" onClick={onCancel} aria-label="Cancel call">
               <PhoneOff />
             </Button>
